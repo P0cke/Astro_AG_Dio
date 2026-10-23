@@ -377,6 +377,10 @@ body.tdot #fade .wt b{font-size:clamp(18px,2.6vw,30px)}body.tdot #fade .wt span{
 .td-mb{display:flex;gap:1vw;margin-top:1vh}
 #td-free{font:800 clamp(16px,2vw,26px) system-ui,sans-serif;background:#13204a;color:#fff;border:2px solid #9fc8ff;border-radius:999px;padding:.4em 1.1em}
 #td-msg.mini{padding:1.2vh 2vw;min-height:0;bottom:3vh}#td-msg.mini p,#td-msg.mini .td-stamp,#td-msg.mini small,#td-msg.mini #td-free{display:none}#td-msg.mini .td-mb{margin:0;justify-content:center}
+#td-speed{position:absolute;bottom:3vh;left:50%;transform:translateX(-50%);font:800 clamp(18px,2.4vw,32px) system-ui,sans-serif;color:#cfe0ff;text-shadow:0 2px 8px #000;white-space:nowrap}#td-speed.ftl{color:#ffe08a}
+#td-msg:not([hidden])~#td-speed{display:none}
+#td-ufo{position:absolute;transform:translate(-50%,-100%);background:#fff;color:#123;font:800 clamp(20px,2.8vw,38px) system-ui,sans-serif;padding:.4em .8em;border-radius:22px;box-shadow:0 0 30px #9dffb0;white-space:nowrap}
+#td-ufo::after{content:'';position:absolute;left:50%;bottom:-14px;border:9px solid transparent;border-top:14px solid #fff;transform:translateX(-50%)}
 #td-next{font:800 clamp(16px,2vw,26px) system-ui,sans-serif;background:#f0c674;color:#1b1300;border:0;border-radius:999px;padding:.4em 1.2em}
 #td-jump.in{animation:tdin2 .6s ease-out}@keyframes tdin2{from{opacity:0;transform:translate(-50%,-30%)}}
 #td-end .td-stamps{margin:3vh 0 4vh}
@@ -617,13 +621,14 @@ body.tdot #fade .wt b{font-size:clamp(18px,2.6vw,30px)}body.tdot #fade .wt span{
   <div id="td-corner" aria-hidden="true"></div>
   <button id="td-snd" aria-label="Ton an/aus">🔊</button>
   <div id="td-toast" hidden></div>
+  <div id="td-ufo" hidden>👽 Komm zum Dio!</div>
   <div class="td-l" id="td-attract"><div class="td-brand"><small>Weltraum-Mission</small><h1>Fliege mit dem Raumschiff bis ans Ende des Universums!</h1>
     <p>Entstanden in der Astronomie-AG am Gymnasium Dionysianum Rheine</p></div><button class="td-big" id="td-go">👆 Tippe hier und fliege selbst!</button></div>
-  <div class="td-l" id="td-calib" hidden><div class="td-card"><h2>Halte das iPad wie ein Lenkrad</h2><p>Halte es bequem vor dich. <b>Kippen</b> lenkt das Raumschiff:<br>links / rechts drehen, vor / zurück neigen = runter / hoch.<br><small style="text-transform:none;letter-spacing:0">Am PC: Pfeiltasten lenken · W/S Schubhebel · Leertaste Stopp · Enter Start</small></p>
+  <div class="td-l" id="td-calib" hidden><div class="td-card"><h2>Halte das iPad wie ein Lenkrad</h2><p>Halte es bequem vor dich. <b>Kippen</b> lenkt das Raumschiff:<br>links / rechts drehen, vor / zurück neigen = runter / hoch.</p>
     <div class="td-tilt">📱</div><button class="td-big" id="td-calok">So halte ich es – START!</button></div></div>
   <div class="td-l" id="td-count" hidden><div class="td-stamps"></div><div id="td-num">3</div><p class="td-sub">Start vom Schulhof des Dionysianums</p></div>
   <div class="td-l" id="td-hud" hidden>
-    <div id="td-goal"></div><div id="td-dist"></div><div id="td-time"></div><div class="td-stamps"></div>
+    <div id="td-goal"></div><div id="td-dist"></div><div id="td-time"></div><div id="td-speed"></div><div class="td-stamps"></div>
     <div id="td-catch"><i></i></div><div id="td-tip"></div>
     <div id="td-choose" hidden></div>
     <div id="td-msg" hidden></div>
@@ -634,7 +639,7 @@ body.tdot #fade .wt b{font-size:clamp(18px,2.6vw,30px)}body.tdot #fade .wt span{
   <div id="td-jump" hidden></div>
   <div class="td-l" id="td-none" hidden></div>
   <div class="td-l" id="td-end" hidden><div class="td-card"><small>Mission erfüllt!</small><h2>Dein Planetenpass</h2><div class="td-stamps"></div><p id="td-endtxt"></p>
-    <h3>Komm in die Astronomie-AG!</h3><p class="td-sub">Entstanden in der Astronomie-AG am Gymnasium Dionysianum Rheine</p></div></div>
+    <p class="td-sub">Entstanden in der Astronomie-AG am Gymnasium Dionysianum Rheine</p></div></div>
 </div>
 <div id="intro">
   <div class="intro-card">
@@ -2342,7 +2347,7 @@ const RING_MOONS=[['pan',2.21649,0.5750,[17,15.5,10.5],0.6,2,'ridge'],['daphnis'
 const SAT={};
 // Ringbrocken aus Eis rund um die Kamera, damit man durch die Ringe fliegen kann (stark vergrößert)
 function ringChunks(pivot,r){
-  const N=9000,geo=new THREE.IcosahedronGeometry(1,2),p=geo.attributes.position,v=new V3(),rr=rng(5);
+  const N=15000,geo=new THREE.IcosahedronGeometry(1,1),p=geo.attributes.position,v=new V3(),rr=rng(5);
   for(let k=0;k<p.count;k++){v.fromBufferAttribute(p,k);const f=1+0.25*Math.sin(v.x*5.1+v.y*3.7)*Math.cos(v.z*4.3)+(rr()-0.5)*0.08;p.setXYZ(k,v.x*f,v.y*f,v.z*f);} geo.computeVertexNormals();
   const mat=new THREE.MeshStandardMaterial({color:0xcdc8bf,emissive:0x24221f,roughness:0.7,metalness:0.0,envMapIntensity:0.6,transparent:true,opacity:1});
   const im=new THREE.InstancedMesh(geo,mat,N); im.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(N*3).fill(1),3); im.count=0; im.frustumCulled=false; im.raycast=()=>{}; pivot.add(im);
@@ -2356,9 +2361,9 @@ function ringChunks(pivot,r){
     const KM=r/60268, hyU=Math.abs(loc.y), rho=Math.hypot(loc.x,loc.z)/r, near=hyU<0.25*r&&rho>1.12&&rho<2.4&&ringDensity(rho)>0;
     im.visible=near; if(!near) return; mat.opacity=1-Math.max(0,Math.min(1,(hyU/r-0.18)/0.07));
     const lv=Math.max(0,Math.ceil(Math.log2(Math.max(1,hyU/(0.06*KM))))), C=0.03*KM*Math.pow(2,lv);
-    const pxW=0.06*KM*Math.pow(2,lv)*0.0011, mag=Math.max(1,pxW*1.6/(0.05/1000*KM*0.5));
+    const pxW=0.06*KM*Math.pow(2,lv)*0.0011, mag=Math.max(1,pxW*0.7/(0.05/1000*KM*0.5));
     const ix=Math.floor(loc.x/C), iz=Math.floor(loc.z/C), k0=lv+':'+ix+','+iz; if(k0===key) return; key=k0;
-    let n=0; const RR=13;
+    let n=0; const RR=19;
     for(let a=-RR;a<=RR;a++) for(let b=-RR;b<=RR;b++){
       if(a*a+b*b>RR*RR+2) continue;
       const cx=ix+a, cz=iz+b, h=rng((((cx*73856093)^(cz*19349663))+lv*83492791)>>>0);
@@ -2366,7 +2371,7 @@ function ringChunks(pivot,r){
       for(let j=0;j<cnt&&n<N;j++){
         P.set((cx+h())*C,(h()-0.5)*0.012*KM*(1+h()),(cz+h())*C);
         // Größenverteilung (Potenzgesetz n(a) ~ a^-3): meist Zentimeter bis Dezimeter, selten Blöcke bis ≈ 10 m, ganz selten 20 m
-        const u=h(); let a_m=0.05*Math.pow(1-h()*(1-Math.pow(0.05/8,2)),-0.5); if(u>0.998) a_m*=2.5; const s=a_m/1000*KM*0.5*mag;
+        h(); let a_m=0.05*Math.pow(1-h()*(1-Math.pow(0.05/1.5,2)),-0.5); const s=a_m/1000*KM*0.5*mag;
         S.set(s,s*(0.65+h()*0.45),s*(0.75+h()*0.4));
         E.set(h()*6.28,h()*6.28,h()*6.28); Q.setFromEuler(E); M.compose(P,Q,S); im.setMatrixAt(n,M);
         const ice=0.7+h()*0.3, dirt=h()<0.2?0.7:1; col.setRGB(ice*dirt,ice*dirt*0.98,ice*(dirt<1?0.9:1.0)); im.setColorAt(n,col); n++;}
@@ -2771,6 +2776,17 @@ function nhModel(){
   C(0.1,0.1,0.5,S.dark,'z',-0.4,-0.5,-0.2,g,12);
   return g;
 }
+// Pluto nach New-Horizons-Karten: helles Herz (Sputnik Planitia, Tombaugh Regio), dunkler Gürtel (Cthulhu Macula) am Äquator, bräunliche Polkappe
+function plutoTex(){return canvasTex(1024,512,(g,W,H)=>{const r=rng(1930);g.fillStyle='#b69b80';g.fillRect(0,0,W,H);
+  for(let k=0;k<5000;k++){const x=r()*W,y=r()*H,s=1+r()*5,v=r();g.fillStyle=v<0.5?'rgba(120,90,70,.18)':'rgba(230,215,195,.16)';g.fillRect(x,y,s,s);}
+  const X=lon=>((lon+180)/360)*W,Y=lat=>(90-lat)/180*H;
+  // dunkler Äquatorgürtel (Längen ≈ 20°–160° O vom Herz aus gesehen westlich)
+  for(let k=0;k<160;k++){const lon=-170+r()*150,lat=-20+r()*30;const x=X(lon),y=Y(lat),rx=30+r()*60,ry=10+r()*20;const q=g.createRadialGradient(x,y,0,x,y,rx);q.addColorStop(0,'rgba(70,35,25,.55)');q.addColorStop(1,'rgba(70,35,25,0)');g.fillStyle=q;g.beginPath();g.ellipse(x,y,rx,ry,0,0,6.283);g.fill();}
+  // Herz: zwei Loben um Länge 175° W bzw. 180°
+  const hx=X(0),hy=Y(20);g.fillStyle='rgba(250,244,236,.92)';g.beginPath();g.ellipse(hx-50,hy,62,80,0.3,0,6.283);g.fill();g.beginPath();g.ellipse(hx+50,hy-8,70,72,-0.2,0,6.283);g.fill();
+  g.beginPath();g.moveTo(hx-110,hy-10);g.quadraticCurveTo(hx,hy+170,hx+110,hy-10);g.fill();
+  for(let k=0;k<400;k++){const a=r()*6.283,rr=r()*60;g.fillStyle='rgba(215,205,195,.35)';g.fillRect(hx-50+Math.cos(a)*rr,hy+Math.sin(a)*rr*1.2,3,3);}
+  const pc=g.createLinearGradient(0,0,0,H*0.2);pc.addColorStop(0,'rgba(130,95,70,.7)');pc.addColorStop(1,'rgba(130,95,70,0)');g.fillStyle=pc;g.fillRect(0,0,W,H*0.2);});}
 function moonTex(type){
   // Prozedurale Karten (equirektangulär, Länge −180…180°); Merkmale an realen Orten, wo bekannt
   return canvasTex(1024,512,(g,w,h)=>{const r=rng(type.length*131+7);
@@ -3099,16 +3115,18 @@ function ufoBuild(){if(UFO.g)return;const g=new THREE.Group();
   for(let i=0;i<12;i++){const a=i/12*6.283,l=new THREE.Mesh(new THREE.SphereGeometry(0.045,10,8),new THREE.MeshBasicMaterial({color:0xffffff}));l.position.set(Math.cos(a)*0.98,0.0,Math.sin(a)*0.98);g.add(l);UFO.lights.push(l);}
   const bm=new THREE.Mesh(new THREE.ConeGeometry(0.7,2.2,32,1,true),new THREE.MeshBasicMaterial({color:0x9dffb0,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));bm.position.y=-1.25;g.add(bm);UFO.beam=bm;
   g.visible=false;g.traverse(o=>{o.raycast=()=>{};});SC.erde.add(g);UFO.g=g;}
-function ufoStart(){ufoBuild();UFO.t=0;UFO.g.visible=true;tdTone(300,1.2,'sine',0.15,900);setTimeout(()=>tdTone(900,1.2,'sine',0.12,300),1300);}
+function ufoStart(){ufoBuild();UFO.t=0;UFO.g.visible=true;setTimeout(()=>{if(TD.snd&&'speechSynthesis' in window){try{const u=new SpeechSynthesisUtterance('Komm zum Dio!');u.lang='de-DE';u.pitch=1.9;u.rate=0.85;speechSynthesis.speak(u);}catch(e){}}},3300);tdTone(300,1.2,'sine',0.15,900);setTimeout(()=>tdTone(900,1.2,'sine',0.12,300),1300);}
+const UFO_PATH=new THREE.CatmullRomCurve3([[2.2,0.5,2.6],[1.3,0.3,1.9],[0.5,0.1,1.3],[0.1,0.0,1.05],[-0.08,0.03,1.0],[0.06,-0.02,1.0],[-0.05,0.02,1.02],[-0.4,0.25,1.35],[-1.4,0.9,2.2],[-3.2,2.0,3.8]].map(p=>new V3(...p)),false,'centripetal');
+// Zeitverlauf: schnell heran, lange schweben, schnell davon (stetig, ohne Sprünge)
+const ufoU=t=>{const T=10;const k=Math.min(1,t/T);return k<0.25?0.4*Math.sin(k/0.25*Math.PI/2):k<0.72?0.4+0.2*(k-0.25)/0.47:0.6+0.4*(1-Math.cos((k-0.72)/0.28*Math.PI/2));};
 function ufoFrame(dt){if(!UFO.g||UFO.t<0)return;UFO.t+=dt;const t=UFO.t,e=camera.matrixWorld.elements,R=new V3(e[0],e[1],e[2]),U=new V3(e[4],e[5],e[6]),F=new V3(-e[8],-e[9],-e[10]);
-  const D=ctl.dist*0.35,s=D*0.16;let x,y,z;
-  if(t<2.5){const k=t/2.5,q=1-Math.pow(1-k,3);x=1.6*(1-q);y=0.35*(1-q)+0.05*Math.sin(t*3);z=1.8-0.8*q;}         // fliegt von rechts heran
-  else if(t<7.5){x=0.12*Math.sin((t-2.5)*1.3);y=-0.02+0.04*Math.sin((t-2.5)*2.1);z=1;}                          // schwebt, wackelt, blinkt
-  else{const k=(t-7.5)/1.6;x=-0.2-1.8*k*k;y=0.6*k*k;z=1+1.5*k*k;}                                                // saust davon
-  UFO.g.position.copy(camera.position).addScaledVector(F,D*z).addScaledVector(R,D*x*0.5).addScaledVector(U,D*y*0.5);UFO.g.scale.setScalar(s);
-  UFO.g.quaternion.setFromUnitVectors(new V3(0,1,0),U);UFO.g.rotateY(t*2.5);UFO.g.rotateX(0.25*Math.sin(t*1.7));
-  UFO.lights.forEach((l,i)=>l.material.color.setHSL(((i/12)+t*0.6)%1,1,(Math.floor(t*6)+i)%3?0.6:0.95));
-  UFO.beam.material.opacity=t>3.5&&t<6.5?0.18+0.1*Math.sin(t*12):0;if(t>9.2){UFO.g.visible=false;UFO.t=-1;}}
+  const D=ctl.dist*0.35,s=D*0.16,q=UFO_PATH.getPoint(Math.min(1,ufoU(t)));const wob=0.015*Math.sin(t*2.3);
+  UFO.g.position.copy(camera.position).addScaledVector(F,D*q.z).addScaledVector(R,D*q.x*0.5).addScaledVector(U,D*(q.y+wob)*0.5);UFO.g.scale.setScalar(s);
+  UFO.g.quaternion.setFromUnitVectors(new V3(0,1,0),U);UFO.g.rotateY(t*2.2);UFO.g.rotateX(0.18*Math.sin(t*1.3));
+  UFO.lights.forEach((l,i)=>l.material.color.setHSL(((i/12)+t*0.5)%1,1,0.55+0.4*Math.max(0,Math.sin(t*9-i*0.8))));
+  UFO.beam.material.opacity=t>3.2&&t<7?0.07+0.04*Math.sin(t*10):0;
+  const b=document.getElementById('td-ufo');if(b){const on=t>3&&t<7.2;b.hidden=!on;if(on){const v=UFO.g.position.clone().project(camera);b.style.left=((v.x+1)/2*innerWidth)+'px';b.style.top=((1-v.y)/2*innerHeight-innerHeight*0.12)+'px';}}
+  if(t>10.2){UFO.g.visible=false;UFO.t=-1;if(b)b.hidden=true;}}
 // ---------- Ringstaub: unendliches Teilchenfeld um die Kamera (läuft ganz auf der Grafikkarte, kein Nachladen, kein Ruckeln) ----------
 const DUST_VS=`attribute float aR;uniform vec3 uCam;uniform float uB;uniform float uH;uniform float uRs;uniform float uX0;uniform float uX1;uniform sampler2D uTex;uniform float uPx;uniform float uSz;
 varying float vA;varying vec3 vC;
@@ -3426,7 +3444,8 @@ function buildSonne(){
   SOLAR_AU.sonne=()=>new V3();
   for(const p of PLANETS){
     const r=sizeOf(p.R)*(p.id==='pluto'?1.4:1);
-    let mat,EW=null; if(p.id==='erde'){const EM=makeEarthMat();mat=EM.mat;EW=EM.sunW;} else {mat=new THREE.MeshPhongMaterial({color:p.col,shininess:6}); if(p.tex) applyTex(p.tex,mat);}
+    if(p.id==='pluto')p.tex=null;
+    let mat,EW=null; if(p.id==='erde'){const EM=makeEarthMat();mat=EM.mat;EW=EM.sunW;} else {mat=new THREE.MeshPhongMaterial({color:p.col,shininess:6}); if(p.tex) applyTex(p.tex,mat); if(p.id==='pluto'){mat.map=plutoTex();mat.color.set(0xffffff);mat.needsUpdate=true;}}
     const holder=new THREE.Group(); S.add(holder);
     const pivot=new THREE.Group(); if(p.id==='erde') pivot.rotation.x=-p.tilt*DEG; else pivot.rotation.z=p.tilt*DEG; holder.add(pivot); // Erdachse zeigt zur ekliptikalen Länge 90° (Himmelsnordpol): richtige Jahreszeiten
     const mesh=new THREE.Mesh(new THREE.SphereGeometry(r,p.id==='erde'?96:48,p.id==='erde'?64:32),mat); pivot.add(mesh); if(p.id==='erde') earthAxis(pivot,r);
@@ -3825,6 +3844,10 @@ function buildGalaxie(){
   addRep('galaxie','milchstrasse',null,()=>new V3(),135,{pri:1,labelPos:new V3(-30,0,-44)});
   function star(id,l,bb,dly,color,size,view,pri=3){
     const p=gal(l,bb,dly); const s=sprite(TX_STAR,size,color,{fixed:true}); s.position.copy(p); S.add(s);
+    // aus der Nähe: leuchtende Kugel mit Strahlenkranz, die beim Heranfliegen größer wird (stark vergrößert)
+    const RS=view*0.12*(id==='beteigeuze'||id==='antares'?2.2:1),c=new THREE.Color(color);
+    const ball=new THREE.Mesh(new THREE.SphereGeometry(RS,32,20),new THREE.MeshBasicMaterial({color:c.clone().lerp(new THREE.Color(0xffffff),0.35)}));ball.position.copy(p);ball.raycast=()=>{};S.add(ball);
+    const halo=sprite(TX_GLOW_W,RS*7,color,{opacity:0.75});halo.position.copy(p);halo.raycast=()=>{};S.add(halo);
     addRep('galaxie',id,s,()=>p,view,{pri,kind:'k-star'}); return s;
   }
   function deep(id,l,bb,dly,tex,size,view,pri=3){
@@ -4056,7 +4079,14 @@ function buildKosmos(){
   label('gnz11',galU(125.96,54.8,31872),5000,3,'k-star');
   label('hcbwall',galU(46.02,41.75,16315),7000,2);
   const lan=galU(300,20,330); const lanO=new THREE.Object3D(); lanO.position.copy(lan); S.add(lanO);
-  addRep('kosmos','laniakea',null,()=>galU(307,9,180),700,{pri:5,labelPos:lan});
+  { // Laniakea sichtbar machen: Ströme aus Galaxien, die zum Großen Attraktor fließen (schematisch)
+    const ga=galU(307,9,180),rr=rng(4242),P=[],C=[],Z=[];
+    for(let k=0;k<160;k++){let q=ga.clone().add(new V3(gauss(rr),gauss(rr)*0.55,gauss(rr)).multiplyScalar(170));const sw=new V3(gauss(rr),gauss(rr),gauss(rr)).normalize();
+      for(let st=0;st<40;st++){const d=ga.clone().sub(q),L=d.length();if(L<12)break;q.addScaledVector(d.normalize(),L*0.06).addScaledVector(sw.clone().cross(d).normalize(),L*0.025);
+        P.push(q.x+gauss(rr)*2,q.y+gauss(rr)*2,q.z+gauss(rr)*2);const t=st/40;C.push(0.03+0.04*t,0.05+0.04*t,0.11);Z.push(4+rr()*4);}}
+    const fl=softLayer(P,C,Z,{order:1});S.add(fl);
+    const glow=sprite(TX_GLOW_W,70,0x9fc4ff,{opacity:0.1});glow.position.copy(ga);S.add(glow);
+    addRep('kosmos','laniakea',fl,()=>galU(307,9,180),700,{pri:5,labelPos:lan});}
   const hd=gdir(223.55,-54.4);
   const beam=line([new V3(),hd.clone().multiplyScalar(44000)],0xf0c674,0.45,true); beam.material.dashSize=400; beam.material.gapSize=300; beam.computeLineDistances(); S.add(beam); ORBITS.kosmos.push(beam);
   label('hudf',hd.clone().multiplyScalar(9000),2500,3,'k-star');
@@ -5585,18 +5615,18 @@ function tdOrbit(id,{dist,base,axis=new V3(0,1,0),mode='pend',rate=0.06,dur=null
   const r=id?REPS[level].get(id):null;const tp=r?null:ctl.target.clone();base=base.clone().normalize();
   ctl.up.copy(axis);const toEl=Math.asin(Math.max(-1,Math.min(1,base.y))),toAz=Math.atan2(base.x,base.z);let da=toAz-ctl.az;da=Math.atan2(Math.sin(da),Math.cos(da));
   if(ctl.follow&&r&&ctl.follow!==id)ctl.follow=null;
-  fly={t0:performance.now(),dur:dur||Math.min(9000,flyDur(ctl.dist,dist)*1.8),from:ctl.target.clone(),fromD:ctl.dist,to:tp,toD:dist,id:id||null,fromEl:ctl.el,toEl,fromAz:ctl.az,toAz:ctl.az+da,endFollow:id||null};
+  fly={t0:performance.now(),dur:dur||(TD.phase==='attract'?Math.min(14000,flyDur(ctl.dist,dist)*2.8):Math.min(9000,flyDur(ctl.dist,dist)*1.8)),from:ctl.target.clone(),fromD:ctl.dist,to:tp,toD:dist,id:id||null,fromEl:ctl.el,toEl,fromAz:ctl.az,toAz:ctl.az+da,endFollow:id||null};
   if(level==='erde'&&DIO3D.upW&&id==='dio3d')fly.upW=DIO3D.upW;
   TD.orb={id,tp,dist,base,axis:axis.clone().normalize(),mode,rate,t:0};}
 function tdOrbitFrame(dt){const o=TD.orb;if(!o||fly||switching||SHIP.on)return;o.t+=dt;
   // sanft anlaufen (kein Ruck nach dem Anflug)
-  const T=o.t,rt=o.rate*0.75,ang=o.mode==='spin'?rt*(T<4?T*T/8:T-2):Math.sin(T*o.rate*2)*0.4*Math.min(1,T/5);
+  const T=o.t,rt=o.rate*(TD.phase==='attract'?0.5:0.75),ang=o.mode==='spin'?rt*(T<4?T*T/8:T-2):Math.sin(T*o.rate*2)*0.4*Math.min(1,T/5);
   ctl.up.copy(o.axis);setDir(o.base.clone().applyAxisAngle(o.axis,ang));ctl.dist=o.dist*TD.zoom;
   if(o.id)ctl.follow=o.id;else{ctl.follow=null;ctl.target.copy(o.tp);}}
 function tdTotale(rate=0.05){TD.orb={id:null,tp:ctl.target.clone(),dist:ctl.dist,base:tdCurDir(),axis:new V3(0,1,0),mode:'spin',rate,t:0};}
 function tdRing(){const q=new THREE.Quaternion();SAT.pivot.getWorldQuaternion(q);return new V3(0,1,0).applyQuaternion(q);}
 function tdVel(id,cb){const r=REPS[level].get(id);if(!r)return cb(new V3(1,0,0));const p0=r.p.clone();tdLater(()=>{const v=r.p.clone().sub(p0);cb(v.lengthSq()>1e-24?v.normalize():new V3(1,0,0));},300);}
-function tdVisitDist(lv,id){const r=REPS[lv].get(id);if(id==='iss'||id==='hubble')return 0.02;if(id==='jwst')return r.view*1.3;return lv==='erde'&&id!=='mond'?r.view*3:r.view*1.1;}
+function tdVisitDist(lv,id){const r=REPS[lv].get(id);if(id==='iss')return 2.1e-4;if(id==='hubble')return 1.6e-4;if(id==='jwst')return r.view*1.3;return lv==='erde'&&id!=='mond'?r.view*3:r.view*1.1;}
 function tdDioOrbit(dist=0.14,rate=0.07){const r=REPS.erde.get('dio3d'),up=DIO3D.upW();const base=r.viewLocal.clone().normalize().applyQuaternion(r.obj.quaternion);tdOrbit('dio3d',{dist,base,axis:up,mode:'spin',rate});}
 // ---------- Ton (synthetisch) ----------
 function tdAudio(){if(TD.ac||!window.AudioContext&&!window.webkitAudioContext)return;try{const AC=window.AudioContext||window.webkitAudioContext;const ac=TD.ac=new AC();
@@ -5609,7 +5639,7 @@ function tdChime(){tdTone(784,0.35,'triangle',0.25);setTimeout(()=>tdTone(1175,0
 function tdWhoosh(){if(!TD.snd||!TD.ac)return;const ac=TD.ac,t=ac.currentTime,n=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),d=n.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
   const s=ac.createBufferSource();s.buffer=n;const bp=ac.createBiquadFilter();bp.type='bandpass';bp.Q.value=1.2;bp.frequency.setValueAtTime(150,t);bp.frequency.exponentialRampToValueAtTime(4000,t+1.6);
   const g=ac.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.45,t+0.6);g.gain.exponentialRampToValueAtTime(0.0001,t+2);s.connect(bp);bp.connect(g);g.connect(ac.destination);s.start(t);s.stop(t+2.1);}
-function tdEngine(){if(!TD.eng)return;const on=TD.snd&&TD.on&&SHIP.on,th=Math.max(0,SHIP.th),t=TD.ac.currentTime;TD.eng.g.gain.setTargetAtTime(on?0.04+0.22*th:0,t,0.15);TD.eng.lp.frequency.setTargetAtTime(220+900*th,t,0.2);TD.eng.o.frequency.setTargetAtTime(42+40*th,t,0.2);}
+function tdEngine(){if(!TD.eng)return;const dm=TD.phase==='attract'&&!!fly,on=TD.snd&&TD.on&&(SHIP.on||dm||TD.phase==='liftoff'),th=dm?0.3:TD.phase==='liftoff'?1:Math.max(0,SHIP.th),t=TD.ac.currentTime;TD.eng.g.gain.setTargetAtTime(on?0.04+0.22*th:0,t,0.15);TD.eng.lp.frequency.setTargetAtTime(220+900*th,t,0.2);TD.eng.o.frequency.setTargetAtTime(42+40*th,t,0.2);}
 // ---------- Modus ein/aus ----------
 function tdOn(){if(TD.on)return;TD.on=true;window.TD_ON=true;tdPreload();renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));document.body.classList.add('tdot');tdEl('tdot').hidden=false;$('#intro').hidden=true;stopTour();if(MEAS.on)measStop();tdAttract();}
 function tdOff(){renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));TD.on=false;window.TD_ON=false;tdClear();TD.phase='off';TD.orb=null;if(SHIP.on)shipOff();AUTO=null;document.body.classList.remove('tdot');tdEl('tdot').hidden=true;tdEngine();}
@@ -5618,7 +5648,7 @@ const TD_DEMO=[
   ['erde',18,()=>{tdDioOrbit(0.14,0.06);}],
   ['erde',8,()=>{TD.orb=null;const up=DIO3D.upW(),r=REPS.erde.get('dio3d');ctl.up.copy(up);const d=up.clone().addScaledVector(r.viewLocal.clone().applyQuaternion(r.obj.quaternion),0.35).normalize();
     ctl.follow=null;fly={t0:performance.now(),dur:7000,from:ctl.target.clone(),fromD:ctl.dist,to:ctl.target.clone(),toD:2.6,id:null,fromEl:ctl.el,toEl:Math.asin(d.y),fromAz:ctl.az,toAz:ctl.az+wrapA(Math.atan2(d.x,d.z)-ctl.az),upW:DIO3D.upW};}],
-  ['erde',20,()=>{tdVel('iss',v=>{const p=REPS.erde.get('iss').p;const b=v.clone().negate().multiplyScalar(0.9).addScaledVector(p.clone().normalize(),0.45);tdOrbit('iss',{dist:0.022,base:b,axis:p.clone().normalize(),mode:'pend',rate:0.05});});}],
+  ['erde',20,()=>{tdVel('iss',v=>{const p=REPS.erde.get('iss').p;const b=v.clone().negate().multiplyScalar(0.9).addScaledVector(p.clone().normalize(),0.3);tdOrbit('iss',{dist:2.1e-4,base:b,axis:p.clone().normalize(),mode:'pend',rate:0.05});});}],
   ['erde',20,()=>{tdOrbit('mond',{dist:tdVisitDist('erde','mond'),base:tdBehind('mond',0.07),mode:'pend',rate:0.05});}],
   ['sonne',12,()=>{tdTotale(0.05);}],
   ['sonne',16,()=>{const r=REPS.sonne.get('saturn');tdOrbit('saturn',{dist:r.view*2,base:r.viewFn?r.viewFn():tdBehind('saturn'),axis:tdRing(),mode:'spin',rate:0.08});}],
@@ -5636,7 +5666,7 @@ const TD_DEMO=[
 // alles vorab bauen und Shader übersetzen, damit beim Ebenenwechsel nichts ruckelt
 let TD_PRE=false;function tdPreload(){if(TD_PRE)return;TD_PRE=true;const jobs=LAZY3D.splice(0);let i=0;const run=()=>{const t0=performance.now();while(i<jobs.length&&performance.now()-t0<12){try{jobs[i].run();}catch(e){}i++;}
     if(i<jobs.length)setTimeout(run,30);else{let k=0;const comp=()=>{if(k<LEVELS.length){try{renderer.compile(SC[LEVELS[k]],camera);}catch(e){}k++;setTimeout(comp,60);}};comp();}};setTimeout(run,800);}
-function tdGoLevel(lv,cb){TD.orb=null;AUTO=null;if(level===lv){cb();return;}delete saved[lv];switchLevel(lv,()=>{});tdIdle(cb);}
+function tdGoLevel(lv,cb){TD.orb=null;AUTO=null;if(level===lv){cb();return;}tdWhoosh();delete saved[lv];switchLevel(lv,()=>{});tdIdle(cb);}
 function tdAttract(){tdClear();TD.phase='attract';TD.help=false;TD.orb=null;if(SHIP.on)shipOff();SHIP.auto=null;panel.hidden=true;document.body.classList.remove('panel-open');tdShow('td-attract');tdEngine();
   const step=()=>{if(TD.phase!=='attract')return;const i=TD.attractI++%TD_DEMO.length,[lv,dur,run]=TD_DEMO[i];
     tdGoLevel(lv,()=>{if(TD.phase!=='attract')return;TD.zoom=1;try{run();}catch(e){}tdLater(step,(dur+6)*1000);});};
@@ -5667,7 +5697,7 @@ function tdChoose(lv){TD.phase='choose';TD.catchT=0;const P=TD_POOL[lv].filter((
 function tdPick(i){if(TD.phase!=='choose'||!TD.choice[i])return;tdTone(880,0.15,'triangle',0.2);tdEl('td-choose').hidden=true;tdFly(TD.choice[i]);}
 // ---------- Einfangen ----------
 function tdFly(T){TD.cur=T;TD.orb=null;fly=null;AUTO=null;if(!SHIP.on)shipOn();TD.phase='fly';TD.t0=performance.now();TD.help=false;TD.catchT=0;selected=T.id;markLabels();
-  const r=REPS[level].get(T.id),d0=r.p.distanceTo(SHIP.pos);TD.thr=Math.max(LEVEL_INFO[level].lim[0]*2,r.view*6,d0*0.012,level==='erde'?0.008:0);SHIP.stopD=TD.thr*0.6;
+  const r=REPS[level].get(T.id),d0=r.p.distanceTo(SHIP.pos);TD.thr=Math.max(LEVEL_INFO[level].lim[0]*2,r.view*(level==='erde'?3:2.5));SHIP.stopD=TD.thr*0.6;TD.prevTP=r.p.clone();
   if(level!=='erde'){tdLever(0);SHIP.th=0;}tdShow('td-hud');tdHud(T);tdEl('td-helpb').hidden=true;
   tdBanner(level==='erde'?'Folge dem gelben Pfeil! Bring das Ziel ins Fadenkreuz.':'Kippe zum Lenken · Schubhebel nach vorn · Ziel ins Fadenkreuz!');}
 function tdHud(T){tdEl('td-goal').innerHTML=T?`<small>Ebene ${TD_LV.indexOf(T.lv)+1} von 5 · ${TD_LVN[T.lv]}</small><b>${esc(tdName(T.id))}</b>`:'<small>Start</small><b>Dionysianum</b>';tdEl('td-dist').innerHTML='';tdEl('td-time').textContent='';tdStamps();}
@@ -5675,9 +5705,11 @@ function tdFrame(dt,now){if(!TD.on)return;tdEngine();shuttleFrame(dt);ufoFrame(d
   if(TD.kW||TD.kS){tdLever(TD.lever+(TD.kW?1:-1)*dt*0.7);TD.last=now;}
   if(TD.phase==='launch'&&SHIP.on){SHIP.th=TD.lever;if(SHUTTLE.stack&&SHUTTLE.stack.visible&&SHUTTLE.t>0){const m=new THREE.Matrix4().lookAt(SHIP.pos,SHUTTLE.rep.pos(),DIO3D.upW?DIO3D.upW():new V3(0,1,0));SHIP.q.slerp(new THREE.Quaternion().setFromRotationMatrix(m),1-Math.exp(-dt*2));}}
   if(TD.phase==='choose'&&SHIP.on){SHIP.th=TD.lever;}
+  if((TD.phase==='free'||TD.phase==='launch'||TD.phase==='choose')&&SHIP.on)tdSpeed();
   if(TD.phase==='free'&&SHIP.on){SHIP.th=TD.lever;tdEl('td-dist').innerHTML=TD.cur?tdDist(TD.cur.id).replace('noch ','Abstand zu '+esc(tdName(TD.cur.id))+': '):'';}
   if(TD.phase==='visit'&&now-(TD.visitT||0)>1500){const K=SHIP.keys;if(TD.lever>0.05||K.ArrowUp||K.ArrowDown||K.ArrowLeft||K.ArrowRight)tdFree();}
-  if(TD.phase==='fly'&&SHIP.on){const T=TD.cur,r=REPS[level].get(T.id);if(!r)return;const to=r.p.clone().sub(SHIP.pos),d=to.length(),age=(now-TD.t0)/1000;
+  if(TD.phase==='fly'&&SHIP.on){const T=TD.cur,r=REPS[level].get(T.id);if(!r)return;
+    if(TD.prevTP){const dl=r.p.clone().sub(TD.prevTP);if(r.p.distanceTo(SHIP.pos)<TD.thr*60)SHIP.pos.add(dl);TD.prevTP.copy(r.p);}const to=r.p.clone().sub(SHIP.pos),d=to.length(),age=(now-TD.t0)/1000;
     if(!TD.help){SHIP.th=TD.lever;if(age>25)tdEl('td-helpb').hidden=false;if(age>50)tdHelp();}
     if(TD.help)SHIP.auto=T.id;
     const K=SHIP.keys,inp=(K.ArrowUp||K.ArrowDown||K.ArrowLeft||K.ArrowRight||K.KeyA||K.KeyD)||(TILT.on&&TILT.x0!=null&&Math.abs(TILT.x-TILT.x0)+Math.abs(TILT.y-TILT.y0)>6);
@@ -5686,17 +5718,20 @@ function tdFrame(dt,now){if(!TD.on)return;tdEngine();shuttleFrame(dt);ufoFrame(d
     TD.catchT=near&&aimed?TD.catchT+dt:Math.max(0,TD.catchT-dt*1.5);
     const cr=tdEl('td-catch');cr.style.setProperty('--p',Math.min(1,TD.catchT/1.0));cr.classList.toggle('on',near);
     tdEl('td-tip').textContent=near?(aimed?'Fangstrahl … halten!':'Ziel ins Fadenkreuz!'):'';
-    tdEl('td-dist').innerHTML=tdDist(T.id);const s=Math.floor(age);tdEl('td-time').textContent='⏱ '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+    tdEl('td-dist').innerHTML=tdDist(T.id);tdSpeed();const s=Math.floor(age);tdEl('td-time').textContent='⏱ '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
     if(TD.catchT>=1||age>80)tdCaught();}
   if(['choose','fly','calib','launch','visit','free'].includes(TD.phase)){if(TILT.on&&TILT.x0!=null){const tv=Math.round(TILT.x/4)+','+Math.round(TILT.y/4);if(tv!==TD.lastTilt){TD.lastTilt=tv;TD.last=now;}}
     if(TD.lever>0.02&&!TD.help)TD.last=now;if(now-TD.last>(TD.phase==='visit'||TD.phase==='free'?90000:50000)){tdToast('Niemand mehr da? Dann fliege ich allein weiter …');tdAttract();}}}
+function tdSpeed(){const e=tdEl('td-speed');if(!e)return;if(!SHIP.on||!SHIP.last){e.textContent='';return;}const R=SHIP.last,c=R.u==='km'?SHIP.spd/299792.458:SHIP.spd*365.25*86400;
+  let [v]=fmtSpeed(SHIP.spd,R.u);if(c>=1)v=v.replace('× c','× Lichtgeschwindigkeit');e.textContent=(c>=1?'⚡ ':'🚀 ')+v;e.classList.toggle('ftl',c>=1);}
 function tdHelp(){if(TD.phase!=='fly'||TD.help)return;TD.help=true;tdEl('td-helpb').hidden=true;tdToast('🤖 Der Autopilot hilft dir!');}
 function tdDist(id){try{const P=realPos(id),R=SHIP.last||shipReal(SHIP.pos);if(!P)return '';return 'noch '+fmtDist(P.v.distanceTo(R.v),R.u);}catch(e){return '';}}
 function tdCaught(){const T=TD.cur,age=(performance.now()-TD.t0)/1000;TD.phase='visit';SHIP.th=0;SHIP.auto=null;SHIP.stopD=0;tdLever(0);
   T.stars=TD.help?1:age<25?3:age<45?2:1;TD.visited.push(T);tdStamps(true);tdChime();tdEl('td-catch').classList.remove('on');tdEl('td-tip').textContent='';
-  shipOff();tdOrbit(T.id,{dist:tdVisitDist(level,T.id)*(T.id==='saturn'?2:1),base:tdBehind(T.id,level==='erde'?0.07:0.22),mode:'pend',rate:0.05,dur:3200});
+  shipOff();const vo=b=>tdOrbit(T.id,{dist:tdVisitDist(level,T.id)*(T.id==='saturn'?2:1),base:b,axis:level==='erde'&&T.id!=='mond'?REPS.erde.get(T.id).p.clone().normalize():new V3(0,1,0),mode:'pend',rate:0.05,dur:3200});
+  if(T.id==='iss'||T.id==='hubble')tdVel(T.id,v=>vo(v.negate().multiplyScalar(0.9).addScaledVector(REPS.erde.get(T.id).p.clone().normalize(),0.3)));else vo(tdBehind(T.id,level==='erde'?0.07:0.22));
   const m=tdEl('td-msg');m.innerHTML=`<div class="td-stamp">${TD_ICON[T.lv]}</div><small>📡 Gefangen! Funkspruch von: ${esc(tdName(T.id))} · ${'⭐'.repeat(T.stars)}</small><p>${esc(T.msg)}</p><button id="td-next">Weiter ▶</button>`;
-  m.innerHTML=m.innerHTML.replace('<button id="td-next">Weiter ▶</button>','<div class="td-mb"><button id="td-free">🚀 Frei fliegen</button><button id="td-next">Nächste Mission ▶</button></div>');
+  m.innerHTML=m.innerHTML.replace('<button id="td-next">Weiter ▶</button>','<div class="td-mb"><button id="td-free">🚀 Frei fliegen</button><button id="td-next">'+(TD.visited.length>=TD_LV.length?'Alle Missionen erledigt – zurück nach Hause! 🏠':'Nächste Mission ▶')+'</button></div>');
   m.hidden=false;m.classList.remove('in','mini');void m.offsetWidth;m.classList.add('in');tdEl('td-next').onclick=tdNext;tdEl('td-free').onclick=tdFree;TD.visitT=performance.now();
   if(VOICE&&VOICE.on&&'speechSynthesis' in window){try{const u=new SpeechSynthesisUtterance(T.msg);u.lang='de-DE';speechSynthesis.speak(u);}catch(e){}}
 }
@@ -5707,9 +5742,7 @@ function tdNext(){if(TD.phase!=='visit'&&TD.phase!=='free')return;tdEl('td-msg')
   const lv=TD_LV[i];TD.phase='jump';tdWhoosh();tdShow('td-none');tdBanner('Weiter zur nächsten Ebene: '+TD_LVN[lv]);
   tdGoLevel(lv,()=>{tdTotale(0.035);tdBanner(TD_TOT[lv]||TD_LVN[lv]);tdLater(()=>{tdShow('td-hud');tdHud(null);tdChoose(lv);},3200);});}
 function tdHome(){TD.phase='jump';tdWhoosh();tdShow('td-none');tdBanner('Mission erfüllt! Heimflug zum Dionysianum …');
-  tdGoLevel('erde',()=>{tdTotale(0.02);tdLater(()=>{ufoStart();tdBanner('👽 Achtung, ein UFO! Es fliegt direkt auf uns zu …');},1200);
-    tdLater(()=>tdBanner('Es blinkt dreimal und winkt – war das ein Gruß? Und schon ist es weg!'),5200);
-    tdLater(()=>{tdDioOrbit(0.14,0.07);tdLater(tdEnd,8000);},11000);});}
+  tdGoLevel('erde',()=>{TD.orb=null;tdLater(ufoStart,900);tdLater(()=>{tdDioOrbit(0.14,0.07);tdLater(tdEnd,8000);},11500);});}
 function tdEnd(){TD.phase='end';tdShow('td-end');tdStamps();const st=TD.visited.reduce((a,t)=>a+(t.stars||0),0);
   tdEl('td-endtxt').innerHTML=`Du hast <b>${TD.visited.length} Ziele</b> eingefangen und <b>${st} von ${TD.visited.length*3} ⭐</b> gesammelt – bis zum Rand des Universums und zurück!`;tdChime();tdLater(tdAttract,18000);}
 function tdStamps(pop){const h=TD_LV.map((lv,i)=>{const T=TD.visited.find(t=>t.lv===lv);return `<span class="${T?'got':''}${pop&&T&&T===TD.visited[TD.visited.length-1]?' pop':''}">${T?TD_ICON[lv]:i+1}<i>${T?esc(tdName(T.id))+'<br>'+'⭐'.repeat(T.stars||0):''}</i></span>`;}).join('');
@@ -5734,7 +5767,7 @@ function tdInit(){const L=tdEl('td-lever'),slot=L.querySelector('.td-slot');let 
      if(pts.size===0&&moved<12&&performance.now()-t0<600)tdStart();};
    A.addEventListener('pointerup',up);A.addEventListener('pointercancel',up);
    A.addEventListener('wheel',e=>{e.preventDefault();TD.zoom=Math.max(0.25,Math.min(4,TD.zoom*Math.exp(e.deltaY*0.0012)));},{passive:false});}
-  const fs=()=>{if(TD.on&&!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});};
+  const fs=()=>{if(TD.on){tdAudio();if(TD.ac&&TD.ac.state==='suspended')TD.ac.resume();}if(TD.on&&!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});};
   addEventListener('pointerdown',fs,true);addEventListener('keydown',fs,true);
   tdEl('td-calok').onclick=tdCalibDone;tdEl('td-end').addEventListener('pointerup',()=>tdAttract());
   const S=tdEl('td-snd');const upd=()=>{S.textContent=TD.snd?'🔊':'🔇';};upd();S.addEventListener('pointerup',e=>{e.stopPropagation();TD.snd=!TD.snd;tdAudio();upd();tdEngine();});
