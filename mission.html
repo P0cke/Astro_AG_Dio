@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Weltraum-Mission · Dionysianum</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Weltraum-Mission">
 <script>window.ATLAS_TDOT=true;</script>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
@@ -371,7 +371,13 @@ body.tdot #labels .lbl{font-size:17px}
 .td-opts kbd{font:800 clamp(16px,1.8vw,24px) system-ui;border:2px solid #f0c674;color:#f0c674;border-radius:8px;padding:0 .5em}
 .td-opts b{font:800 clamp(17px,2.3vw,32px) system-ui,sans-serif;overflow-wrap:anywhere;hyphens:auto;max-width:100%}.td-opts span{font:500 clamp(13px,1.4vw,19px) system-ui,sans-serif;color:#cfe0ff}
 #td-helpb{position:absolute;left:3vw;bottom:calc(5vh + clamp(120px,14vw,190px));font:700 clamp(15px,1.7vw,22px) system-ui,sans-serif;background:#13204a;color:#fff;border:2px solid #9fc8ff;border-radius:14px;padding:.6em 1em}
-#td-next{margin-top:1vh;font:800 clamp(16px,2vw,26px) system-ui,sans-serif;background:#f0c674;color:#1b1300;border:0;border-radius:999px;padding:.4em 1.2em}
+body.tdot #fade{transition:opacity .22s;background:radial-gradient(circle at 50% 50%,rgba(14,18,30,.55),rgba(5,7,12,.92) 75%)}
+body.tdot #fade .wt b{font-size:clamp(18px,2.6vw,30px)}body.tdot #fade .wt span{display:none}
+#td-jump{font-size:clamp(20px,2.8vw,40px)!important}
+.td-mb{display:flex;gap:1vw;margin-top:1vh}
+#td-free{font:800 clamp(16px,2vw,26px) system-ui,sans-serif;background:#13204a;color:#fff;border:2px solid #9fc8ff;border-radius:999px;padding:.4em 1.1em}
+#td-msg.mini{padding:1.2vh 2vw;min-height:0;bottom:3vh}#td-msg.mini p,#td-msg.mini .td-stamp,#td-msg.mini small,#td-msg.mini #td-free{display:none}#td-msg.mini .td-mb{margin:0;justify-content:center}
+#td-next{font:800 clamp(16px,2vw,26px) system-ui,sans-serif;background:#f0c674;color:#1b1300;border:0;border-radius:999px;padding:.4em 1.2em}
 #td-jump.in{animation:tdin2 .6s ease-out}@keyframes tdin2{from{opacity:0;transform:translate(-50%,-30%)}}
 #td-end .td-stamps{margin:3vh 0 4vh}
 #td-corner{position:absolute;left:0;top:0;width:90px;height:90px;z-index:5}
@@ -2336,7 +2342,7 @@ const RING_MOONS=[['pan',2.21649,0.5750,[17,15.5,10.5],0.6,2,'ridge'],['daphnis'
 const SAT={};
 // Ringbrocken aus Eis rund um die Kamera, damit man durch die Ringe fliegen kann (stark vergrößert)
 function ringChunks(pivot,r){
-  const N=4200,geo=new THREE.IcosahedronGeometry(1,2),p=geo.attributes.position,v=new V3(),rr=rng(5);
+  const N=9000,geo=new THREE.IcosahedronGeometry(1,2),p=geo.attributes.position,v=new V3(),rr=rng(5);
   for(let k=0;k<p.count;k++){v.fromBufferAttribute(p,k);const f=1+0.25*Math.sin(v.x*5.1+v.y*3.7)*Math.cos(v.z*4.3)+(rr()-0.5)*0.08;p.setXYZ(k,v.x*f,v.y*f,v.z*f);} geo.computeVertexNormals();
   const mat=new THREE.MeshStandardMaterial({color:0xcdc8bf,emissive:0x24221f,roughness:0.7,metalness:0.0,envMapIntensity:0.6,transparent:true,opacity:1});
   const im=new THREE.InstancedMesh(geo,mat,N); im.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(N*3).fill(1),3); im.count=0; im.frustumCulled=false; im.raycast=()=>{}; pivot.add(im);
@@ -2352,11 +2358,11 @@ function ringChunks(pivot,r){
     const lv=Math.max(0,Math.ceil(Math.log2(Math.max(1,hyU/(0.06*KM))))), C=0.03*KM*Math.pow(2,lv);
     const pxW=0.06*KM*Math.pow(2,lv)*0.0011, mag=Math.max(1,pxW*1.6/(0.05/1000*KM*0.5));
     const ix=Math.floor(loc.x/C), iz=Math.floor(loc.z/C), k0=lv+':'+ix+','+iz; if(k0===key) return; key=k0;
-    let n=0; const RR=7;
+    let n=0; const RR=13;
     for(let a=-RR;a<=RR;a++) for(let b=-RR;b<=RR;b++){
       if(a*a+b*b>RR*RR+2) continue;
       const cx=ix+a, cz=iz+b, h=rng((((cx*73856093)^(cz*19349663))+lv*83492791)>>>0);
-      const cnt=Math.round(ringDensity(Math.hypot((cx+0.5)*C,(cz+0.5)*C)/r)*18);
+      const cnt=Math.round(ringDensity(Math.hypot((cx+0.5)*C,(cz+0.5)*C)/r)*18*(1-0.55*(a*a+b*b)/(RR*RR)));
       for(let j=0;j<cnt&&n<N;j++){
         P.set((cx+h())*C,(h()-0.5)*0.012*KM*(1+h()),(cz+h())*C);
         // Größenverteilung (Potenzgesetz n(a) ~ a^-3): meist Zentimeter bis Dezimeter, selten Blöcke bis ≈ 10 m, ganz selten 20 m
@@ -3045,6 +3051,82 @@ function dioModel3D(sunW){
   const ori=new THREE.Group();ori.rotation.y=-14*DEG;ori.add(W);const root=new THREE.Group();root.add(ori);
   return root;}
 
+// ---------- Space Shuttle auf der Startrampe neben dem Dio (Modell in Metern, wie das Dio 1000-fach vergrößert) ----------
+const SHUTTLE={g:null,stack:null,fl:[],smoke:null,sm:null,t:-1,rep:null,wp:new V3()};
+function shuttleBuild(){if(SHUTTLE.g||!DIO3D.model)return;const bld=DIO3D.model.children[0].children[0].children[0];
+  const g=new THREE.Group();g.position.set(150,0,36);bld.add(g);const st=new THREE.Group();g.add(st);
+  const M=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:0.6,metalness:0.1},o));
+  const cyl=(r0,r1,h,mat,x,y,z,seg=24)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r0,r1,h,seg),mat);m.position.set(x,y,z);st.add(m);return m;};
+  // Außentank (orange), zwei Feststoffbooster (weiß), Spitzen
+  cyl(4.2,4.2,41,M(0xc8642a),0,21.5,0);const tip=new THREE.Mesh(new THREE.ConeGeometry(4.2,6,24),M(0xc8642a));tip.position.set(0,45,0);st.add(tip);
+  for(const s of [-1,1]){cyl(1.85,1.85,38,M(0xeeeeee),s*6.3,20,0);const c=new THREE.Mesh(new THREE.ConeGeometry(1.85,6,20),M(0xeeeeee));c.position.set(s*6.3,42,0);st.add(c);
+    const n=new THREE.Mesh(new THREE.CylinderGeometry(1.4,2.2,3,16),M(0x555555,{metalness:0.6}));n.position.set(s*6.3,-0.5,0);st.add(n);}
+  // Orbiter: Rumpf, Nase, Deltaflügel, Seitenleitwerk, Triebwerke
+  const wh=M(0xf2f2f2),bk=M(0x222222);const body=cyl(2.6,2.6,26,wh,0,16,6.8);body.scale.z=0.9;
+  const nose=new THREE.Mesh(new THREE.SphereGeometry(2.6,20,14,0,Math.PI*2,0,Math.PI/2),bk);nose.position.set(0,29,6.8);nose.scale.set(1,2.2,0.9);st.add(nose);
+  const wing=new THREE.Shape();wing.moveTo(0,0);wing.lineTo(12,0);wing.lineTo(2.5,14);wing.lineTo(0,16);wing.lineTo(-2.5,14);wing.lineTo(-12,0);wing.lineTo(0,0);
+  const wg=new THREE.ExtrudeGeometry(wing,{depth:0.8,bevelEnabled:false});const w=new THREE.Mesh(wg,wh);w.rotation.x=0;w.position.set(0,4,8.6);st.add(w);
+  const fin=new THREE.Shape();fin.moveTo(0,0);fin.lineTo(0,10);fin.lineTo(-3,10);fin.lineTo(-7,0);const fg=new THREE.ExtrudeGeometry(fin,{depth:0.5,bevelEnabled:false});const f=new THREE.Mesh(fg,wh);f.rotation.y=-Math.PI/2;f.position.set(0.25,4,10.5);st.add(f);
+  for(const [x,z] of [[0,9.2],[-1.6,7.6],[1.6,7.6]]){const n=new THREE.Mesh(new THREE.CylinderGeometry(0.7,1.2,2.4,14),M(0x555555,{metalness:0.6}));n.position.set(x,2.2,z);st.add(n);}
+  // Startrampe mit Turm
+  const pad=new THREE.Mesh(new THREE.BoxGeometry(40,3,30),M(0x6d6a66));pad.position.set(0,-1.5,2);g.add(pad);
+  const tw=new THREE.Mesh(new THREE.BoxGeometry(5,58,5),M(0x9a3b2a,{metalness:0.4}));tw.position.set(-14,29,-6);g.add(tw);
+  // Flammen (heller Kern, orange Hülle) unter Boostern und Haupttriebwerken
+  const fm=new THREE.MeshBasicMaterial({color:0xffb04a,transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false});
+  const fc=new THREE.MeshBasicMaterial({color:0xfff4d0,transparent:true,opacity:0.95,blending:THREE.AdditiveBlending,depthWrite:false});
+  for(const [x,z,r,L] of [[-6.3,0,1.9,34],[6.3,0,1.9,34],[0,9.2,1.1,18],[-1.6,7.6,1.1,18],[1.6,7.6,1.1,18]]){const o=new THREE.Mesh(new THREE.ConeGeometry(r*1.3,L,16,1,true),fm);o.rotation.x=Math.PI;o.position.set(x,-2-L/2,z);
+    const c=new THREE.Mesh(new THREE.ConeGeometry(r*0.7,L*0.6,12,1,true),fc);c.rotation.x=Math.PI;c.position.set(x,-2-L*0.3,z);st.add(o,c);SHUTTLE.fl.push([o,L],[c,L*0.6]);o.visible=c.visible=false;o.raycast=c.raycast=()=>{};}
+  // Rauch: Teilchen, die sich am Boden ausbreiten und aufsteigen
+  const N=900,P=new Float32Array(N*3),C=[],Z=[];SHUTTLE.sd=[];for(let i=0;i<N;i++){const a=Math.random()*6.283;SHUTTLE.sd.push([a,Math.random(),Math.random()]);C.push(0.11,0.105,0.1);Z.push(14+Math.random()*16);}
+  const sm=softLayer(Array.from(P),C,Z,{order:2});sm.visible=false;g.add(sm);SHUTTLE.smoke=sm;
+  g.traverse(o=>{o.userData.id='dio';});SHUTTLE.g=g;SHUTTLE.stack=st;
+  SHUTTLE.rep=addRep('erde','shuttle',null,()=>{st.updateWorldMatrix(true,false);return st.localToWorld(SHUTTLE.wp.set(0,25,0));},0.01,{label:false,pri:0});}
+function shuttleReset(){if(!SHUTTLE.g)return;SHUTTLE.t=-1;SHUTTLE.stack.position.set(0,0,0);SHUTTLE.stack.visible=true;SHUTTLE.g.visible=true;SHUTTLE.smoke.visible=false;for(const [m] of SHUTTLE.fl)m.visible=false;}
+function shuttleIgnite(){if(SHUTTLE.g)SHUTTLE.t=0;}
+function shuttleFrame(dt){if(!SHUTTLE.g||SHUTTLE.t<0)return;SHUTTLE.t+=dt;const t=SHUTTLE.t,lift=Math.max(0,t-1.6);
+  SHUTTLE.stack.position.y=9*lift*lift+0.4*lift;for(const [m,L] of SHUTTLE.fl){m.visible=true;const f=0.85+0.3*Math.random();m.scale.set(1,f*(t<1.6?0.5+t*0.3:1.2),1);}
+  const a=SHUTTLE.smoke.geometry.attributes.position;SHUTTLE.smoke.visible=true;for(let i=0;i<SHUTTLE.sd.length;i++){const [ang,u,v]=SHUTTLE.sd[i],k=Math.min(1,t/4)*(0.25+u),R=12+k*120,h=2+v*Math.min(60,t*9)*(1-0.6*u);
+    a.setXYZ(i,Math.cos(ang)*R,h,Math.sin(ang)*R+2);}a.needsUpdate=true;
+  if(t>16){SHUTTLE.stack.visible=false;for(const [m] of SHUTTLE.fl)m.visible=false;}if(t>30){SHUTTLE.smoke.visible=false;SHUTTLE.t=-1;}}
+// ---------- UFO-Begegnung auf dem Heimweg ----------
+const UFO={g:null,t:-1,lights:[],beam:null};
+function ufoBuild(){if(UFO.g)return;const g=new THREE.Group();
+  const prof=[[0,-0.18],[0.55,-0.16],[1,-0.04],[1.04,0],[1,0.05],[0.6,0.14],[0.35,0.18],[0,0.2]].map(p=>new THREE.Vector2(p[0],p[1]));
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(prof,48),new THREE.MeshStandardMaterial({color:0xb8c2cc,metalness:0.85,roughness:0.25,envMapIntensity:1.4})));
+  const dome=new THREE.Mesh(new THREE.SphereGeometry(0.36,32,16,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0x7fffd0,transparent:true,opacity:0.55,roughness:0.05,metalness:0.2,emissive:0x1d6b55}));dome.position.y=0.17;g.add(dome);
+  const alien=new THREE.Mesh(new THREE.SphereGeometry(0.11,16,12),new THREE.MeshStandardMaterial({color:0x6cff6c,emissive:0x1a5a1a}));alien.position.y=0.27;g.add(alien);
+  for(const s of [-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(0.03,8,6),new THREE.MeshBasicMaterial({color:0x000000}));e.position.set(s*0.045,0.3,0.09);g.add(e);}
+  for(let i=0;i<12;i++){const a=i/12*6.283,l=new THREE.Mesh(new THREE.SphereGeometry(0.045,10,8),new THREE.MeshBasicMaterial({color:0xffffff}));l.position.set(Math.cos(a)*0.98,0.0,Math.sin(a)*0.98);g.add(l);UFO.lights.push(l);}
+  const bm=new THREE.Mesh(new THREE.ConeGeometry(0.7,2.2,32,1,true),new THREE.MeshBasicMaterial({color:0x9dffb0,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));bm.position.y=-1.25;g.add(bm);UFO.beam=bm;
+  g.visible=false;g.traverse(o=>{o.raycast=()=>{};});SC.erde.add(g);UFO.g=g;}
+function ufoStart(){ufoBuild();UFO.t=0;UFO.g.visible=true;tdTone(300,1.2,'sine',0.15,900);setTimeout(()=>tdTone(900,1.2,'sine',0.12,300),1300);}
+function ufoFrame(dt){if(!UFO.g||UFO.t<0)return;UFO.t+=dt;const t=UFO.t,e=camera.matrixWorld.elements,R=new V3(e[0],e[1],e[2]),U=new V3(e[4],e[5],e[6]),F=new V3(-e[8],-e[9],-e[10]);
+  const D=ctl.dist*0.35,s=D*0.16;let x,y,z;
+  if(t<2.5){const k=t/2.5,q=1-Math.pow(1-k,3);x=1.6*(1-q);y=0.35*(1-q)+0.05*Math.sin(t*3);z=1.8-0.8*q;}         // fliegt von rechts heran
+  else if(t<7.5){x=0.12*Math.sin((t-2.5)*1.3);y=-0.02+0.04*Math.sin((t-2.5)*2.1);z=1;}                          // schwebt, wackelt, blinkt
+  else{const k=(t-7.5)/1.6;x=-0.2-1.8*k*k;y=0.6*k*k;z=1+1.5*k*k;}                                                // saust davon
+  UFO.g.position.copy(camera.position).addScaledVector(F,D*z).addScaledVector(R,D*x*0.5).addScaledVector(U,D*y*0.5);UFO.g.scale.setScalar(s);
+  UFO.g.quaternion.setFromUnitVectors(new V3(0,1,0),U);UFO.g.rotateY(t*2.5);UFO.g.rotateX(0.25*Math.sin(t*1.7));
+  UFO.lights.forEach((l,i)=>l.material.color.setHSL(((i/12)+t*0.6)%1,1,(Math.floor(t*6)+i)%3?0.6:0.95));
+  UFO.beam.material.opacity=t>3.5&&t<6.5?0.18+0.1*Math.sin(t*12):0;if(t>9.2){UFO.g.visible=false;UFO.t=-1;}}
+// ---------- Ringstaub: unendliches Teilchenfeld um die Kamera (läuft ganz auf der Grafikkarte, kein Nachladen, kein Ruckeln) ----------
+const DUST_VS=`attribute float aR;uniform vec3 uCam;uniform float uB;uniform float uH;uniform float uRs;uniform float uX0;uniform float uX1;uniform sampler2D uTex;uniform float uPx;uniform float uSz;
+varying float vA;varying vec3 vC;
+void main(){vec2 q=position.xz*2.0*uB;vec2 L=uCam.xz+mod(q-uCam.xz+uB,2.0*uB)-uB;vec3 P=vec3(L.x,(position.y-0.5)*uH,L.y);
+  float x=length(P.xz)/uRs;vec4 t=texture2D(uTex,vec2((x-uX0)/(uX1-uX0),0.5));float tau=t.a/(1.0-min(t.a,0.995));
+  float inR=step(uX0,x)*step(x,uX1);vec4 mv=modelViewMatrix*vec4(P,1.0);gl_Position=projectionMatrix*mv;float z=-mv.z;
+  float d=length(P-uCam);float fade=(1.0-smoothstep(uB*0.55,uB*0.98,d))*smoothstep(uSz*3.0,uSz*12.0,d);
+  gl_PointSize=clamp(uSz*aR*uPx/z,1.0,6.0);vA=inR*min(1.0,tau/(tau+0.4))*fade*min(1.0,uSz*aR*uPx/z);vC=mix(vec3(0.75),t.rgb,0.6);}`;
+const DUST_FS=`varying float vA;varying vec3 vC;uniform float uK;void main(){float d=length(gl_PointCoord-0.5);float a=smoothstep(0.5,0.1,d)*vA*uK;if(a<0.01)discard;gl_FragColor=vec4(vC*a,a);}`;
+function ringDust(pivot,r,ringU){const N=26000,P=new Float32Array(N*3),A=new Float32Array(N);for(let i=0;i<N*3;i++)P[i]=Math.random();for(let i=0;i<N;i++)A[i]=0.4+Math.pow(Math.random(),3)*2.2;
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('aR',new THREE.BufferAttribute(A,1));
+  const U={uCam:{value:new V3()},uB:{value:1},uH:{value:1},uRs:ringU.uRs,uX0:ringU.uX0,uX1:ringU.uX1,uTex:ringU.uTex,uPx:{value:500},uSz:{value:1},uK:{value:1}};
+  const m=new THREE.ShaderMaterial({uniforms:U,vertexShader:DUST_VS,fragmentShader:DUST_FS,transparent:true,depthWrite:false,blending:THREE.CustomBlending,blendEquation:THREE.AddEquation,blendSrc:THREE.OneFactor,blendDst:THREE.OneMinusSrcAlphaFactor});
+  PXM.push(m);const pts=new THREE.Points(g,m);pts.frustumCulled=false;pts.raycast=()=>{};pts.visible=false;pts.renderOrder=3;pivot.add(pts);const loc=new V3();
+  return ()=>{loc.copy(camera.position);pivot.worldToLocal(loc);const hy=Math.abs(loc.y),rho=Math.hypot(loc.x,loc.z)/r,KM=r/60268;
+    const on=hy<0.3*r&&rho>1.15&&rho<2.45;pts.visible=on;if(!on)return;U.uCam.value.copy(loc);
+    U.uB.value=Math.max(0.8*KM,Math.min(0.12*r,(hy+0.05*KM)*7));U.uH.value=Math.max(0.03*KM,Math.min(U.uB.value*0.25,hy*1.6+0.02*KM));U.uSz.value=U.uB.value*0.0016;U.uK.value=1-Math.max(0,Math.min(1,(hy/r-0.2)/0.1));};}
+
 const DIO3D={near:false,vis:false,model:null,upW:null};
 function buildErde(){
   const S=SC.erde; sky('erde',0x6f7480); S.environment=ENV;
@@ -3377,7 +3459,7 @@ function buildSonne(){
         U.uAng.value.set(mi?Math.atan2(mi.position.z,mi.position.x):0,M.pan?M.pan.phi:0,M.daphnis?M.daphnis.phi:0,M.prometheus?M.prometheus.phi:0);
         let on=false; if(M.daphnis){pg.rotation.y=-M.daphnis.phi;pg.updateMatrixWorld(true);M.daphnis.m.getWorldPosition(dp);on=SOLAR_G<1.01&&camera.position.distanceTo(dp)<r*0.3;}
         patch.visible=on; patch.material.uniforms.uFade.value=on?1:0; U.uFlat.value=on?1:0;});
-      POST.sonne.push(chunks);
+      POST.sonne.push(chunks);const dust=ringDust(pivot,r,U);POST.sonne.push(dust);
     }
     if(p.id==='uranus'){const rg=new THREE.RingGeometry(r*1.6,r*1.65,96);rg.rotateX(-Math.PI/2);pivot.add(new THREE.Mesh(rg,new THREE.MeshBasicMaterial({color:0x9fb6c4,side:THREE.DoubleSide,transparent:true,opacity:0.35})));}
     const orbit=line(mapPts(planetOrbit(p.el)),p.id==='erde'?0x8ab4ff:0x6e86b8,p.id==='erde'?0.6:0.35); S.add(orbit); ORBITS.sonne.push(orbit);
@@ -4025,7 +4107,7 @@ function switchLevel(lv,cb){
   AUTO=null; saved[from]={target:ctl.target.clone(),dist:ctl.dist,az:ctl.az,el:ctl.el,follow:ctl.follow,up:ctl.up.clone()};
   const I=LEVEL_INFO[lv], fade=$('#fade');
   $('#wt-n').textContent=LANG==='en'?(out?'Out':'In')+' · level '+I.n:(out?'Hinaus':'Hinein')+' · Ebene '+I.n; $('#wt-t').textContent=I.title; $('#wt-s').textContent=I.scale;
-  const A=reduceMotion?0:950, Bd=reduceMotion?0:1500, now=performance.now();
+  const A=reduceMotion?0:(window.TD_ON?1400:950), Bd=reduceMotion?0:(window.TD_ON?2600:1500), now=performance.now();
   switching={};
   // Teil 1: in der alten Ebene hinaus- bzw. hineinzoomen
   if(A){ctl.follow=null;
@@ -4151,6 +4233,7 @@ function placeLabels(){
     const par=it.l.r.parent, selR=selected&&REPS[level].get(selected);
     const famOk=!par||selected===par||selected===it.l.r.id||(selR&&selR.parent===par);
     let ok=it.vis&&!near&&famOk&&(show||it.l.r.id===selected);
+    if(ok&&window.TD_ON&&it.l.r.id!==selected&&!(TD.choice||[]).some(c=>c.id===it.l.r.id)&&(it.l.r.pri||0)<5)ok=false;
     if(ok){const bx=[it.x-6,it.y-10,it.x+it.l.w,it.y+10];if(boxes.some(b=>bx[0]<b[2]&&bx[2]>b[0]&&bx[1]<b[3]&&bx[3]>b[1]))ok=false;else boxes.push(bx);}
     it.l.el.style.display=ok?'':'none';
     if(ok) it.l.el.style.transform=`translate(${it.x.toFixed(1)}px,${(it.y-9).toFixed(1)}px)`;
@@ -5452,7 +5535,8 @@ function frame(now){
    Wartemodus (Demo-Flug) → Nulllage → Countdown am Dio → senkrechter Start → je Ebene: Totale → Ziel wählen
    → Ziel einfangen (Fadenkreuz) → Umkreisen mit Funkspruch → nächste Ebene … → Heimflug → Planetenpass
    ================================================================ */
-const TD={on:false,phase:'off',lever:0,cur:null,visited:[],t0:0,last:0,lastTilt:null,snd:true,ac:null,eng:null,help:false,timers:[],orb:null,catchT:0,kW:false,kS:false,attractI:0,choice:[]};
+
+const TD={zoom:1,on:false,phase:'off',lever:0,cur:null,visited:[],t0:0,last:0,lastTilt:null,snd:true,ac:null,eng:null,help:false,timers:[],orb:null,catchT:0,kW:false,kS:false,attractI:0,choice:[]};
 const TD_POOL={
   erde:[['mond','Der Mond ist 384 400 km weit weg. Ein Auto bräuchte ohne Pause ein halbes Jahr bis hierher! Hinter ihm siehst du die Erde.'],
         ['iss','Auf der ISS leben Astronautinnen und Astronauten. Sie rast mit 28 000 km/h um die Erde und sieht jeden Tag 16 Sonnenaufgänge!'],
@@ -5501,17 +5585,18 @@ function tdOrbit(id,{dist,base,axis=new V3(0,1,0),mode='pend',rate=0.06,dur=null
   const r=id?REPS[level].get(id):null;const tp=r?null:ctl.target.clone();base=base.clone().normalize();
   ctl.up.copy(axis);const toEl=Math.asin(Math.max(-1,Math.min(1,base.y))),toAz=Math.atan2(base.x,base.z);let da=toAz-ctl.az;da=Math.atan2(Math.sin(da),Math.cos(da));
   if(ctl.follow&&r&&ctl.follow!==id)ctl.follow=null;
-  fly={t0:performance.now(),dur:dur||flyDur(ctl.dist,dist),from:ctl.target.clone(),fromD:ctl.dist,to:tp,toD:dist,id:id||null,fromEl:ctl.el,toEl,fromAz:ctl.az,toAz:ctl.az+da,endFollow:id||null};
+  fly={t0:performance.now(),dur:dur||Math.min(9000,flyDur(ctl.dist,dist)*1.8),from:ctl.target.clone(),fromD:ctl.dist,to:tp,toD:dist,id:id||null,fromEl:ctl.el,toEl,fromAz:ctl.az,toAz:ctl.az+da,endFollow:id||null};
   if(level==='erde'&&DIO3D.upW&&id==='dio3d')fly.upW=DIO3D.upW;
   TD.orb={id,tp,dist,base,axis:axis.clone().normalize(),mode,rate,t:0};}
 function tdOrbitFrame(dt){const o=TD.orb;if(!o||fly||switching||SHIP.on)return;o.t+=dt;
-  const ang=o.mode==='spin'?o.t*o.rate:Math.sin(o.t*o.rate*3)*0.45;
-  ctl.up.copy(o.axis);setDir(o.base.clone().applyAxisAngle(o.axis,ang));ctl.dist=o.dist;
+  // sanft anlaufen (kein Ruck nach dem Anflug)
+  const T=o.t,rt=o.rate*0.75,ang=o.mode==='spin'?rt*(T<4?T*T/8:T-2):Math.sin(T*o.rate*2)*0.4*Math.min(1,T/5);
+  ctl.up.copy(o.axis);setDir(o.base.clone().applyAxisAngle(o.axis,ang));ctl.dist=o.dist*TD.zoom;
   if(o.id)ctl.follow=o.id;else{ctl.follow=null;ctl.target.copy(o.tp);}}
 function tdTotale(rate=0.05){TD.orb={id:null,tp:ctl.target.clone(),dist:ctl.dist,base:tdCurDir(),axis:new V3(0,1,0),mode:'spin',rate,t:0};}
 function tdRing(){const q=new THREE.Quaternion();SAT.pivot.getWorldQuaternion(q);return new V3(0,1,0).applyQuaternion(q);}
 function tdVel(id,cb){const r=REPS[level].get(id);if(!r)return cb(new V3(1,0,0));const p0=r.p.clone();tdLater(()=>{const v=r.p.clone().sub(p0);cb(v.lengthSq()>1e-24?v.normalize():new V3(1,0,0));},300);}
-function tdVisitDist(lv,id){const r=REPS[lv].get(id);return lv==='erde'&&id!=='mond'?r.view*3:r.view*1.1;}
+function tdVisitDist(lv,id){const r=REPS[lv].get(id);if(id==='iss'||id==='hubble')return 0.02;if(id==='jwst')return r.view*1.3;return lv==='erde'&&id!=='mond'?r.view*3:r.view*1.1;}
 function tdDioOrbit(dist=0.14,rate=0.07){const r=REPS.erde.get('dio3d'),up=DIO3D.upW();const base=r.viewLocal.clone().normalize().applyQuaternion(r.obj.quaternion);tdOrbit('dio3d',{dist,base,axis:up,mode:'spin',rate});}
 // ---------- Ton (synthetisch) ----------
 function tdAudio(){if(TD.ac||!window.AudioContext&&!window.webkitAudioContext)return;try{const AC=window.AudioContext||window.webkitAudioContext;const ac=TD.ac=new AC();
@@ -5526,14 +5611,14 @@ function tdWhoosh(){if(!TD.snd||!TD.ac)return;const ac=TD.ac,t=ac.currentTime,n=
   const g=ac.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.45,t+0.6);g.gain.exponentialRampToValueAtTime(0.0001,t+2);s.connect(bp);bp.connect(g);g.connect(ac.destination);s.start(t);s.stop(t+2.1);}
 function tdEngine(){if(!TD.eng)return;const on=TD.snd&&TD.on&&SHIP.on,th=Math.max(0,SHIP.th),t=TD.ac.currentTime;TD.eng.g.gain.setTargetAtTime(on?0.04+0.22*th:0,t,0.15);TD.eng.lp.frequency.setTargetAtTime(220+900*th,t,0.2);TD.eng.o.frequency.setTargetAtTime(42+40*th,t,0.2);}
 // ---------- Modus ein/aus ----------
-function tdOn(){if(TD.on)return;TD.on=true;document.body.classList.add('tdot');tdEl('tdot').hidden=false;$('#intro').hidden=true;stopTour();if(MEAS.on)measStop();tdAttract();}
-function tdOff(){TD.on=false;tdClear();TD.phase='off';TD.orb=null;if(SHIP.on)shipOff();AUTO=null;document.body.classList.remove('tdot');tdEl('tdot').hidden=true;tdEngine();}
+function tdOn(){if(TD.on)return;TD.on=true;window.TD_ON=true;tdPreload();renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));document.body.classList.add('tdot');tdEl('tdot').hidden=false;$('#intro').hidden=true;stopTour();if(MEAS.on)measStop();tdAttract();}
+function tdOff(){renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));TD.on=false;window.TD_ON=false;tdClear();TD.phase='off';TD.orb=null;if(SHIP.on)shipOff();AUTO=null;document.body.classList.remove('tdot');tdEl('tdot').hidden=true;tdEngine();}
 // ---------- Wartemodus: Demo-Flug ----------
 const TD_DEMO=[
   ['erde',18,()=>{tdDioOrbit(0.14,0.06);}],
   ['erde',8,()=>{TD.orb=null;const up=DIO3D.upW(),r=REPS.erde.get('dio3d');ctl.up.copy(up);const d=up.clone().addScaledVector(r.viewLocal.clone().applyQuaternion(r.obj.quaternion),0.35).normalize();
     ctl.follow=null;fly={t0:performance.now(),dur:7000,from:ctl.target.clone(),fromD:ctl.dist,to:ctl.target.clone(),toD:2.6,id:null,fromEl:ctl.el,toEl:Math.asin(d.y),fromAz:ctl.az,toAz:ctl.az+wrapA(Math.atan2(d.x,d.z)-ctl.az),upW:DIO3D.upW};}],
-  ['erde',20,()=>{tdVel('iss',v=>{const p=REPS.erde.get('iss').p;const b=v.clone().negate().multiplyScalar(0.85).addScaledVector(p.clone().normalize(),0.5);tdOrbit('iss',{dist:tdVisitDist('erde','iss')*1.6,base:b,axis:p.clone().normalize(),mode:'pend',rate:0.05});});}],
+  ['erde',20,()=>{tdVel('iss',v=>{const p=REPS.erde.get('iss').p;const b=v.clone().negate().multiplyScalar(0.9).addScaledVector(p.clone().normalize(),0.45);tdOrbit('iss',{dist:0.022,base:b,axis:p.clone().normalize(),mode:'pend',rate:0.05});});}],
   ['erde',20,()=>{tdOrbit('mond',{dist:tdVisitDist('erde','mond'),base:tdBehind('mond',0.07),mode:'pend',rate:0.05});}],
   ['sonne',12,()=>{tdTotale(0.05);}],
   ['sonne',16,()=>{const r=REPS.sonne.get('saturn');tdOrbit('saturn',{dist:r.view*2,base:r.viewFn?r.viewFn():tdBehind('saturn'),axis:tdRing(),mode:'spin',rate:0.08});}],
@@ -5548,10 +5633,13 @@ const TD_DEMO=[
   ['kosmos',16,()=>{tdTotale(0.04);}],
   ['kosmos',16,()=>{tdOrbit('netz',{dist:REPS.kosmos.get('netz').view*0.8,base:tdBehind('netz',0.3),mode:'spin',rate:0.05});}],
   ['kosmos',16,()=>{tdOrbit('bootesvoid',{dist:REPS.kosmos.get('bootesvoid').view*0.8,base:tdBehind('bootesvoid',0.3),mode:'spin',rate:0.05});}]];
+// alles vorab bauen und Shader übersetzen, damit beim Ebenenwechsel nichts ruckelt
+let TD_PRE=false;function tdPreload(){if(TD_PRE)return;TD_PRE=true;const jobs=LAZY3D.splice(0);let i=0;const run=()=>{const t0=performance.now();while(i<jobs.length&&performance.now()-t0<12){try{jobs[i].run();}catch(e){}i++;}
+    if(i<jobs.length)setTimeout(run,30);else{let k=0;const comp=()=>{if(k<LEVELS.length){try{renderer.compile(SC[LEVELS[k]],camera);}catch(e){}k++;setTimeout(comp,60);}};comp();}};setTimeout(run,800);}
 function tdGoLevel(lv,cb){TD.orb=null;AUTO=null;if(level===lv){cb();return;}delete saved[lv];switchLevel(lv,()=>{});tdIdle(cb);}
 function tdAttract(){tdClear();TD.phase='attract';TD.help=false;TD.orb=null;if(SHIP.on)shipOff();SHIP.auto=null;panel.hidden=true;document.body.classList.remove('panel-open');tdShow('td-attract');tdEngine();
   const step=()=>{if(TD.phase!=='attract')return;const i=TD.attractI++%TD_DEMO.length,[lv,dur,run]=TD_DEMO[i];
-    tdGoLevel(lv,()=>{if(TD.phase!=='attract')return;try{run();}catch(e){}tdLater(step,dur*1000);});};
+    tdGoLevel(lv,()=>{if(TD.phase!=='attract')return;TD.zoom=1;try{run();}catch(e){}tdLater(step,(dur+6)*1000);});};
   if(level!=='erde'){TD.attractI=0;}step();}
 // ---------- Start: Nulllage ----------
 async function tdStart(){tdAudio();if(TD.ac&&TD.ac.state==='suspended')TD.ac.resume();tdClear();AUTO=null;TD.orb=null;TD.phase='calib';tdShow('td-calib');
@@ -5560,13 +5648,14 @@ async function tdStart(){tdAudio();if(TD.ac&&TD.ac.state==='suspended')TD.ac.res
   if(!TILT.on){TILT.on=true;addEventListener('deviceorientation',tiltRead);}TD.last=performance.now();}
 function tdCalibDone(){if(TILT.seen){TILT.x0=TILT.x;TILT.y0=TILT.y;}tdCountdown();}
 // ---------- Countdown am Dio, senkrechter Start ----------
-function tdCountdown(){tdClear();TD.phase='count';tdShow('td-count');TD.visited=[];tdStamps();
-  tdGoLevel('erde',()=>{tdDioOrbit(0.14,0.05);});
+function tdCountdown(){tdClear();TD.phase='count';tdShow('td-count');TD.visited=[];tdStamps();TD.zoom=1;
+  tdGoLevel('erde',()=>{shuttleBuild();shuttleReset();if(SHUTTLE.rep){const r=REPS.erde.get('dio3d'),up=DIO3D.upW();const b=r.viewLocal.clone().normalize().applyQuaternion(r.obj.quaternion);b.addScaledVector(up,-b.dot(up)*0.55).normalize();
+    tdOrbit('shuttle',{dist:0.032,base:b,axis:up,mode:'pend',rate:0.05,dur:3800});}else tdDioOrbit(0.14,0.05);});
   const n=tdEl('td-num');let k=3;const tick=()=>{n.textContent=k>0?k:'Start!';n.classList.remove('pop');void n.offsetWidth;n.classList.add('pop');tdTone(k>0?660:1320,k>0?0.25:0.7,'square',0.18);
-    if(k-->0)tdLater(tick,1000);else tdLater(tdLaunch,600);};tdLater(tick,4200);}
-function tdLaunch(){if(fly||switching){tdLater(tdLaunch,200);return;}TD.orb=null;shipOn();TD.phase='launch';tdShow('td-hud');tdHud(null);
-  const up=DIO3D.upW?DIO3D.upW():new V3(0,1,0);const m=new THREE.Matrix4().lookAt(SHIP.pos,SHIP.pos.clone().add(up),tdCurDir().negate());SHIP.q.setFromRotationMatrix(m);
-  SHIP.th=0.55;tdLever(0.55);tdBanner('Abheben! Wir steigen senkrecht in den Himmel über Rheine …');tdLater(()=>tdChoose('erde'),5200);}
+    if(k===0){shuttleIgnite();tdTone(55,4,'sawtooth',0.3,30);}if(k-->0)tdLater(tick,1000);else{TD.phase='liftoff';tdLater(()=>tdShow('td-none'),700);tdBanner('Zündung … und Abheben!');const w=()=>{if(!SHUTTLE.g||SHUTTLE.t>6.5||SHUTTLE.t<0)tdLaunch();else tdLater(w,200);};tdLater(w,1500);}};tdLater(tick,4600);}
+function tdLaunch(){if(fly||switching){tdLater(tdLaunch,200);return;}TD.orb=null;shipOn();TD.phase='launch';tdShow('td-hud');tdHud(null);tdTone(80,2,'sawtooth',0.2,40);
+  const up=DIO3D.upW?DIO3D.upW():new V3(0,1,0),tg=SHUTTLE.rep&&SHUTTLE.stack.visible?SHUTTLE.rep.pos().clone():SHIP.pos.clone().add(up);const m=new THREE.Matrix4().lookAt(SHIP.pos,tg,up);SHIP.q.setFromRotationMatrix(m);
+  SHIP.th=0.5;tdLever(0.5);tdBanner('Wir folgen dem Shuttle senkrecht in den Himmel über Rheine …');tdLater(()=>tdChoose('erde'),5000);}
 // ---------- Ziel wählen ----------
 function tdChoose(lv){TD.phase='choose';TD.catchT=0;const P=TD_POOL[lv].filter(([id])=>REPS[lv].has(id)&&OBJ[id]);for(let i=P.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[P[i],P[j]]=[P[j],P[i]];}
   TD.choice=P.slice(0,3).map(([id,msg])=>({lv,id,msg}));const C=tdEl('td-choose');
@@ -5582,10 +5671,12 @@ function tdFly(T){TD.cur=T;TD.orb=null;fly=null;AUTO=null;if(!SHIP.on)shipOn();T
   if(level!=='erde'){tdLever(0);SHIP.th=0;}tdShow('td-hud');tdHud(T);tdEl('td-helpb').hidden=true;
   tdBanner(level==='erde'?'Folge dem gelben Pfeil! Bring das Ziel ins Fadenkreuz.':'Kippe zum Lenken · Schubhebel nach vorn · Ziel ins Fadenkreuz!');}
 function tdHud(T){tdEl('td-goal').innerHTML=T?`<small>Ebene ${TD_LV.indexOf(T.lv)+1} von 5 · ${TD_LVN[T.lv]}</small><b>${esc(tdName(T.id))}</b>`:'<small>Start</small><b>Dionysianum</b>';tdEl('td-dist').innerHTML='';tdEl('td-time').textContent='';tdStamps();}
-function tdFrame(dt,now){if(!TD.on)return;tdEngine();tdOrbitFrame(dt);
+function tdFrame(dt,now){if(!TD.on)return;tdEngine();shuttleFrame(dt);ufoFrame(dt);if(TD.phase==='liftoff'&&TD.orb)TD.orb.dist*=1+dt*0.12;tdOrbitFrame(dt);
   if(TD.kW||TD.kS){tdLever(TD.lever+(TD.kW?1:-1)*dt*0.7);TD.last=now;}
-  if(TD.phase==='launch'&&SHIP.on){SHIP.th=TD.lever;}
+  if(TD.phase==='launch'&&SHIP.on){SHIP.th=TD.lever;if(SHUTTLE.stack&&SHUTTLE.stack.visible&&SHUTTLE.t>0){const m=new THREE.Matrix4().lookAt(SHIP.pos,SHUTTLE.rep.pos(),DIO3D.upW?DIO3D.upW():new V3(0,1,0));SHIP.q.slerp(new THREE.Quaternion().setFromRotationMatrix(m),1-Math.exp(-dt*2));}}
   if(TD.phase==='choose'&&SHIP.on){SHIP.th=TD.lever;}
+  if(TD.phase==='free'&&SHIP.on){SHIP.th=TD.lever;tdEl('td-dist').innerHTML=TD.cur?tdDist(TD.cur.id).replace('noch ','Abstand zu '+esc(tdName(TD.cur.id))+': '):'';}
+  if(TD.phase==='visit'&&now-(TD.visitT||0)>1500){const K=SHIP.keys;if(TD.lever>0.05||K.ArrowUp||K.ArrowDown||K.ArrowLeft||K.ArrowRight)tdFree();}
   if(TD.phase==='fly'&&SHIP.on){const T=TD.cur,r=REPS[level].get(T.id);if(!r)return;const to=r.p.clone().sub(SHIP.pos),d=to.length(),age=(now-TD.t0)/1000;
     if(!TD.help){SHIP.th=TD.lever;if(age>25)tdEl('td-helpb').hidden=false;if(age>50)tdHelp();}
     if(TD.help)SHIP.auto=T.id;
@@ -5597,28 +5688,34 @@ function tdFrame(dt,now){if(!TD.on)return;tdEngine();tdOrbitFrame(dt);
     tdEl('td-tip').textContent=near?(aimed?'Fangstrahl … halten!':'Ziel ins Fadenkreuz!'):'';
     tdEl('td-dist').innerHTML=tdDist(T.id);const s=Math.floor(age);tdEl('td-time').textContent='⏱ '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
     if(TD.catchT>=1||age>80)tdCaught();}
-  if(TD.phase==='choose'||TD.phase==='fly'||TD.phase==='calib'||TD.phase==='launch'){if(TILT.on&&TILT.x0!=null){const tv=Math.round(TILT.x/4)+','+Math.round(TILT.y/4);if(tv!==TD.lastTilt){TD.lastTilt=tv;TD.last=now;}}
-    if(TD.lever>0.02&&!TD.help)TD.last=now;if(now-TD.last>50000){tdToast('Niemand mehr da? Dann fliege ich allein weiter …');tdAttract();}}}
+  if(['choose','fly','calib','launch','visit','free'].includes(TD.phase)){if(TILT.on&&TILT.x0!=null){const tv=Math.round(TILT.x/4)+','+Math.round(TILT.y/4);if(tv!==TD.lastTilt){TD.lastTilt=tv;TD.last=now;}}
+    if(TD.lever>0.02&&!TD.help)TD.last=now;if(now-TD.last>(TD.phase==='visit'||TD.phase==='free'?90000:50000)){tdToast('Niemand mehr da? Dann fliege ich allein weiter …');tdAttract();}}}
 function tdHelp(){if(TD.phase!=='fly'||TD.help)return;TD.help=true;tdEl('td-helpb').hidden=true;tdToast('🤖 Der Autopilot hilft dir!');}
 function tdDist(id){try{const P=realPos(id),R=SHIP.last||shipReal(SHIP.pos);if(!P)return '';return 'noch '+fmtDist(P.v.distanceTo(R.v),R.u);}catch(e){return '';}}
 function tdCaught(){const T=TD.cur,age=(performance.now()-TD.t0)/1000;TD.phase='visit';SHIP.th=0;SHIP.auto=null;SHIP.stopD=0;tdLever(0);
   T.stars=TD.help?1:age<25?3:age<45?2:1;TD.visited.push(T);tdStamps(true);tdChime();tdEl('td-catch').classList.remove('on');tdEl('td-tip').textContent='';
   shipOff();tdOrbit(T.id,{dist:tdVisitDist(level,T.id)*(T.id==='saturn'?2:1),base:tdBehind(T.id,level==='erde'?0.07:0.22),mode:'pend',rate:0.05,dur:3200});
   const m=tdEl('td-msg');m.innerHTML=`<div class="td-stamp">${TD_ICON[T.lv]}</div><small>📡 Gefangen! Funkspruch von: ${esc(tdName(T.id))} · ${'⭐'.repeat(T.stars)}</small><p>${esc(T.msg)}</p><button id="td-next">Weiter ▶</button>`;
-  m.hidden=false;m.classList.remove('in');void m.offsetWidth;m.classList.add('in');tdEl('td-next').onclick=tdNext;
+  m.innerHTML=m.innerHTML.replace('<button id="td-next">Weiter ▶</button>','<div class="td-mb"><button id="td-free">🚀 Frei fliegen</button><button id="td-next">Nächste Mission ▶</button></div>');
+  m.hidden=false;m.classList.remove('in','mini');void m.offsetWidth;m.classList.add('in');tdEl('td-next').onclick=tdNext;tdEl('td-free').onclick=tdFree;TD.visitT=performance.now();
   if(VOICE&&VOICE.on&&'speechSynthesis' in window){try{const u=new SpeechSynthesisUtterance(T.msg);u.lang='de-DE';speechSynthesis.speak(u);}catch(e){}}
-  tdLater(tdNext,16000);}
-function tdNext(){if(TD.phase!=='visit')return;tdEl('td-msg').hidden=true;const i=TD_LV.indexOf(TD.cur.lv)+1;if(i>=TD_LV.length)return tdHome();
+}
+// freies Fliegen nach dem Einfangen, bis „Nächste Mission“ gedrückt wird
+function tdFree(){if(TD.phase!=='visit')return;TD.phase='free';TD.orb=null;fly=null;shipOn();tdLever(0);SHIP.th=0;const m=tdEl('td-msg');m.classList.add('mini');
+  tdEl('td-goal').innerHTML=`<small>${TD_LVN[TD.cur.lv]}</small><b>Freier Flug</b>`;tdEl('td-dist').innerHTML='';tdEl('td-time').textContent='';tdBanner('Flieg frei herum! Mit „Nächste Mission“ geht es weiter.');}
+function tdNext(){if(TD.phase!=='visit'&&TD.phase!=='free')return;tdEl('td-msg').hidden=true;tdEl('td-msg').classList.remove('mini');if(SHIP.on)shipOff();const i=TD_LV.indexOf(TD.cur.lv)+1;if(i>=TD_LV.length)return tdHome();
   const lv=TD_LV[i];TD.phase='jump';tdWhoosh();tdShow('td-none');tdBanner('Weiter zur nächsten Ebene: '+TD_LVN[lv]);
-  tdGoLevel(lv,()=>{tdTotale(0.05);tdBanner(TD_TOT[lv]||TD_LVN[lv]);tdLater(()=>{tdShow('td-hud');tdHud(null);tdChoose(lv);},4500);});}
+  tdGoLevel(lv,()=>{tdTotale(0.035);tdBanner(TD_TOT[lv]||TD_LVN[lv]);tdLater(()=>{tdShow('td-hud');tdHud(null);tdChoose(lv);},3200);});}
 function tdHome(){TD.phase='jump';tdWhoosh();tdShow('td-none');tdBanner('Mission erfüllt! Heimflug zum Dionysianum …');
-  tdGoLevel('erde',()=>{tdDioOrbit(0.14,0.07);tdLater(tdEnd,7500);});}
+  tdGoLevel('erde',()=>{tdTotale(0.02);tdLater(()=>{ufoStart();tdBanner('👽 Achtung, ein UFO! Es fliegt direkt auf uns zu …');},1200);
+    tdLater(()=>tdBanner('Es blinkt dreimal und winkt – war das ein Gruß? Und schon ist es weg!'),5200);
+    tdLater(()=>{tdDioOrbit(0.14,0.07);tdLater(tdEnd,8000);},11000);});}
 function tdEnd(){TD.phase='end';tdShow('td-end');tdStamps();const st=TD.visited.reduce((a,t)=>a+(t.stars||0),0);
   tdEl('td-endtxt').innerHTML=`Du hast <b>${TD.visited.length} Ziele</b> eingefangen und <b>${st} von ${TD.visited.length*3} ⭐</b> gesammelt – bis zum Rand des Universums und zurück!`;tdChime();tdLater(tdAttract,18000);}
 function tdStamps(pop){const h=TD_LV.map((lv,i)=>{const T=TD.visited.find(t=>t.lv===lv);return `<span class="${T?'got':''}${pop&&T&&T===TD.visited[TD.visited.length-1]?' pop':''}">${T?TD_ICON[lv]:i+1}<i>${T?esc(tdName(T.id))+'<br>'+'⭐'.repeat(T.stars||0):''}</i></span>`;}).join('');
   for(const e of document.querySelectorAll('.td-stamps'))e.innerHTML=h;}
 let tdToastT=0;function tdToast(t){const e=tdEl('td-toast');e.textContent=t;e.hidden=false;clearTimeout(tdToastT);tdToastT=setTimeout(()=>{e.hidden=true;},3500);}
-let tdBanT=0;function tdBanner(t){const e=tdEl('td-jump');e.textContent=t;e.hidden=false;e.classList.remove('in');void e.offsetWidth;e.classList.add('in');clearTimeout(tdBanT);tdBanT=setTimeout(()=>{e.hidden=true;},4200);}
+let tdBanT=0;function tdBanner(t){const e=tdEl('td-jump');e.textContent=t;e.hidden=false;e.classList.remove('in');void e.offsetWidth;e.classList.add('in');clearTimeout(tdBanT);tdBanT=setTimeout(()=>{e.hidden=true;},2800);}
 // ---------- Schubhebel (wie im Flugzeug), Bremse, Tastatur, Lehrer-Ecke ----------
 function tdLever(v){TD.lever=Math.max(0,Math.min(1,v));const L=tdEl('td-lever');if(L)L.style.setProperty('--v',TD.lever);const p=tdEl('td-pct');if(p)p.textContent=Math.round(TD.lever*100)+' %';}
 function tdInit(){const L=tdEl('td-lever'),slot=L.querySelector('.td-slot');let drag=null;
@@ -5627,7 +5724,18 @@ function tdInit(){const L=tdEl('td-lever'),slot=L.querySelector('.td-slot');let 
   for(const ev of ['pointerup','pointercancel'])L.addEventListener(ev,()=>{drag=null;});
   tdEl('td-brake').addEventListener('pointerdown',e=>{e.preventDefault();tdLever(0);SHIP.th=0;TD.last=performance.now();tdTone(220,0.2,'square',0.12);});
   tdEl('td-helpb').onclick=tdHelp;
-  tdEl('td-go').onclick=e=>{e.stopPropagation();tdStart();};tdEl('td-attract').addEventListener('pointerup',e=>{if(e.target.closest('#td-snd'))return;tdStart();});
+  tdEl('td-go').onclick=e=>{e.stopPropagation();tdStart();};
+  // Wartemodus: zwei Finger = zoomen (Mausrad am PC), kurzes Tippen = Mission starten
+  {const A=tdEl('td-attract'),pts=new Map();let pinch=null,moved=0,t0=0;
+   A.addEventListener('pointerdown',e=>{pts.set(e.pointerId,[e.clientX,e.clientY]);A.setPointerCapture(e.pointerId);if(pts.size===1){moved=0;t0=performance.now();}if(pts.size===2){const [a,b]=[...pts.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),z:TD.zoom};moved=99;}});
+   A.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const o=pts.get(e.pointerId);moved+=Math.abs(e.clientX-o[0])+Math.abs(e.clientY-o[1]);pts.set(e.pointerId,[e.clientX,e.clientY]);
+     if(pinch&&pts.size>=2){const [a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);TD.zoom=Math.max(0.25,Math.min(4,pinch.z*pinch.d/Math.max(d,1)));TD.last=performance.now();}});
+   const up=e=>{const had=pts.has(e.pointerId);pts.delete(e.pointerId);if(pts.size<2)pinch=null;if(e.type!=='pointerup'||!had||e.target.closest('#td-snd'))return;
+     if(pts.size===0&&moved<12&&performance.now()-t0<600)tdStart();};
+   A.addEventListener('pointerup',up);A.addEventListener('pointercancel',up);
+   A.addEventListener('wheel',e=>{e.preventDefault();TD.zoom=Math.max(0.25,Math.min(4,TD.zoom*Math.exp(e.deltaY*0.0012)));},{passive:false});}
+  const fs=()=>{if(TD.on&&!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});};
+  addEventListener('pointerdown',fs,true);addEventListener('keydown',fs,true);
   tdEl('td-calok').onclick=tdCalibDone;tdEl('td-end').addEventListener('pointerup',()=>tdAttract());
   const S=tdEl('td-snd');const upd=()=>{S.textContent=TD.snd?'🔊':'🔇';};upd();S.addEventListener('pointerup',e=>{e.stopPropagation();TD.snd=!TD.snd;tdAudio();upd();tdEngine();});
   document.addEventListener('pointerdown',()=>{if(TD.on)TD.last=performance.now();},true);
@@ -5639,9 +5747,10 @@ function tdInit(){const L=tdEl('td-lever'),slot=L.querySelector('.td-slot');let 
     if(c==='KeyW'||c==='PageUp'){TD.kW=true;e.preventDefault();e.stopImmediatePropagation();return;}
     if(c==='KeyS'||c==='PageDown'){TD.kS=true;e.preventDefault();e.stopImmediatePropagation();return;}
     if(c==='Space'){e.preventDefault();e.stopImmediatePropagation();if(TD.phase==='attract')tdStart();else{tdLever(0);SHIP.th=0;}return;}
-    if(c==='Enter'||c==='NumpadEnter'){e.preventDefault();e.stopImmediatePropagation();if(TD.phase==='attract')tdStart();else if(TD.phase==='calib')tdCalibDone();else if(TD.phase==='visit')tdNext();else if(TD.phase==='end')tdAttract();return;}
+    if(c==='Enter'||c==='NumpadEnter'){e.preventDefault();e.stopImmediatePropagation();if(TD.phase==='attract')tdStart();else if(TD.phase==='calib')tdCalibDone();else if(TD.phase==='visit'||TD.phase==='free')tdNext();else if(TD.phase==='end')tdAttract();return;}
     if(TD.phase==='choose'&&/^(Digit|Numpad)[1-3]$/.test(c)){e.stopImmediatePropagation();tdPick(+c.slice(-1)-1);return;}
     if(TD.phase==='fly'&&c==='KeyH'){tdHelp();return;}
+    if(TD.phase==='visit'&&c.startsWith('Arrow')){tdFree();}
     if(TD.phase==='attract'&&c.startsWith('Arrow')){e.stopImmediatePropagation();return;}},true);
   addEventListener('keyup',e=>{const c=e.code;if(c==='KeyW'||c==='PageUp')TD.kW=false;if(c==='KeyS'||c==='PageDown')TD.kS=false;},true);}
 
