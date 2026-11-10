@@ -1883,14 +1883,15 @@ const texLoader=new THREE.TextureLoader(); texLoader.setCrossOrigin('anonymous')
 const offU=u=>OFF?(OFF.f[u]||(OFF.a[u]&&OFF.f[OFF.a[u]])||u):u;
 {const L0=texLoader.load.bind(texLoader);texLoader.load=(u,a,b,c)=>L0(offU(u),a,b,c);}
 // Hochaufgelöste Texturen (werden nach den kleinen nachgeladen); 8k nur auf Geräten, die es können
+const DLOG=s=>{try{window.dioLog&&window.dioLog(s);}catch(e){}};DLOG('Grafik bereit, max. Textur '+(renderer.capabilities.maxTextureSize||0));
 const MAXTEX=renderer.capabilities.maxTextureSize||4096, MAXANI=renderer.capabilities.getMaxAnisotropy?renderer.capabilities.getMaxAnisotropy():4;
 const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const BIG=MAXTEX>=8192&&!IOS&&(window.ATLAS_TDOT||!(window.matchMedia&&matchMedia('(pointer:coarse)').matches));   /* 13.48b: auf iPad/iPhone nie die 8k-Erdtexturen (je ~130 MB Grafikspeicher – das iPad 8 mit 3 GB hängte sich auf) */
 const TXHI={earth:BIG?'0/04/Solarsystemscope_texture_8k_earth_daymap.jpg':'thumb/0/04/Solarsystemscope_texture_8k_earth_daymap.jpg/3840px-Solarsystemscope_texture_8k_earth_daymap.jpg',
  night:BIG?'b/b3/Solarsystemscope_texture_8k_earth_nightmap.jpg':'thumb/b/b3/Solarsystemscope_texture_8k_earth_nightmap.jpg/3840px-Solarsystemscope_texture_8k_earth_nightmap.jpg',
  night2k:'2/2f/Solarsystemscope_texture_2k_earth_nightmap.jpg',
- clouds:'thumb/7/7a/Solarsystemscope_texture_8k_earth_clouds.jpg/3840px-Solarsystemscope_texture_8k_earth_clouds.jpg',
- sun:'a/a4/Solarsystemscope_texture_8k_sun.jpg'};
+ clouds:IOS?'thumb/7/7a/Solarsystemscope_texture_8k_earth_clouds.jpg/2048px-Solarsystemscope_texture_8k_earth_clouds.jpg':'thumb/7/7a/Solarsystemscope_texture_8k_earth_clouds.jpg/3840px-Solarsystemscope_texture_8k_earth_clouds.jpg',
+ sun:IOS?'thumb/a/a4/Solarsystemscope_texture_8k_sun.jpg/2048px-Solarsystemscope_texture_8k_sun.jpg':'a/a4/Solarsystemscope_texture_8k_sun.jpg'};   /* iPad: Sonne 2k statt 8k (8k = ~180 MB Speicher), Wolkenkarte 2k */
 
 // Echte Fotos (Wikimedia Commons) für Nebel, Sternhaufen und Galaxien: [Pfad, Breite, Höhe]
 const PHOTO={plejaden:['9/98/Plejaden-new.tif',2965,2977],orion:['f/f3/Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg',18000,18000],pferdekopf:['6/68/Barnard_33.jpg',3019,2968],
@@ -1913,9 +1914,9 @@ const PH_SPR={}, PH_DONE={};
 const VOL_GAL={orion:420,pferdekopf:420};   // in der Milchstraße aus dem Originalfoto räumlich nachgebaut (Teilchen je Bildpunkt)
 function photoReg(lv,id,spr,k=1.35){if(!PHOTO[id]||(lv==='galaxie'&&!VOL_GAL[id])||lv==='gruppe')return; // Ebene 3/4: nur 3D, Fotos im Infofenster
   (PH_SPR[id]=PH_SPR[id]||[]).push({lv,spr,w:spr.scale.x*k});}
-function applyPhoto(id,hi){const e=PHOTO[id],L=PH_SPR[id];if(!e||!L)return;const want=hi&&e[1]>2600?3840:1920;if((PH_DONE[id]||0)>=want)return;PH_DONE[id]=want;
-  texLoader.load(photoURL(e[0],e[1],want),t=>{t.anisotropy=MAXANI;for(const o of L){const m=o.spr.material;m.map=t;m.alphaMap=TX_FADE;m.color.set(0xffffff);m.rotation=0;m.needsUpdate=true;
-    o.spr.scale.set(o.w,o.w*e[2]/e[1],1);(o.spr.userData.extras||[]).forEach(x=>x.visible=false);photoVolume(id,t.image,o);}},undefined,()=>{PH_DONE[id]=0;});}
+function applyPhoto(id,hi){const e=PHOTO[id],L=PH_SPR[id];if(!e||!L)return;const want=IOS?1280:hi&&e[1]>2600?3840:1920;   /* iPad: Fotos höchstens 1280 px (3840 px = 59 MB je Foto – sammelt sich im Flug an, bis Safari abstürzt) */if((PH_DONE[id]||0)>=want)return;PH_DONE[id]=want;
+  texLoader.load(photoURL(e[0],e[1],want),t=>{t.anisotropy=MAXANI;const olds=new Set();for(const o of L){const m=o.spr.material;if(m.map&&m.map!==t)olds.add(m.map);m.map=t;m.alphaMap=TX_FADE;m.color.set(0xffffff);m.rotation=0;m.needsUpdate=true;
+    o.spr.scale.set(o.w,o.w*e[2]/e[1],1);(o.spr.userData.extras||[]).forEach(x=>x.visible=false);photoVolume(id,t.image,o);}setTimeout(()=>olds.forEach(x=>{try{if(x!==TX_FADE&&x.image&&x.image.width>300)x.dispose();}catch(e){}}),500);   /* kleineres Vorgängerbild freigeben */},undefined,()=>{PH_DONE[id]=0;});}
 // Aus dem Foto ein räumliches Objekt: jedes Pixel wird ein leuchtendes Teilchen, die Tiefe kommt aus einem Modell je nach Objektart
 // (Nebel: gewellte Schicht, Planetarische Nebel/Supernova-Reste: Hohlschale, Scheibengalaxien: entzerrte geneigte Scheibe mit Bulge,
 //  Ellipsen und Kugelhaufen: Kugel). Von vorn sieht es aus wie das Foto, beim Umfliegen zeigt es Tiefe.
@@ -2028,7 +2029,7 @@ function makeEarthMat(){
   loadTex('earth').then(t=>{if(t){mat.map=t;mat.needsUpdate=true;}
     loadURL(TXHI.night2k).then(n=>{if(n)nightU.value=n;
       loadURL(TXHI.earth).then(h=>{if(h){mat.map=h;mat.needsUpdate=true;}
-        loadURL(TXHI.night).then(n2=>{if(n2)nightU.value=n2;});});});});
+        if(!IOS)loadURL(TXHI.night).then(n2=>{if(n2)nightU.value=n2;});});});});   /* iPad: Nachtseite bleibt 2k */
   return {mat,sunW,nightU,moonW};
 }
 function earthAxis(parent,r){
@@ -3799,7 +3800,9 @@ function dioMeshModel(sunW){
       const tex=new THREE.Texture();tex.flipY=false;tex.anisotropy=MAXANI;tex.minFilter=THREE.LinearMipmapLinearFilter;
       const mat=(o.fade?tuneF:tune)(Object.assign(new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide,transparent:true,depthWrite:true}),{userData:{nc:[c[0],c[2]-Z0,-c[1]],ns:[sc[0],sc[1],sc[2]],msh:1,ea:!!ea}}),n.lv!=null?n.lv:Math.min(3,n.cls||0)*4,!!ea);DIOM.mats.push(mat);
       const blob=new Blob([new Uint8Array(buf,D0+n.oj,n.lj)],{type:'image/jpeg'});
-      (window.createImageBitmap?createImageBitmap(blob):Promise.reject()).then(bm=>{tex.image=bm;tex.needsUpdate=true;DIOM.q.push(tex);},()=>{const im=new Image();im.onload=()=>{tex.image=im;tex.needsUpdate=true;DIOM.q.push(tex);};im.src=URL.createObjectURL(blob);});
+      /* iPad/iPhone: Kachelbilder des 3D-Modells auf 512 px verkleinern – in voller Größe (1024 px) belegen sie zusammen weit über 500 MB Grafikspeicher, und Safari stürzt im Flug ab */
+      const SM=(IOS||window.DIO_LITE)?(Math.hypot(c[0],c[1])>1600?256:512):0,shrink=src=>{const w0=src.width,h0=src.height;if(!SM||w0<=SM)return null;const c=document.createElement('canvas');c.width=SM;c.height=Math.max(1,Math.round(h0*SM/w0));c.getContext('2d').drawImage(src,0,0,c.width,c.height);return c;};
+      (window.createImageBitmap?createImageBitmap(blob):Promise.reject()).then(bm=>{const c=shrink(bm);if(c){try{bm.close&&bm.close();}catch(e){}return createImageBitmap(c).catch(()=>c);}return bm;}).then(bm=>{tex.image=bm;tex.needsUpdate=true;DIOM.q.push(tex);},()=>{const u=URL.createObjectURL(blob),im=new Image();im.onload=()=>{const c=shrink(im);tex.image=c||im;tex.needsUpdate=true;DIOM.q.push(tex);if(c)URL.revokeObjectURL(u);};im.src=u;});
       const me=new THREE.Mesh(geo,mat);me.rotation.x=-Math.PI/2;me.scale.set(sc[0],sc[1],sc[2]);me.position.set(c[0],c[2]-Z0,-c[1]);me.userData.id='dio';me.renderOrder=-1;g.add(me);}};DIOM.grp=g;g.visible=DIOM.op>0;
   // innen bis 1,15 km, Ring 1 bis 2,2 km, Ring 2 bis 5 km – ohne Überlappung (sonst flackern die doppelten Flächen); fehlt ein äußerer Teil, sinkt der letzte vorhandene am Rand ab
   // ein Datensatz bis 10 km, überlappungsfrei aufbereitet (feinere Kacheln haben Vorrang)
@@ -3817,7 +3820,7 @@ function dioMeshModel(sunW){
     const mat=tune(new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:true}));const me=new THREE.Mesh(geo,mat);
     me.position.set((L.x0+L.x1)/2,0.15,(L.z0+L.z1)/2);me.rotation.y=Math.atan2(dx,dz)+Math.PI;me.renderOrder=-0.9;me.userData.ok=true;me.userData.rwy=true;me.visible=DIOM.op>0;me.raycast=()=>{};
     root.add(me);DIOM.aprM.push(me);DIOM.mats.push(mat);};
-  inner.then(buf=>{build(buf,{r0:0,r1:DIOM.R+10,melt:true,my:-27,edits:SIMOBJ()});root.add(g);runway();DIOM.ok=true;}).catch(e=>{console.warn('3D-Mesh nicht geladen, nehme das gebaute Modell',e);useOld();});  return root;}
+  inner.then(buf=>{DLOG('3D-Modell: Daten da ('+Math.round(buf.byteLength/1048576)+' MB), baue');build(buf,{r0:0,r1:DIOM.R+10,melt:true,my:-27,edits:SIMOBJ()});root.add(g);runway();DIOM.ok=true;DLOG('3D-Modell fertig');}).catch(e=>{console.warn('3D-Mesh nicht geladen, nehme das gebaute Modell',e);useOld();});  return root;}
 // Tageshimmel in Bodennähe (sonst wäre der Himmel über dem Dio schwarz); blendet mit der Höhe aus. Bahnlinien dort ausblenden
 function lowSkySetup(){const sk=SKY.erde;if(!sk)return;
   const U={uUp:{value:new V3(0,1,0)},uSun:{value:new V3(1,0,0)},uA:{value:0}};
@@ -3851,7 +3854,7 @@ function rheineSky(earth,holderM,sunW){
       .replace('#include <alphamap_fragment>','#include <alphamap_fragment>\n#ifdef USE_MAP\n{float rr=length(vUv*2.0-1.0);diffuseColor.a*=1.0-smoothstep(0.72,0.98,rr);}\n#endif');};
     mat.customProgramCacheKey=()=>'umg100b';
     const me=new THREE.Mesh(geo,mat);me.renderOrder=-8.4;me.visible=false;me.raycast=()=>{};me.frustumCulled=false;grp.add(me);CLD.map=me;
-    const img=new Image();img.onload=()=>{const t=new THREE.Texture(img);t.anisotropy=MAXANI;t.needsUpdate=true;mat.map=t;mat.needsUpdate=true;CLD.mapOk=true;};
+    const img=new Image();img.onload=()=>{let t;if(IOS||window.DIO_LITE){const c=document.createElement('canvas');c.width=c.height=2048;c.getContext('2d').drawImage(img,0,0,2048,2048);t=new THREE.CanvasTexture(c);img.src='';}else t=new THREE.Texture(img);   /* iPad: 100-km-Karte in 2048² statt 4096² (¼ Speicher) */t.anisotropy=MAXANI;t.needsUpdate=true;mat.map=t;mat.needsUpdate=true;CLD.mapOk=true;DLOG('100-km-Karte geladen');};
     CLD.img=img;if(location.protocol!=='file:')img.src='umgebung-100km.jpg';}
   // Nordwestdeutschland bis zu den Nordseeinseln (im Norden über die 100-km-Karte hinaus): Sentinel-2 cloudless (EOX), beim Start aus Kartenkacheln zusammengesetzt.
   // Liegt unter der 100-km-Karte und über den groben Erdkacheln; jeder Eckpunkt bekommt seine Bildkoordinate aus der echten geografischen Lage (UTM → Länge/Breite → Kachel)
@@ -3902,14 +3905,14 @@ function rheineSky(earth,holderM,sunW){
      mat.onBeforeCompile=sh=>{sh.uniforms.uK=DIOM.kU;sh.vertexShader='attribute float aA;\nvarying float vA;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvA=aA;');
        sh.fragmentShader='uniform float uK;\nvarying float vA;\n'+sh.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\n{vec3 c=diffuseColor.rgb;float lm=dot(c,vec3(0.3,0.59,0.11)),w=smoothstep(0.17,0.07,lm)*smoothstep(-0.02,0.03,c.b-c.r);diffuseColor.rgb=mix(c,max(c*1.8,vec3(0.11,0.19,0.28)),w*0.85);}diffuseColor.rgb*=uK;diffuseColor.a*=vA;');};mat.customProgramCacheKey=()=>key;
      const me=new THREE.Mesh(geo,mat);me.renderOrder=ro;me.visible=false;me.raycast=()=>{};me.frustumCulled=false;grp.add(me);const R0={me,ok:false};CLD.regS.push(R0);
-     let n=0,ok=0;const tot=nx*ny,done=()=>{if(++n===tot||n%12===0)tex.needsUpdate=true;if(ok>0)R0.ok=true;};
+     let n=0,ok=0;const tot=nx*ny,done=()=>{if(++n===tot||n%12===0)tex.needsUpdate=true;if(ok>0)R0.ok=true;if(n===tot)DLOG('Süd-Karte '+key+': '+ok+'/'+tot+' Kacheln');};
      const URLS=['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/GoogleMapsCompatible/','https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/GoogleMapsCompatible/'];
      for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)(CLD.regList||(CLD.regList=[])).push(URLS[0]+ZL+'/'+(j0+j)+'/'+(i0+i)+'.jpg');   /* für die Offline-Daten */
      const load=()=>{for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){let u=0;const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{g.drawImage(im,i*256,j*256);ok++;done();};im.onerror=()=>{if(++u<URLS.length)im.src=URLS[u]+ZL+'/'+(j0+j)+'/'+(i0+i)+'.jpg';else done();};im.src=URLS[0]+ZL+'/'+(j0+j)+'/'+(i0+i)+'.jpg';}};
      setTimeout(load,location.protocol!=='file:'?9000:0);};
    // westlicher und östlicher Teil (Münster liegt bei x ≈ +13 km, z ≈ +36 km); Rand: nach außen 5 km weich in die 100-km-Karte, an der Naht ohne Rand
-   region(-20000,3000,10000,44000,12,24,34,-8.37,'umgSud1',[5000,0,4000,4000]);
-   region(3000,26000,10000,44000,12,24,34,-8.37,'umgSud2',[0,5000,4000,4000]);}
+   if(!window.DIO_LITE)region(-20000,3000,10000,44000,12,24,34,-8.37,'umgSud1',[5000,0,4000,4000]);
+   if(!window.DIO_LITE)region(3000,26000,10000,44000,12,24,34,-8.37,'umgSud2',[0,5000,4000,4000]);}
   // Wolken: viele weiche Billboards (eine Zeichnung, instanziert), Bedeckung innen voll, nach außen aufgerissen
   const R=rng(5291),hash=(i,j)=>{const s=Math.sin(i*127.1+j*311.7)*43758.5453;return s-Math.floor(s);};
   const vn=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
@@ -3925,7 +3928,7 @@ function rheineSky(earth,holderM,sunW){
   const P=[],SP=1800;
   /* 13.48: echte Haufenwolken – jede Wolke ist ein Büschel aus 3–10 kleinen Puffs: flache Unterseite (gemeinsame Basishöhe), nach oben gewölbt (Blumenkohl), oben kleiner;
      Basishöhe je Gegend leicht verschieden, Wolkengröße und Dichte folgen der Bedeckung */
-  for(let gx=-70000;gx<=70000;gx+=SP)for(let gz=-70000;gz<=70000;gz+=SP){const x=gx+(R()-0.5)*SP*0.9,z=gz+(R()-0.5)*SP*0.9,c=cover(x,z);if(sea(x,z)||c<0.04||R()>0.25+0.75*c)continue;
+  for(let gx=-70000;gx<=70000;gx+=SP)for(let gz=-70000;gz<=70000;gz+=SP){const x=gx+(R()-0.5)*SP*0.9,z=gz+(R()-0.5)*SP*0.9,c=cover(x,z);if(sea(x,z)||c<0.04||R()>0.25+0.75*c||((IOS||window.DIO_LITE)&&R()<0.4))continue;   /* iPad: weniger Wolken */
     const Rc=(420+R()*700)*(0.55+0.75*c),b0=1560+fbm(x/6000+3.3,z/6000+8.8)*260+R()*60,Hc=Rc*(0.55+R()*0.6),np=2+Math.floor(R()*2.5+c*4),dr=drop(x,z),near=Math.hypot(x,z)<15000?1:0.75;
     for(let k=0;k<np;k++){const a=R()*6.283,d=Math.sqrt(R())*Rc*0.8,px=x+Math.cos(a)*d,pz=z+Math.sin(a)*d,t=1-(d/Rc)*(d/Rc),hk=Hc*t*(0.15+0.85*R()),sz=Rc*(0.62+0.4*R())*(1-0.35*hk/Hc);
       P.push([px,b0+hk+sz*0.18-dr,pz,sz*2,R()*6.283,(0.3+0.38*c)*near,Math.floor(R()*4),Math.min(1,hk/Hc*0.9+R()*0.15),b0-dr]);}}
@@ -5058,7 +5061,7 @@ const LY_SC={kosmos:1e6,gruppe:1e3,galaxie:1e3,sonne:1.5813e-5,erde:6.7343e-10};
 // daher nach ihrem Radius umrechnen – so ist sie vor und nach dem Wechsel genau gleich groß im Bild
 function earthRS(){const a=anchorIn('sonne');if(!a)return 0.5665;let best=null,bd=Infinity;for(const so of SOLIDS.sonne){const d=so.p().distanceTo(a.p);if(d<bd){bd=d;best=so;}}return best&&bd<best.r()?best.r():0.5665;}
 function lvFac(from,lv){if(from==='sonne'&&lv==='erde')return 1/earthRS();if(from==='erde'&&lv==='sonne')return earthRS();return LY_SC[from]/LY_SC[lv];}
-function switchLevel(lv,cb){
+function switchLevel(lv,cb){DLOG('Ebene → '+lv);
   if(lv===level&&!switching){cb&&cb();return;}
   if(switching){switching.next=[lv,cb];return;}
   const from=level, out=LEVELS.indexOf(lv)>LEVELS.indexOf(from);
@@ -6664,6 +6667,7 @@ function frame(now){
   if(XF.req){XF.req=false;try{const c=XF.cv,src=renderer.domElement;if(c.width!==src.width||c.height!==src.height){c.width=src.width;c.height=src.height;}c.style.transition='none';c.style.opacity='1';c.getContext('2d').drawImage(src,0,0);XF.on=true;}catch(e){}const f=XF.fn;XF.fn=null;if(f)f();}   /* letztes Bild der alten Ebene festhalten, dann Ebene wechseln */
   $('#date').value=dateFmt.format(new Date(simMs));
   if(now-liveT>400){liveT=now;renderLive();}
+  if(!window.__dlT||now-window.__dlT>10000){window.__dlT=now;DLOG('läuft · Ebene '+level+(typeof TD!=='undefined'&&TD.on?' · '+TD.phase:''));}
   requestAnimationFrame(frame);
 }
 /* ================================================================
@@ -6969,7 +6973,7 @@ function tdGoLevel(lv,cb){AUTO=null;if(level===lv){cb();return;}
 function tdResetUI(){for(const id of ['td-msg','td-choose','td-info','td-photo','td-jump'])tdEl(id)&&(tdEl(id).hidden=true);const m=tdEl('td-msg');if(m){m.classList.remove('in','mini');m.innerHTML='';}
   const c=tdEl('td-choose');if(c)c.innerHTML='';tdEl('td-catch')&&tdEl('td-catch').classList.remove('on');tdEl('td-tip')&&(tdEl('td-tip').textContent='');tdSndInfoOff();tdRideHud(null);if(window.tdQuizClose)tdQuizClose();if(window.tdCamStop)tdCamStop();}
 function tdAttract(){tdClear();craneAbort();TD.hold=false;TD.passOv=null;try{if(CRANE.g)craneSet(CRANE.park);}catch(e){}TD.demoHome=false;TD.slowSw=false;TD.land=null;TD.landPre=null;tdXStop();TD.ride=null;tdResetUI();for(const x of [CD_AUD,NASA_AUD])try{x&&x.pause();}catch(e){}TD.phase='attract';TD.help=false;TD.orb=null;if(SHIP.on)shipOff();SHIP.auto=null;panel.hidden=true;document.body.classList.remove('panel-open');tdShow('td-attract');tdEngine();
-  const step=()=>{if(TD.phase!=='attract')return;const i=TD.attractI++%TD_DEMO.length,[lv,dur,run]=TD_DEMO[i];
+  const step=()=>{if(TD.phase!=='attract')return;const i=TD.attractI++%TD_DEMO.length,[lv,dur,run]=TD_DEMO[i];DLOG('Demo-Schritt '+i+' ('+lv+')');
     if(TD.ride||TD.demoChase){const lifted=!!TD.ride&&SHUTTLE.t>7;TD.ride=null;tdRideHud(null);TD.demoLaunch=false;if(TD.demoChase)chaseRelease();else if(SHIP.on){shipOff();if(lifted&&chaseModel()){TD.demoShip={s:ctl.dist*0.35,bank:0,lq:camera.quaternion.clone()};}}}
     tdGoLevel(lv,()=>{if(TD.phase!=='attract')return;TD.zoom=1;try{run();}catch(e){}
       // nächste Station erst, wenn der (langsame) Anflug vorbei ist und wir eine Weile vorbeigeglitten sind
@@ -7924,7 +7928,7 @@ function code(title,ok){var o=document.createElement('div');o.id='dio-code';var 
   function key(e){e.stopImmediatePropagation();if(/^[0-9]$/.test(e.key)){val+=e.key;dots.textContent='●'.repeat(val.length);if(val===CODE){close();ok();}else if(val.length>=4){msg.textContent='Falscher Code';val='';dots.textContent='';}}else if(e.key==='Escape')close();else if(e.key==='Backspace'){val=val.slice(0,-1);dots.textContent='●'.repeat(val.length);}}
   function close(){removeEventListener('keydown',key,true);o.remove();}addEventListener('keydown',key,true);o.querySelector('.cx').onclick=function(e){e.stopPropagation();close();};
   ['pointerdown','touchstart','mousedown','click','wheel'].forEach(function(t){o.addEventListener(t,function(e){e.stopPropagation();});});document.body.appendChild(o);}
-function home(){try{sessionStorage.removeItem('dioModus');sessionStorage.setItem('dioLock','0');}catch(e){}L=false;exitFs();location.replace(location.pathname+location.search);}
+function home(){try{sessionStorage.removeItem('dioModus');sessionStorage.setItem('dioLock','0');sessionStorage.removeItem('dioBoot');}catch(e){}L=false;exitFs();location.replace(location.pathname+location.search);}
 function bar(){var b=$('dio-bar');b.hidden=false;document.body.classList.add('dio-bar-on');setLock(L);
   $('dio-lock').onclick=function(e){e.stopPropagation();code(L?'Entsperren':'Sperren',function(){setLock(!L);});};
   $('dio-home').onclick=function(e){e.stopPropagation();if(L)code('Zurück zur Auswahl',home);else home();};
@@ -7947,10 +7951,12 @@ function preload(m,done){if(location.protocol==='file:'){done();return;}
   var bar=o.querySelector('.bar i'),mb=o.querySelector('.mb'),list=FILES.map(function(f){return {u:f[0],n:f[1]};}),tot=0,got=0,nd=0,cur=[],T0=Date.now();
   function fmt(x){return (x/1048576).toFixed(1).replace('.',',');}function show(){bar.style.width=(tot?Math.min(100,got/tot*100):0).toFixed(1)+'%';mb.textContent=fmt(got)+' / '+fmt(tot)+' MB · Datei '+Math.min(list.length,nd+1)+' von '+list.length+(cur.length?' · '+cur.join(', '):'');}
   function probe(k){var u='offline-daten-'+k+'.bin';return fetch(u,{method:'HEAD',cache:'no-store'}).then(function(r){if(!r.ok)return;list.push({u:u,n:+r.headers.get('content-length')||0,off:true});return probe(k+1);}).catch(function(){});}
-  function get(e){cur.push(e.u);show();return fetch(e.u).then(function(r){if(!r.ok)throw 0;if(!e.n)e.n=+r.headers.get('content-length')||0;if(!r.body||!r.body.getReader)return r.blob().then(function(b){got+=b.size;show();return b;});
-      var rd=r.body.getReader(),ch=[];function pump(){return rd.read().then(function(x){if(x.done)return new Blob(ch);ch.push(x.value);got+=x.value.length;show();return pump();});}return pump();})
+  /* 13.48c: als Blob vom Browser laden (XHR) – keine Kopien in JavaScript-Speicher; auf dem iPad sonst zu viel Arbeitsspeicher */
+  function get(e){cur.push(e.u);show();return new Promise(function(res,rej){var x=new XMLHttpRequest(),g0=0;x.open('GET',e.u);x.responseType='blob';
+      x.onprogress=function(ev){if(!e.n&&ev.lengthComputable)e.n=ev.total;got+=ev.loaded-g0;g0=ev.loaded;show();};
+      x.onload=function(){if(x.status>=200&&x.status<300&&x.response){got+=x.response.size-g0;show();res(x.response);}else rej(0);};x.onerror=function(){rej(0);};x.send();})
     .then(function(b){e.b=b;if(!e.off)window.DIO_FILES[abs(e.u)]=b;}).catch(function(){}).then(function(){cur.splice(cur.indexOf(e.u),1);nd++;show();});}
-  probe(1).then(function(){list.forEach(function(e){tot+=e.n;});show();var i=0;function nx(){if(i>=list.length)return Promise.resolve();var e=list[i++];return get(e).then(nx);}return Promise.all([nx(),nx()]);})
+  (window.DIO_LITE?Promise.resolve():probe(1)).then(function(){list.forEach(function(e){tot+=e.n;});show();var i=0;function nx(){if(i>=list.length)return Promise.resolve();var e=list[i++];return get(e).then(nx);}return Promise.all([nx(),nx()]);})
   .then(function(){var parts=list.filter(function(e){return e.off&&e.b;}).map(function(e){return e.b;});return parts.length?parseOff(new Blob(parts)).catch(function(){}):null;})
   .then(function(){patch();o.classList.add('prep');o.querySelector('h2').textContent='Bereite alles vor …';mb.textContent=window.OFFLINE_DATA?'Daten und Offline-Paket geladen':'Daten geladen';done();
     var t0=Date.now();(function w(){var ok=m!=='flug'||(typeof DIOM!=='undefined'&&DIOM.ok&&!DIOM.q.length);if((ok&&Date.now()-T0>2500)||Date.now()-t0>25000){setTimeout(function(){o.style.transition='opacity .6s';o.style.opacity='0';setTimeout(function(){o.remove();},700);},m==='flug'?1500:400);return;}setTimeout(w,200);})();});}
@@ -7962,6 +7968,12 @@ function onFs(){if(!L||isFs()||!(document.documentElement.requestFullscreen||doc
 document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
 addEventListener('beforeunload',function(e){if(L){e.preventDefault();e.returnValue='';return '';}});
 var m=window.DIO_MODE,ch=$('dio-choose');
+/* Absturz-Schleife verhindern (iPad: zu wenig Speicher → Safari lädt die Seite neu → Modus startet automatisch → wieder Absturz):
+   lief der letzte Start keine 40 s, wird nicht automatisch gestartet und der Sparmodus eingeschaltet */
+try{var bt=JSON.parse(sessionStorage.getItem('dioBoot')||'null'),now=Date.now();if(bt&&now-bt.t<90000&&!bt.ok){window.DIO_LITE=true;if(bt.n>=1)m=null;}
+  sessionStorage.setItem('dioBoot',JSON.stringify({t:now,ok:false,n:bt&&!bt.ok?(bt.n||0)+1:0}));setTimeout(function(){try{var b=JSON.parse(sessionStorage.getItem('dioBoot')||'{}');b.ok=true;sessionStorage.setItem('dioBoot',JSON.stringify(b));}catch(e){}},40000);
+  if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){try{if(localStorage.getItem('dioLite')==='1')window.DIO_LITE=true;if(window.DIO_LITE)localStorage.setItem('dioLite','1');}catch(e){}}}catch(e){}
+if(window.DIO_LITE&&ch){var nt=document.createElement('p');nt.style.cssText='margin:14px auto 0;max-width:520px;font:14px/1.4 system-ui;color:#ffd27a;text-align:center';nt.textContent='Sparmodus: Das Gerät hatte zu wenig Speicher. Offline-Paket, Süd-Karte und ein Teil der Wolken werden weggelassen.';ch.appendChild(nt);}
 if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){fs();try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}start(b.dataset.m);};});}
 })();<\/script>
 </script>
@@ -8009,7 +8021,7 @@ function code(title,ok){var o=document.createElement('div');o.id='dio-code';var 
   function key(e){e.stopImmediatePropagation();if(/^[0-9]$/.test(e.key)){val+=e.key;dots.textContent='●'.repeat(val.length);if(val===CODE){close();ok();}else if(val.length>=4){msg.textContent='Falscher Code';val='';dots.textContent='';}}else if(e.key==='Escape')close();else if(e.key==='Backspace'){val=val.slice(0,-1);dots.textContent='●'.repeat(val.length);}}
   function close(){removeEventListener('keydown',key,true);o.remove();}addEventListener('keydown',key,true);o.querySelector('.cx').onclick=function(e){e.stopPropagation();close();};
   ['pointerdown','touchstart','mousedown','click','wheel'].forEach(function(t){o.addEventListener(t,function(e){e.stopPropagation();});});document.body.appendChild(o);}
-function home(){try{sessionStorage.removeItem('dioModus');sessionStorage.setItem('dioLock','0');}catch(e){}L=false;exitFs();location.replace(location.pathname+location.search);}
+function home(){try{sessionStorage.removeItem('dioModus');sessionStorage.setItem('dioLock','0');sessionStorage.removeItem('dioBoot');}catch(e){}L=false;exitFs();location.replace(location.pathname+location.search);}
 function bar(){var b=$('dio-bar');b.hidden=false;document.body.classList.add('dio-bar-on');setLock(L);
   $('dio-lock').onclick=function(e){e.stopPropagation();code(L?'Entsperren':'Sperren',function(){setLock(!L);});};
   $('dio-home').onclick=function(e){e.stopPropagation();if(L)code('Zurück zur Auswahl',home);else home();};
@@ -8032,10 +8044,12 @@ function preload(m,done){if(location.protocol==='file:'){done();return;}
   var bar=o.querySelector('.bar i'),mb=o.querySelector('.mb'),list=FILES.map(function(f){return {u:f[0],n:f[1]};}),tot=0,got=0,nd=0,cur=[],T0=Date.now();
   function fmt(x){return (x/1048576).toFixed(1).replace('.',',');}function show(){bar.style.width=(tot?Math.min(100,got/tot*100):0).toFixed(1)+'%';mb.textContent=fmt(got)+' / '+fmt(tot)+' MB · Datei '+Math.min(list.length,nd+1)+' von '+list.length+(cur.length?' · '+cur.join(', '):'');}
   function probe(k){var u='offline-daten-'+k+'.bin';return fetch(u,{method:'HEAD',cache:'no-store'}).then(function(r){if(!r.ok)return;list.push({u:u,n:+r.headers.get('content-length')||0,off:true});return probe(k+1);}).catch(function(){});}
-  function get(e){cur.push(e.u);show();return fetch(e.u).then(function(r){if(!r.ok)throw 0;if(!e.n)e.n=+r.headers.get('content-length')||0;if(!r.body||!r.body.getReader)return r.blob().then(function(b){got+=b.size;show();return b;});
-      var rd=r.body.getReader(),ch=[];function pump(){return rd.read().then(function(x){if(x.done)return new Blob(ch);ch.push(x.value);got+=x.value.length;show();return pump();});}return pump();})
+  /* 13.48c: als Blob vom Browser laden (XHR) – keine Kopien in JavaScript-Speicher; auf dem iPad sonst zu viel Arbeitsspeicher */
+  function get(e){cur.push(e.u);show();return new Promise(function(res,rej){var x=new XMLHttpRequest(),g0=0;x.open('GET',e.u);x.responseType='blob';
+      x.onprogress=function(ev){if(!e.n&&ev.lengthComputable)e.n=ev.total;got+=ev.loaded-g0;g0=ev.loaded;show();};
+      x.onload=function(){if(x.status>=200&&x.status<300&&x.response){got+=x.response.size-g0;show();res(x.response);}else rej(0);};x.onerror=function(){rej(0);};x.send();})
     .then(function(b){e.b=b;if(!e.off)window.DIO_FILES[abs(e.u)]=b;}).catch(function(){}).then(function(){cur.splice(cur.indexOf(e.u),1);nd++;show();});}
-  probe(1).then(function(){list.forEach(function(e){tot+=e.n;});show();var i=0;function nx(){if(i>=list.length)return Promise.resolve();var e=list[i++];return get(e).then(nx);}return Promise.all([nx(),nx()]);})
+  (window.DIO_LITE?Promise.resolve():probe(1)).then(function(){list.forEach(function(e){tot+=e.n;});show();var i=0;function nx(){if(i>=list.length)return Promise.resolve();var e=list[i++];return get(e).then(nx);}return Promise.all([nx(),nx()]);})
   .then(function(){var parts=list.filter(function(e){return e.off&&e.b;}).map(function(e){return e.b;});return parts.length?parseOff(new Blob(parts)).catch(function(){}):null;})
   .then(function(){patch();o.classList.add('prep');o.querySelector('h2').textContent='Bereite alles vor …';mb.textContent=window.OFFLINE_DATA?'Daten und Offline-Paket geladen':'Daten geladen';done();
     var t0=Date.now();(function w(){var ok=m!=='flug'||(typeof DIOM!=='undefined'&&DIOM.ok&&!DIOM.q.length);if((ok&&Date.now()-T0>2500)||Date.now()-t0>25000){setTimeout(function(){o.style.transition='opacity .6s';o.style.opacity='0';setTimeout(function(){o.remove();},700);},m==='flug'?1500:400);return;}setTimeout(w,200);})();});}
@@ -8047,6 +8061,12 @@ function onFs(){if(!L||isFs()||!(document.documentElement.requestFullscreen||doc
 document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
 addEventListener('beforeunload',function(e){if(L){e.preventDefault();e.returnValue='';return '';}});
 var m=window.DIO_MODE,ch=$('dio-choose');
+/* Absturz-Schleife verhindern (iPad: zu wenig Speicher → Safari lädt die Seite neu → Modus startet automatisch → wieder Absturz):
+   lief der letzte Start keine 40 s, wird nicht automatisch gestartet und der Sparmodus eingeschaltet */
+try{var bt=JSON.parse(sessionStorage.getItem('dioBoot')||'null'),now=Date.now();if(bt&&now-bt.t<90000&&!bt.ok){window.DIO_LITE=true;if(bt.n>=1)m=null;}
+  sessionStorage.setItem('dioBoot',JSON.stringify({t:now,ok:false,n:bt&&!bt.ok?(bt.n||0)+1:0}));setTimeout(function(){try{var b=JSON.parse(sessionStorage.getItem('dioBoot')||'{}');b.ok=true;sessionStorage.setItem('dioBoot',JSON.stringify(b));}catch(e){}},40000);
+  if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){try{if(localStorage.getItem('dioLite')==='1')window.DIO_LITE=true;if(window.DIO_LITE)localStorage.setItem('dioLite','1');}catch(e){}}}catch(e){}
+if(window.DIO_LITE&&ch){var nt=document.createElement('p');nt.style.cssText='margin:14px auto 0;max-width:520px;font:14px/1.4 system-ui;color:#ffd27a;text-align:center';nt.textContent='Sparmodus: Das Gerät hatte zu wenig Speicher. Offline-Paket, Süd-Karte und ein Teil der Wolken werden weggelassen.';ch.appendChild(nt);}
 if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){fs();try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}start(b.dataset.m);};});}
 })();</script>
 </body>
