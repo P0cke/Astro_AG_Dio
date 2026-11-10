@@ -3666,6 +3666,10 @@ const STAR_MATS=[];
 function starSurfaceMat(color,scale,contrast){const m=new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Color(color)},uS:{value:scale},uK:{value:contrast},uT:{value:0}},vertexShader:STARS_VS,fragmentShader:STARS_FS});STAR_MATS.push(m);return m;}
 // ---------- Kamera am Ziel: ein Finger dreht, zwei Finger zoomen ----------
 function tdOrbitGestures(el){const pts=new Map();let pinch=null;
+  /* Steuern mit dem Finger im Flug (zusätzlich zum Neigen; z. B. wenn die Bewegungssensoren nicht erlaubt wurden): ziehen = lenken wie in der Atlas-Ansicht */
+  {let fd=null;el.addEventListener('pointerdown',e=>{if(!SHIP.on||TD.ride||TD.phase==='visit'||TD.phase==='attract'||e.target.closest('button,a,input,#td-msg,#td-console,#td-choose,.td-card,#td-lever,#td-brake,#td-photo,#td-info,#td-snd'))return;fd={id:e.pointerId,x:e.clientX,y:e.clientY};try{el.setPointerCapture(e.pointerId);}catch(er){}});
+   el.addEventListener('pointermove',e=>{if(!fd||e.pointerId!==fd.id||!SHIP.on)return;const dx=e.clientX-fd.x,dy=e.clientY-fd.y;fd.x=e.clientX;fd.y=e.clientY;SHIP.align=false;SHIP.q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(dy*0.003,dx*0.003,0,'YXZ')));TD.last=performance.now();});
+   const fe=e=>{if(fd&&e.pointerId===fd.id)fd=null;};el.addEventListener('pointerup',fe);el.addEventListener('pointercancel',fe);}
   el.addEventListener('pointerdown',e=>{if(e.target.closest('button,a,input,#td-msg,#td-console,#td-choose,.td-card')||TD.phase!=='visit'||!TD.orb)return;   /* am Ziel: mit dem Finger drehen, mit zwei Fingern zoomen */pts.set(e.pointerId,[e.clientX,e.clientY]);el.setPointerCapture(e.pointerId);
     if(pts.size===2){const [a,b]=[...pts.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),z:TD.zoom};}});
   el.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId)||!TD.orb)return;const o=pts.get(e.pointerId),dx=e.clientX-o[0],dy=e.clientY-o[1];pts.set(e.pointerId,[e.clientX,e.clientY]);TD.last=performance.now();
@@ -5638,7 +5642,7 @@ function shipOn(){
 }
 function shipAuto(id){id=id||(selected&&REPS[level].has(selected)?selected:null);if(!id)return;if(!SHIP.on)shipOn();SHIP.auto=id;SHIP.align=false;}
 function shipOff(){
-  if(!SHIP.on) return; SHIP.on=false; SHIP.keys={}; SHIP.coast=0; SHIP.climb=null; if(typeof TD!=='undefined')TD.demoChase=false; if(TILT.on) tiltToggle();
+  if(!SHIP.on) return; SHIP.on=false; SHIP.keys={}; SHIP.coast=0; SHIP.climb=null; if(typeof TD!=='undefined')TD.demoChase=false; if(TILT.on&&!(typeof TD!=='undefined'&&TD.on)) tiltToggle();   /* 13.48f: in der Mission bleibt die Neige-Steuerung an (vorher war sie nach dem ersten Ziel aus – „Steuerung geht nur manchmal“) */
   if(typeof CHASE!=='undefined'){if(CHASE.model)CHASE.model.visible=false;CHASE.k=0;CHASE.cDs=null;document.body.classList.remove('chase');}
   document.body.classList.remove('ship'); $('#cockpit').hidden=true; $('#b-ship').classList.remove('on');
   const f=new V3(0,0,-1).applyQuaternion(SHIP.q), up=new V3(0,1,0).applyQuaternion(SHIP.q), lim=LEVEL_INFO[level].lim;
