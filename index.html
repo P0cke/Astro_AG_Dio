@@ -260,13 +260,16 @@ body.einfach .lbl{font-size:14.5px}
 #info th{color:var(--gold);font-weight:600} #info td:first-child{font-weight:600;white-space:nowrap}
 @media (max-width:640px){#info td:first-child{white-space:normal}}
 .btn.icon{font-size:17px;padding-left:10px;padding-right:10px}
-#offl{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:rgba(5,8,16,.9);padding:20px}
-#offl[hidden]{display:none} #offl .o-in{max-width:480px;width:100%;background:var(--panel-solid);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
-#offl h2{font:400 28px/1.2 var(--f-display);margin:6px 0 12px} #offl p{font-size:14px;line-height:1.5;opacity:.85}
+#offl{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;background:rgba(5,8,16,.9);padding:20px}
+#offl[hidden]{display:none} #offl .o-in{max-width:560px;max-height:92vh;overflow:auto;width:100%;background:var(--panel-solid);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+#offl h2{font:400 28px/1.2 var(--f-display);margin:6px 0 12px}
+#o-cur{margin:8px 0 4px;font:12px/1.35 ui-monospace,Menlo,Consolas,monospace} #o-cur .f{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:3px 0;border-bottom:1px solid #ffffff12}
+#o-cur .f span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis} #o-cur .f b{font-weight:400;opacity:.75} #o-cur .f i{grid-column:1/3;display:block;height:3px;border-radius:2px;background:#ffffff14;overflow:hidden} #o-cur .f i u{display:block;height:100%;background:var(--gold);text-decoration:none}
+#o-log{font:11.5px/1.35 ui-monospace,Menlo,Consolas,monospace;color:#ff9a8a;max-height:90px;overflow:auto} #o-dl a{display:block;margin:6px 0;color:var(--gold);font-weight:600} #offl p{font-size:14px;line-height:1.5;opacity:.85}
 #offl .o-bar{height:6px;border-radius:3px;background:#ffffff1a;overflow:hidden} #offl .o-bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .2s}
 #autohint{position:fixed;z-index:5;left:50%;top:calc(70px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:4px 12px;font-size:12.5px;transition:opacity .6s}
 #autohint.fade{opacity:0}
-body.offline .off-btn{display:none}
+body.offline .off-btn{display:none} .off-btn{display:none!important}   /* Download-Knöpfe nur in der eigenen Datei offline-daten-erstellen.html */
 #meas{position:fixed;z-index:7;top:calc(70px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(440px,calc(100% - 24px));
   background:var(--panel-solid);border:1px solid var(--gold);border-radius:10px;padding:10px 12px;box-shadow:0 8px 30px #0008;font-size:14px;line-height:1.45}
 #meas b{color:var(--gold)} #meas .big{font:600 20px/1.3 var(--f-mono);margin:4px 0;color:#fff} #meas small{opacity:.75}
@@ -557,7 +560,8 @@ body.tdot #fade .wt b{font-size:clamp(18px,2.6vw,30px)}body.tdot #fade .wt span{
   </div></div></div>
 <div id="offl" hidden role="dialog" aria-label="Offline-Version"><div class="o-in"><div class="kicker">Offline-Version</div><h2 id="o-h">Wird erstellt …</h2>
   <div class="o-bar"><i id="o-prog"></i></div><p id="o-t">Lade 3D-Bibliothek, Texturen, Fotos und Wikipedia-Texte. Das dauert etwa 1–3 Minuten.</p>
-  <div class="row"><button class="btn primary" id="o-close" hidden>Schließen</button></div></div></div>
+  <div id="o-cur" aria-live="polite"></div><div id="o-log"></div><div id="o-dl"></div>
+  <div class="row"><button class="btn ghost" id="o-stop">Abbrechen</button><button class="btn primary" id="o-close" hidden>Schließen</button></div></div></div>
 <div id="cockpit" hidden>
   <svg class="ck-frame" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
     <!-- Fenster nur angedeutet: zarte, durchsichtige Rahmenlinien und ein Hauch Spiegelung -->
@@ -688,6 +692,7 @@ body.tdot #fade .wt b{font-size:clamp(18px,2.6vw,30px)}body.tdot #fade .wt span{
   <div class="td-l" id="td-calib" hidden><div class="td-card"><h2>Halte das iPad wie ein Lenkrad</h2><p>Halte es bequem vor dich. <b>Kippen</b> lenkt das Raumschiff:<br>links / rechts drehen, vor / zurück neigen = runter / hoch.</p>
     <div class="td-tilt">📱</div><button class="td-big" id="td-calok">So halte ich es – START!</button></div></div>
   <div class="td-l" id="td-count" hidden><div class="td-stamps"></div><div id="td-num"></div><p id="td-cdsub"></p><p class="td-sub">Countdown wie bei der NASA · Start neben dem Dionysianum</p></div>
+  <button id="td-skipl" hidden style="position:fixed;right:16px;bottom:18px;z-index:30;pointer-events:auto;font:600 15px/1 system-ui,sans-serif;padding:12px 16px;border-radius:12px;border:1px solid #ffffff40;background:#0d1626cc;color:#fff;backdrop-filter:blur(6px)">⏭ Start überspringen</button>
   <div class="td-l" id="td-hud" hidden>
     <div id="td-goal"></div><div id="td-dist"></div><div id="td-time"></div><div id="td-speed"></div><div class="td-stamps"></div>
     <div id="td-catch"><i></i></div><div id="td-tip"></div><button id="td-cam" title="Kamera umschalten">🎥 Cockpit</button>
@@ -717,7 +722,7 @@ body.tdot #fade .wt b{font-size:clamp(18px,2.6vw,30px)}body.tdot #fade .wt span{
       <button class="btn ghost off-btn" id="i-off" title="Alles in eine Datei packen, die ohne Internet läuft">⤓ Offline-Version speichern</button>
       <button class="btn ghost off-btn" id="i-off2" title="Alle Online-Daten (Bilder, Karten, Töne, Texte) in die Datei offline-daten.bin packen – neben index.html hochladen">⤓ Offline-Daten für GitHub</button>
     </div>
-    <p class="note" id="i-note">Ziehen = drehen, schnell wischen = automatisch drehen · Mausrad oder zwei Finger = zoomen · Pfeiltasten = Reise vor und zurück. Fotos und Texturen werden live von Wikipedia und Wikimedia Commons geladen (Internet nötig). Für den Unterricht ohne Internet: „Offline-Version speichern“.</p>
+    <p class="note" id="i-note">Ziehen = drehen, schnell wischen = automatisch drehen · Mausrad oder zwei Finger = zoomen · Pfeiltasten = Reise vor und zurück. Fotos und Texturen werden live von Wikipedia und Wikimedia Commons geladen (Internet nötig).</p>
   </div>
 </div>
 
@@ -1879,7 +1884,8 @@ const offU=u=>OFF?(OFF.f[u]||(OFF.a[u]&&OFF.f[OFF.a[u]])||u):u;
 {const L0=texLoader.load.bind(texLoader);texLoader.load=(u,a,b,c)=>L0(offU(u),a,b,c);}
 // Hochaufgelöste Texturen (werden nach den kleinen nachgeladen); 8k nur auf Geräten, die es können
 const MAXTEX=renderer.capabilities.maxTextureSize||4096, MAXANI=renderer.capabilities.getMaxAnisotropy?renderer.capabilities.getMaxAnisotropy():4;
-const BIG=MAXTEX>=8192&&(window.ATLAS_TDOT||!(window.matchMedia&&matchMedia('(pointer:coarse)').matches));
+const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const BIG=MAXTEX>=8192&&!IOS&&(window.ATLAS_TDOT||!(window.matchMedia&&matchMedia('(pointer:coarse)').matches));   /* 13.48b: auf iPad/iPhone nie die 8k-Erdtexturen (je ~130 MB Grafikspeicher – das iPad 8 mit 3 GB hängte sich auf) */
 const TXHI={earth:BIG?'0/04/Solarsystemscope_texture_8k_earth_daymap.jpg':'thumb/0/04/Solarsystemscope_texture_8k_earth_daymap.jpg/3840px-Solarsystemscope_texture_8k_earth_daymap.jpg',
  night:BIG?'b/b3/Solarsystemscope_texture_8k_earth_nightmap.jpg':'thumb/b/b3/Solarsystemscope_texture_8k_earth_nightmap.jpg/3840px-Solarsystemscope_texture_8k_earth_nightmap.jpg',
  night2k:'2/2f/Solarsystemscope_texture_2k_earth_nightmap.jpg',
@@ -3707,6 +3713,7 @@ function tdReverb(){if(TD.rev||!TD.ac)return TD.rev;const ac=TD.ac,L=ac.sampleRa
   const cv=ac.createConvolver();cv.buffer=b;const g=ac.createGain();g.gain.value=0.6;cv.connect(g);g.connect(ac.destination);TD.rev=cv;return cv;}
 
 const DIO3D={near:false,vis:false,model:null,upW:null};
+const SIMOBJ=()=>!!window.ATLAS_TDOT||!window.DIO_MODE||(typeof TD!=='undefined'&&!!TD.on);   /* Kran, Rampe, Landebahn, Shuttle, Truck: nur im Flugsimulator (bzw. wenn im Atlas die Mission gestartet wird) */
 // ---------- Das echte Dio: 3D-Mesh von Geobasis NRW (Luftbild-Photogrammetrie) in Originalgröße ----------
 // Meter, x = Osten, y = oben, z = Süden; Ursprung am Dio, y = 0 auf Höhe der Wiese nördlich der Schule (37,2 m ü. NHN)
 const DIO_V=9e-5;          // Blickgröße am Dio (≈ 570 m)
@@ -3716,17 +3723,17 @@ const DIOM={R:10000,url:['rheine-3d-1.bin','rheine-3d-2.bin'],   // innen bis 1,
 function stripY(al){const L=DIOM.strip,K=L.yk;if(!K)return L.y;if(al<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++)if(al<=K[i][0]){const a=K[i-1],b=K[i];return a[1]+(b[1]-a[1])*(al-a[0])/(b[0]-a[0]);}return K[K.length-1][1];}
 function stripYAt(x,z){const L=DIOM.strip,dx=L.x1-L.x0,dz=L.z1-L.z0,len=Math.hypot(dx,dz);return stripY(((x-L.x0)*dx+(z-L.z0)*dz)/len);}
 function dioMeshModel(sunW){
-  const root=new THREE.Group(),padRoot=new THREE.Group();padRoot.position.copy(DIOM.pad);root.add(padRoot);DIO3D.padRoot=padRoot;DIO3D.padY=10.2;try{craneBuild(root);}catch(e){console.warn('Kran',e);}
+  const root=new THREE.Group(),padRoot=new THREE.Group();padRoot.position.copy(DIOM.pad);root.add(padRoot);DIO3D.padRoot=padRoot;DIO3D.padY=10.2;if(SIMOBJ()){try{craneBuild(root);}catch(e){console.warn('Kran',e);}}else DIO3D.craneLater=root;
   // Tiefen-Rangfolge (lv): wo sich Kacheln überlappen, liegt die gröbere minimal weiter hinten (entlang des Sehstrahls, Bild unverändert) – kein Flackern, keine Lücken
   // Luftbild (DOP, Geobasis NRW, ≈ 0,4 m) rund um die Landebahn: wird auf den Boden des 3D-Mesh gelegt (nur bodennahe Flächen, Dächer und Bäume behalten ihre Mesh-Textur)
   DIOM.dop={tex:{value:null},on:{value:0},rect:{value:new THREE.Vector4(-160,-1100,240,120)}};
   const tune=(m,lv,ea)=>{m.onBeforeCompile=sh=>{sh.uniforms.uK=DIOM.kU;sh.uniforms.uLv={value:(lv||0)*1.2e-5};const nc=m.userData.nc,ns=m.userData.ns;
       sh.uniforms.uDop=DIOM.dop.tex;sh.uniforms.uDopOn=DIOM.dop.on;sh.uniforms.uDopR=DIOM.dop.rect;sh.uniforms.uDopUse={value:nc?1:0};sh.uniforms.uNC={value:new THREE.Vector3(...(nc||[0,0,0]))};sh.uniforms.uNS={value:new THREE.Vector3(...(ns||[0,0,0]))};
-      sh.vertexShader='uniform float uLv;uniform vec3 uNC,uNS;varying vec3 vLoc;\n'+(ea?'attribute float aA;\nvarying float vA;\n':'')+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvLoc=vec3(position.x*uNS.x,position.z*uNS.z,-position.y*uNS.y)+uNC;gl_Position=projectionMatrix*vec4(mvPosition.xyz*(1.0+uLv),1.0);'+(ea?'\nvA=aA;':''));
-      sh.fragmentShader='uniform float uK;uniform sampler2D uDop;uniform float uDopOn,uDopUse;uniform vec4 uDopR;varying vec3 vLoc;\n'+(ea?'varying float vA;\n':'')+sh.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\n'+
+      sh.vertexShader='uniform float uLv;uniform vec3 uNC,uNS;varying vec3 vLoc;\n'+(ea?'attribute float aA;\nvarying float vA;\nvarying float vN;\n':'')+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvLoc=vec3(position.x*uNS.x,position.z*uNS.z,-position.y*uNS.y)+uNC;gl_Position=projectionMatrix*vec4(mvPosition.xyz*(1.0+uLv),1.0);'+(ea?'\nvA=aA;vN=fract(sin(mod(dot(position.xy,vec2(0.1031,0.1103))+position.z*0.0973,6283.185))*43758.5453);':''));
+      sh.fragmentShader='uniform float uK;uniform sampler2D uDop;uniform float uDopOn,uDopUse;uniform vec4 uDopR;varying vec3 vLoc;\n'+(ea?'varying float vA;\nvarying float vN;\n':'')+sh.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\n'+
         'if(uDopOn*uDopUse>0.5){vec2 du=(vLoc.xz-uDopR.xy)/(uDopR.zw-uDopR.xy);if(du.x>0.0&&du.x<1.0&&du.y>0.0&&du.y<1.0){float e=min(min(du.x,1.0-du.x)*(uDopR.z-uDopR.x),min(du.y,1.0-du.y)*(uDopR.w-uDopR.y));'+
         'float gb=mix(-4.2,0.6,smoothstep(-520.0,-300.0,vLoc.z));float w=smoothstep(0.0,45.0,e)*(1.0-smoothstep(2.5,6.0,vLoc.y-gb));diffuseColor.rgb=mix(diffuseColor.rgb,texture2D(uDop,vec2(du.x,1.0-du.y)).rgb,w);}}\n'+
-        'diffuseColor.rgb*=uK;'+(ea?'diffuseColor.a*=vA;':''));};m.customProgramCacheKey=()=>ea?'diomeshE':'diomesh2';return m;};
+        'diffuseColor.rgb*=uK;'+(ea?'if(vN>vA)discard;':''));};m.customProgramCacheKey=()=>ea?'diomeshE2':'diomesh2';return m;};
   {const r=DIOM.dop.rect.value,E0=393028+r.x,E1=393028+r.z,N0=5793664-r.w,N1=5793664-r.y,W=1024,H=Math.round(W*(r.w-r.y)/(r.z-r.x));
    const url=`https://www.wms.nrw.de/geobasis/wms_nw_dop?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=nw_dop_rgb&STYLES=&CRS=EPSG:25832&BBOX=${E0},${N0},${E1},${N1}&WIDTH=${W}&HEIGHT=${H}&FORMAT=image/jpeg`;
    const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{const t=new THREE.Texture(im);t.anisotropy=MAXANI;t.needsUpdate=true;DIOM.dop.tex.value=t;DIOM.dop.on.value=1;};setTimeout(()=>{im.src=url;},7000);}
@@ -3755,10 +3762,11 @@ function dioMeshModel(sunW){
   const inner=LOCAL?localData().then(D=>b64(D.bin)):getBin(DIOM.url);
   const g=new THREE.Group();g.name='dioMesh';
   // Dithering am Rand: das Mesh löst sich in feinen Punkten in das Luftbild auf (kein sichtbarer Rand, keine Sortierprobleme durch Transparenz)
+  // 13.47: Muster hängt am Gelände (Zufallswert je Eckpunkt), nicht mehr am Bildschirm – vorher flimmerte der Rand (u. a. an der Ems) bei jeder Kamerabewegung
   const tuneF=m=>{m.onBeforeCompile=sh=>{sh.uniforms.uK=DIOM.kU;
-      sh.vertexShader='attribute float aF;\nvarying float vF;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvF=aF;');
-      sh.fragmentShader='uniform float uK;\nvarying float vF;\n'+sh.fragmentShader.replace('void main() {','void main() {\nif(vF<0.999){float h=fract(sin(dot(floor(gl_FragCoord.xy),vec2(12.9898,78.233)))*43758.5453);if(h>vF)discard;}').replace('#include <map_fragment>','#include <map_fragment>\ndiffuseColor.rgb*=uK;');};
-    m.customProgramCacheKey=()=>'diomeshF';return m;};
+      sh.vertexShader='attribute float aF;\nvarying float vF;\nvarying float vN;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvF=aF;vN=fract(sin(mod(dot(position.xy,vec2(0.1031,0.1103))+position.z*0.0973,6283.185))*43758.5453);');
+      sh.fragmentShader='uniform float uK;\nvarying float vF;\nvarying float vN;\n'+sh.fragmentShader.replace('void main() {','void main() {\nif(vF<0.999){if(vN>vF)discard;}').replace('#include <map_fragment>','#include <map_fragment>\ndiffuseColor.rgb*=uK;');};
+    m.customProgramCacheKey=()=>'diomeshF2';return m;};
   const build=(buf,o)=>{const dv=new DataView(buf);if(dv.getUint32(0,true)!==0x4d4f4944)throw new Error('kein DIOM');const hl=dv.getUint32(8,true);
     const H=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,12,hl))),D0=12+hl,Z0=DIOM.Z0,[fx0,fx1,fz0,fz1]=DIOM.flat,RA=o.r0,RB=o.r1;
     // weicher Rand: auf den letzten 300 m sanft auf die Höhe des Luftbilds absinken (Ring: zusätzlich auflösen)
@@ -3775,6 +3783,9 @@ function dioMeshModel(sunW){
       if(X1>fx0-6&&X0<fx1+6&&Zs1>fz0-6&&Zs0<fz1+6)for(let i=0;i<n.m;i++){const X=c[0]+sc[0]*pos[i*3],Z=-c[1]-sc[1]*pos[i*3+1];
         const w=Math.min(1,Math.max(0,Math.min(X-fx0+6,fx1+6-X,Z-fz0+6,fz1+6-Z)/6));if(w<=0)continue;
         const Y=c[2]-Z0+sc[2]*pos[i*3+2];if(Y>0.15){const Yn=Y+(0.15-Y)*w;pos[i*3+2]=Math.max(-32767,Math.min(32767,Math.round((Yn-(c[2]-Z0))/sc[2])));}}
+      // 13.47: Bäume rund um den Kran flach (Radius 32 m, weicher Rand 8 m) – der Kran ragt nicht mehr in die Bäume
+      {const KX=128,KZ=-32,KR=32;if(X1>KX-KR-8&&X0<KX+KR+8&&Zs1>KZ-KR-8&&Zs0<KZ+KR+8)for(let i=0;i<n.m;i++){const X=c[0]+sc[0]*pos[i*3],Z=-c[1]-sc[1]*pos[i*3+1],w=Math.min(1,Math.max(0,(KR+8-Math.hypot(X-KX,Z-KZ))/8));if(w<=0)continue;
+        const Y=c[2]-Z0+sc[2]*pos[i*3+2];if(Y>0.6){const Yn=Y+(0.6-Y)*w;pos[i*3+2]=Math.max(-32767,Math.min(32767,Math.round((Yn-(c[2]-Z0))/sc[2])));}}}
       // Landebahn auf der Salzbergener Straße: Bäume im Mittelstreifen und am Rand flach (Streifen entlang der Straße)
       {const L=DIOM.strip,dx=L.x1-L.x0,dz=L.z1-L.z0,len=Math.hypot(dx,dz),ux=dx/len,uz=dz/len;
        if(X1>Math.min(L.x0,L.x1)-L.w-8&&X0<Math.max(L.x0,L.x1)+L.w+8&&Zs1>Math.min(L.z0,L.z1)-L.w-8&&Zs0<Math.max(L.z0,L.z1)+L.w+8)for(let i=0;i<n.m;i++){const X=c[0]+sc[0]*pos[i*3],Z=-c[1]-sc[1]*pos[i*3+1];
@@ -3804,9 +3815,9 @@ function dioMeshModel(sunW){
     num('35',py(60),Math.PI);num('17',py(len-60),0);
     const t=new THREE.CanvasTexture(cv);t.anisotropy=MAXANI;const geo=new THREE.PlaneGeometry(W,len,1,96);geo.rotateX(-Math.PI/2);{const pa=geo.attributes.position;for(let i=0;i<pa.count;i++)pa.setY(i,stripY(len/2-pa.getZ(i)));}   /* Bahn folgt dem Gelände (lokal +z = Bahnanfang im Norden) */
     const mat=tune(new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:true}));const me=new THREE.Mesh(geo,mat);
-    me.position.set((L.x0+L.x1)/2,0.15,(L.z0+L.z1)/2);me.rotation.y=Math.atan2(dx,dz)+Math.PI;me.renderOrder=-0.9;me.userData.ok=true;me.visible=DIOM.op>0;me.raycast=()=>{};
+    me.position.set((L.x0+L.x1)/2,0.15,(L.z0+L.z1)/2);me.rotation.y=Math.atan2(dx,dz)+Math.PI;me.renderOrder=-0.9;me.userData.ok=true;me.userData.rwy=true;me.visible=DIOM.op>0;me.raycast=()=>{};
     root.add(me);DIOM.aprM.push(me);DIOM.mats.push(mat);};
-  inner.then(buf=>{build(buf,{r0:0,r1:DIOM.R+10,melt:true,my:-27,edits:true});root.add(g);runway();DIOM.ok=true;}).catch(e=>{console.warn('3D-Mesh nicht geladen, nehme das gebaute Modell',e);useOld();});  return root;}
+  inner.then(buf=>{build(buf,{r0:0,r1:DIOM.R+10,melt:true,my:-27,edits:SIMOBJ()});root.add(g);runway();DIOM.ok=true;}).catch(e=>{console.warn('3D-Mesh nicht geladen, nehme das gebaute Modell',e);useOld();});  return root;}
 // Tageshimmel in Bodennähe (sonst wäre der Himmel über dem Dio schwarz); blendet mit der Höhe aus. Bahnlinien dort ausblenden
 function lowSkySetup(){const sk=SKY.erde;if(!sk)return;
   const U={uUp:{value:new V3(0,1,0)},uSun:{value:new V3(1,0,0)},uA:{value:0}};
@@ -3868,6 +3879,37 @@ function rheineSky(earth,holderM,sunW){
    const URLS=['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/GoogleMapsCompatible/','https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/GoogleMapsCompatible/'];CLD.regList=[];for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)CLD.regList.push(URLS[0]+ZL+'/'+(j0+j)+'/'+(i0+i)+'.jpg');   /* für die Offline-Daten */
    const load=()=>{for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){let u=0;const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{g.drawImage(im,i*256,j*256);ok++;done();};im.onerror=()=>{if(++u<URLS.length)im.src=URLS[u]+ZL+'/'+(j0+j)+'/'+(i0+i)+'.jpg';else done();};im.src=URLS[0]+ZL+'/'+(j0+j)+'/'+(i0+i)+'.jpg';}};
    if(location.protocol!=='file:')setTimeout(load,6000);else load();}
+  // 13.48: Süden bis einschließlich Münster genauer: Sentinel-2 cloudless (EOX) in Zoomstufe 13 bzw. 12 auf iPad (≈ 12/24 m pro Bildpunkt statt ≈ 49 m der 100-km-Karte), zwei Teile (je < 4096 Bildpunkte breit)
+  CLD.regS=[];
+  /* Zoomstufe 12 (≈ 24 m/Bildpunkt): Zoomstufe 13 war für das iPad 8 (3 GB) zu viel Grafikspeicher */
+  {const utmInv=(E,N)=>{const a=6378137,f=1/298.257223563,k0=0.9996,e2=f*(2-f),ep2=e2/(1-e2),x=E-500000,mu=N/k0/(a*(1-e2/4-3*e2*e2/64-5*e2*e2*e2/256)),e1=(1-Math.sqrt(1-e2))/(1+Math.sqrt(1-e2));
+     const p1=mu+(3*e1/2-27*e1**3/32)*Math.sin(2*mu)+(21*e1*e1/16-55*e1**4/32)*Math.sin(4*mu)+(151*e1**3/96)*Math.sin(6*mu)+(1097*e1**4/512)*Math.sin(8*mu);
+     const sn=Math.sin(p1),cs=Math.cos(p1),t=Math.tan(p1),C1=ep2*cs*cs,T1=t*t,N1=a/Math.sqrt(1-e2*sn*sn),R1=a*(1-e2)/Math.pow(1-e2*sn*sn,1.5),D=x/(N1*k0);
+     const lat=p1-(N1*t/R1)*(D*D/2-(5+3*T1+10*C1-4*C1*C1-9*ep2)*D**4/24+(61+90*T1+298*C1+45*T1*T1-252*ep2-3*C1*C1)*D**6/720),lon=(D-(1+2*T1+C1)*D**3/6+(5-2*C1+28*T1-3*C1*C1+8*ep2+24*T1*T1)*D**5/120)/cs;
+     return [lat*180/Math.PI,9+lon*180/Math.PI];};
+   const ll=(x,z)=>utmInv(393028+x,5793664-z);
+   const region=(X0,X1,Z0,Z1,ZL,SX,SZ,ro,key,FE)=>{const T=2**ZL,tx=lo=>(lo+180)/360*T,ty=la=>{const r=la*Math.PI/180;return (1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*T;};
+     let a=1e9,b=-1e9,c=1e9,d=-1e9;for(let i=0;i<=8;i++)for(const z of [Z0,Z1]){const x=X0+(X1-X0)*i/8,[la,lo]=ll(x,z);a=Math.min(a,tx(lo));b=Math.max(b,tx(lo));c=Math.min(c,ty(la));d=Math.max(d,ty(la));}
+     for(let i=0;i<=8;i++)for(const x of [X0,X1]){const z=Z0+(Z1-Z0)*i/8,[la,lo]=ll(x,z);a=Math.min(a,tx(lo));b=Math.max(b,tx(lo));c=Math.min(c,ty(la));d=Math.max(d,ty(la));}
+     const i0=Math.floor(a),j0=Math.floor(c),nx=Math.floor(b)-i0+1,ny=Math.floor(d)-j0+1;
+     const geo=new THREE.BufferGeometry(),pos=[],uv=[],al=[],idx=[];
+     for(let j=0;j<=SZ;j++)for(let i=0;i<=SX;i++){const x=X0+(X1-X0)*i/SX,z=Z0+(Z1-Z0)*j/SZ,[la,lo]=ll(x,z);pos.push(x,-34-drop(x,z),z);uv.push((tx(lo)-i0)/nx,1-(ty(la)-j0)/ny);
+       const e=Math.min(FE[0]?(x-X0)/FE[0]:1e9,FE[1]?(X1-x)/FE[1]:1e9,FE[2]?(z-Z0)/FE[2]:1e9,FE[3]?(Z1-z)/FE[3]:1e9);al.push(Math.max(0,Math.min(1,e)));}
+     for(let j=0;j<SZ;j++)for(let i=0;i<SX;i++){const q=j*(SX+1)+i;idx.push(q,q+SX+1,q+1,q+1,q+SX+1,q+SX+2);}
+     geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setAttribute('aA',new THREE.Float32BufferAttribute(al,1));geo.setIndex(idx);
+     const cv=document.createElement('canvas');cv.width=nx*256;cv.height=ny*256;const g=cv.getContext('2d'),tex=new THREE.CanvasTexture(cv);tex.anisotropy=MAXANI;
+     const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,opacity:0,side:THREE.DoubleSide});
+     mat.onBeforeCompile=sh=>{sh.uniforms.uK=DIOM.kU;sh.vertexShader='attribute float aA;\nvarying float vA;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvA=aA;');
+       sh.fragmentShader='uniform float uK;\nvarying float vA;\n'+sh.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\n{vec3 c=diffuseColor.rgb;float lm=dot(c,vec3(0.3,0.59,0.11)),w=smoothstep(0.17,0.07,lm)*smoothstep(-0.02,0.03,c.b-c.r);diffuseColor.rgb=mix(c,max(c*1.8,vec3(0.11,0.19,0.28)),w*0.85);}diffuseColor.rgb*=uK;diffuseColor.a*=vA;');};mat.customProgramCacheKey=()=>key;
+     const me=new THREE.Mesh(geo,mat);me.renderOrder=ro;me.visible=false;me.raycast=()=>{};me.frustumCulled=false;grp.add(me);const R0={me,ok:false};CLD.regS.push(R0);
+     let n=0,ok=0;const tot=nx*ny,done=()=>{if(++n===tot||n%12===0)tex.needsUpdate=true;if(ok>0)R0.ok=true;};
+     const URLS=['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/GoogleMapsCompatible/','https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/GoogleMapsCompatible/'];
+     for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)(CLD.regList||(CLD.regList=[])).push(URLS[0]+ZL+'/'+(j0+j)+'/'+(i0+i)+'.jpg');   /* für die Offline-Daten */
+     const load=()=>{for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){let u=0;const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{g.drawImage(im,i*256,j*256);ok++;done();};im.onerror=()=>{if(++u<URLS.length)im.src=URLS[u]+ZL+'/'+(j0+j)+'/'+(i0+i)+'.jpg';else done();};im.src=URLS[0]+ZL+'/'+(j0+j)+'/'+(i0+i)+'.jpg';}};
+     setTimeout(load,location.protocol!=='file:'?9000:0);};
+   // westlicher und östlicher Teil (Münster liegt bei x ≈ +13 km, z ≈ +36 km); Rand: nach außen 5 km weich in die 100-km-Karte, an der Naht ohne Rand
+   region(-20000,3000,10000,44000,12,24,34,-8.37,'umgSud1',[5000,0,4000,4000]);
+   region(3000,26000,10000,44000,12,24,34,-8.37,'umgSud2',[0,5000,4000,4000]);}
   // Wolken: viele weiche Billboards (eine Zeichnung, instanziert), Bedeckung innen voll, nach außen aufgerissen
   const R=rng(5291),hash=(i,j)=>{const s=Math.sin(i*127.1+j*311.7)*43758.5453;return s-Math.floor(s);};
   const vn=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
@@ -3880,16 +3922,20 @@ function rheineSky(earth,holderM,sunW){
   CLD.cover=cover;
   // Nordsee wolkenfrei (Küste und Inseln sichtbar): grobe Küstenlinie im Dio-System (z nach Süden): NL-Wattküste ≈ 53,4° N, ostfriesische Küste ≈ 53,55° N, westlich von Nordholland offenes Meer
   const sea=(x,z)=>{const zc=x<-15000?-122000:x>5000?-138000:-122000-(x+15000)/20000*16000;return z<zc-4000||(x<-180000&&z<20000);};
-  const P=[],SP=1100;   /* feiner: kleinere, dichter gesetzte Puffs */
-  for(let gx=-70000;gx<=70000;gx+=SP)for(let gz=-70000;gz<=70000;gz+=SP){const x=gx+(R()-0.5)*SP*0.95,z=gz+(R()-0.5)*SP*0.95,c=cover(x,z);if(sea(x,z)||c<0.04||R()>0.3+0.7*c)continue;
-    const hn=R(),h=1640+hn*380+fbm(x/3000,z/3000)*160;P.push([x,h-drop(x,z),z,(1400+R()*1600)*(0.6+0.4*c),R()*6.283,(0.27+0.4*c)*(Math.hypot(x,z)<15000?1:0.7),Math.floor(R()*4),hn]);}
+  const P=[],SP=1800;
+  /* 13.48: echte Haufenwolken – jede Wolke ist ein Büschel aus 3–10 kleinen Puffs: flache Unterseite (gemeinsame Basishöhe), nach oben gewölbt (Blumenkohl), oben kleiner;
+     Basishöhe je Gegend leicht verschieden, Wolkengröße und Dichte folgen der Bedeckung */
+  for(let gx=-70000;gx<=70000;gx+=SP)for(let gz=-70000;gz<=70000;gz+=SP){const x=gx+(R()-0.5)*SP*0.9,z=gz+(R()-0.5)*SP*0.9,c=cover(x,z);if(sea(x,z)||c<0.04||R()>0.25+0.75*c)continue;
+    const Rc=(420+R()*700)*(0.55+0.75*c),b0=1560+fbm(x/6000+3.3,z/6000+8.8)*260+R()*60,Hc=Rc*(0.55+R()*0.6),np=2+Math.floor(R()*2.5+c*4),dr=drop(x,z),near=Math.hypot(x,z)<15000?1:0.75;
+    for(let k=0;k<np;k++){const a=R()*6.283,d=Math.sqrt(R())*Rc*0.8,px=x+Math.cos(a)*d,pz=z+Math.sin(a)*d,t=1-(d/Rc)*(d/Rc),hk=Hc*t*(0.15+0.85*R()),sz=Rc*(0.62+0.4*R())*(1-0.35*hk/Hc);
+      P.push([px,b0+hk+sz*0.18-dr,pz,sz*2,R()*6.283,(0.3+0.38*c)*near,Math.floor(R()*4),Math.min(1,hk/Hc*0.9+R()*0.15),b0-dr]);}}
   // mittlere Zone (70–200 km): gröbere Puffs mit derselben Bedeckung
   for(let gx=-200000;gx<=200000;gx+=2400)for(let gz=-200000;gz<=200000;gz+=2400){if(Math.abs(gx)<=70000&&Math.abs(gz)<=70000)continue;const x=gx+(R()-0.5)*2300,z=gz+(R()-0.5)*2300,c=cover(x,z);if(sea(x,z)||c<0.05||R()>0.35+0.65*c)continue;
-    const hn=R();P.push([x,1650+hn*420-drop(x,z),z,(2900+R()*2900)*(0.6+0.4*c),R()*6.283,0.27+0.4*c,Math.floor(R()*4),hn]);}
+    const hn=R(),sz=(2900+R()*2900)*(0.6+0.4*c),y=1650+hn*420-drop(x,z);P.push([x,y,z,sz,R()*6.283,0.27+0.4*c,Math.floor(R()*4),hn,y-sz*0.25]);}
   // äußere Zone (bis ≈ 520 km): große, weiche Wolkenfelder, gehen in die Wolken der Weltkarte über
   for(let gx=-520000;gx<=520000;gx+=8000)for(let gz=-520000;gz<=520000;gz+=8000){const x=gx+(R()-0.5)*7500,z=gz+(R()-0.5)*7500,r=Math.hypot(x,z);if(r<180000||r>530000||sea(x,z))continue;
     const c=Math.min(1,Math.max(0,(fbm(x/80000+1.1,z/80000+6.2)*0.7+fbm(x/24000+4.4,z/24000+2.2)*0.3-0.56)/0.12))*(1-Math.min(1,Math.max(0,(r-460000)/70000)));if(c<0.05||R()>0.4+0.6*c)continue;
-    const hn=R();P.push([x,1700+hn*500-drop(x,z),z,(10000+R()*10000),R()*6.283,0.23+0.36*c,Math.floor(R()*4),hn]);}
+    const hn=R(),sz=10000+R()*10000,y=1700+hn*500-drop(x,z);P.push([x,y,z,sz,R()*6.283,0.23+0.36*c,Math.floor(R()*4),hn,y-sz*0.25]);}
   const n=P.length;CLD.n=n;
   // Puff-Textur: 2×2 weiche Haufen aus vielen Kreisen
   const cv=document.createElement('canvas');cv.width=cv.height=512;const g=cv.getContext('2d');
@@ -3901,26 +3947,26 @@ function rheineSky(earth,holderM,sunW){
    g.putImageData(id,0,0);}
   const tex=new THREE.CanvasTexture(cv);
   const base=new THREE.PlaneGeometry(1,1),geo=new THREE.InstancedBufferGeometry();geo.index=base.index;geo.setAttribute('position',base.attributes.position);
-  const aP=new Float32Array(n*3),aD=new Float32Array(n*4),aH=new Float32Array(n);
-  const ip=new THREE.InstancedBufferAttribute(aP,3),id=new THREE.InstancedBufferAttribute(aD,4),ih=new THREE.InstancedBufferAttribute(aH,1);
+  const aP=new Float32Array(n*3),aD=new Float32Array(n*4),aH=new Float32Array(n),aB=new Float32Array(n);
+  const ip=new THREE.InstancedBufferAttribute(aP,3),id=new THREE.InstancedBufferAttribute(aD,4),ih=new THREE.InstancedBufferAttribute(aH,1),ib=new THREE.InstancedBufferAttribute(aB,1);ib.setUsage(THREE.DynamicDrawUsage);
   ip.setUsage(THREE.DynamicDrawUsage);id.setUsage(THREE.DynamicDrawUsage);ih.setUsage(THREE.DynamicDrawUsage);
-  geo.setAttribute('iP',ip);geo.setAttribute('iD',id);geo.setAttribute('iH',ih);geo.instanceCount=n;
+  geo.setAttribute('iP',ip);geo.setAttribute('iD',id);geo.setAttribute('iH',ih);geo.setAttribute('iB',ib);geo.instanceCount=n;
   const U={uTex:{value:tex},uOp:{value:0},uTop:{value:new THREE.Color(1,1,1)},uBot:{value:new THREE.Color(0.6,0.63,0.68)}};
   const mat=new THREE.ShaderMaterial({uniforms:U,transparent:true,depthWrite:false,
-    vertexShader:`attribute vec3 iP;attribute vec4 iD;attribute float iH;uniform float uOp;varying vec2 vUv;varying float vA;varying float vG;varying float vH;
+    vertexShader:`attribute vec3 iP;attribute vec4 iD;attribute float iH;attribute float iB;uniform float uOp;varying vec2 vUv;varying float vA;varying float vG;varying float vH;varying float vB;varying float vK;
 void main(){vec4 mv=modelViewMatrix*vec4(iP,1.0);float sca=length((modelViewMatrix*vec4(1.0,0.0,0.0,0.0)).xyz);float dist=length(mv.xyz),gw=smoothstep(25000.0,450000.0,dist/max(sca,1e-30));float S=iD.x*sca*(1.0+1.6*gw);
   float c=cos(iD.y),s=sin(iD.y);vec2 q=vec2(c*position.x-s*position.y,s*position.x+c*position.y);
   vec3 up=(modelViewMatrix*vec4(0.0,1.0,0.0,0.0)).xyz;float k=length(up.xy)/max(1e-9,length(up));vG=k>1e-3?dot(position.xy,normalize(up.xy))*k:0.0;
-  vH=iH;vA=iD.z*uOp*smoothstep(S*0.22,S*0.7,dist)*(1.0-0.35*gw);
+  vH=iH;vK=k;vB=(iB-iP.y)/max(iD.x,1.0);vA=iD.z*uOp*smoothstep(S*0.22,S*0.7,dist)*(1.0-0.35*gw);
   vec2 t=vec2(mod(iD.w,2.0),floor(iD.w*0.5));vUv=(vec2(position.x,position.y)+0.5)*0.5+t*0.5;
   mv.xy+=q*S;gl_Position=projectionMatrix*mv;if(vA<0.003)gl_Position=vec4(0.0,0.0,-2.0,1.0);}`,
-    fragmentShader:`uniform sampler2D uTex;uniform vec3 uTop,uBot;varying vec2 vUv;varying float vA;varying float vG;varying float vH;
-void main(){vec4 tx=texture2D(uTex,vUv);float a=tx.a*vA;if(a<0.004)discard;float sh=clamp(0.15+0.75*tx.r+0.9*vG+0.25*vH,0.0,1.0);gl_FragColor=vec4(mix(uBot,uTop,sh),min(a,1.0));}`});
+    fragmentShader:`uniform sampler2D uTex;uniform vec3 uTop,uBot;varying vec2 vUv;varying float vA;varying float vG;varying float vH;varying float vB;varying float vK;
+void main(){vec4 tx=texture2D(uTex,vUv);float fb=vK>0.25?smoothstep(vB-0.03,vB+0.05,vG):1.0;float a=tx.a*vA*fb;if(a<0.004)discard;float bot=1.0-smoothstep(vB,vB+0.35,vG);float sh=clamp(0.12+0.7*tx.r+0.8*vG+0.3*vH-0.35*bot*vK,0.0,1.0);gl_FragColor=vec4(mix(uBot,uTop,sh),min(a,1.0));}`   /* flache, dunklere Wolkenunterseite (von der Seite gesehen) */});
   const cl=new THREE.Mesh(geo,mat);cl.frustumCulled=false;cl.renderOrder=5;cl.raycast=()=>{};cl.visible=false;grp.add(cl);
   // hinten nach vorn sortieren (alle paar Bilder)
   const ord=new Uint32Array(n).map((_,i)=>i),dk=new Float32Array(n);let sortK=0;
-  const writeOrder=()=>{for(let j=0;j<n;j++){const p=P[ord[j]];aP[j*3]=p[0];aP[j*3+1]=p[1];aP[j*3+2]=p[2];aD[j*4]=p[3];aD[j*4+1]=p[4];aD[j*4+2]=p[5];aD[j*4+3]=p[6];aH[j]=p[7];}
-    ip.needsUpdate=id.needsUpdate=ih.needsUpdate=true;};
+  const writeOrder=()=>{for(let j=0;j<n;j++){const p=P[ord[j]];aP[j*3]=p[0];aP[j*3+1]=p[1];aP[j*3+2]=p[2];aD[j*4]=p[3];aD[j*4+1]=p[4];aD[j*4+2]=p[5];aD[j*4+3]=p[6];aH[j]=p[7];aB[j]=p[8];}
+    ip.needsUpdate=id.needsUpdate=ih.needsUpdate=ib.needsUpdate=true;};
   writeOrder();
   // Nebel beim Durchfliegen: Bildschirm-Schleier über der 3D-Ansicht
   const fog=document.createElement('div');fog.id='cld-fog';fog.style.cssText='position:fixed;inset:0;pointer-events:none;opacity:0;background:#dfe3e8';const c0=document.getElementById('c');c0.parentNode.insertBefore(fog,c0.nextSibling);CLD.fogEl=fog;
@@ -3937,6 +3983,7 @@ void main(){vec4 tx=texture2D(uTex,vUv);float a=tx.a*vA;if(a<0.004)discard;float
     U.uOp.value=Math.max(0,Math.min(1,(6500-dKm)/5000));cl.visible=show&&U.uOp.value>0;   // schon aus großer Höhe weich einblenden
     if(CLD.mapOk){CLD.map.visible=show;CLD.map.material.opacity=Math.max(0,Math.min(1,(900-dKm)/250));}
     if(CLD.regOk){CLD.reg.visible=show;CLD.reg.material.opacity=Math.max(0,Math.min(1,(1100-dKm)/300));}
+    for(const q of CLD.regS)if(q.ok){q.me.visible=show;q.me.material.opacity=Math.max(0,Math.min(1,(600-dKm)/200));}
     if(cl.visible&&(++sortK%6===0)){const cx=lc.x,cy=lc.y,cz=lc.z;for(let i=0;i<n;i++){const p=P[i];dk[i]=(p[0]-cx)**2+(p[1]-cy)**2+(p[2]-cz)**2;}ord.sort((a,b)=>dk[b]-dk[a]);writeOrder();}
     // Nebel in der Wolke (Dichte nach Höhe und Bedeckung), klingt nach dem Durchfliegen weich ab
     const fv=Math.min(1,Math.max(0,(alt-1480)/260))*(1-Math.min(1,Math.max(0,(alt-2120)/260)));
@@ -4081,7 +4128,7 @@ function buildErde(){
      // Vorwärmen: sobald alles geladen ist, das ganze Mesh einige Bilder lang unsichtbar zeichnen (Daten liegen dann schon auf der Grafikkarte – nach den Wolken ist es sofort da)
      if(DIOM.ok&&DIOM.grp&&!DIOM.warm&&!DIOM.q.length){DIOM.warm=4;DIOM.grp.traverse(o=>{if(o.isMesh)o.frustumCulled=false;});}
      const wm=DIOM.warm>0&&DIOM.warm<99;if(wm&&--DIOM.warm===0){DIOM.warm=99;DIOM.grp.traverse(o=>{if(o.isMesh)o.frustumCulled=true;});DIOM.force=true;}
-     {const op=skyU(),opv=wm?Math.max(op,0.003):op;if(DIOM.opv!==opv||DIOM.force){DIOM.force=false;for(const m of DIOM.mats){m.opacity=opv;if(m.userData.msh)m.transparent=opv<0.999||!!m.userData.ea;}}   /* ganz sichtbar: undurchsichtig zeichnen (die Grafikkarte spart verdeckte Pixel – flüssiger) */const vis=opv>0.001;if(DIOM.grp)DIOM.grp.visible=vis;for(const a of DIOM.aprM)a.visible=vis&&!!a.userData.ok;DIOM.op=op;DIOM.opv=opv;}
+     {const op=skyU(),opv=wm?Math.max(op,0.003):op;if(DIOM.opv!==opv||DIOM.force){DIOM.force=false;for(const m of DIOM.mats){m.opacity=opv;if(m.userData.msh)m.transparent=opv<0.999;}   /* 13.47b: Datenrand (u. a. die Ems an der Landesgrenze) nicht mehr halbdurchsichtig, sondern fein aufgelöst – halbdurchsichtige Kacheln wurden je nach Blickwinkel in wechselnder Reihenfolge gezeichnet und flackerten */}   /* ganz sichtbar: undurchsichtig zeichnen (die Grafikkarte spart verdeckte Pixel – flüssiger) */const vis=opv>0.001;if(DIOM.grp)DIOM.grp.visible=vis;for(const a of DIOM.aprM)a.visible=vis&&!!a.userData.ok&&(!a.userData.rwy||SIMOBJ());{const so=SIMOBJ();if(DIO3D.padRoot)DIO3D.padRoot.visible=so;if(!so){try{craneVis(false);if(CRANE.truck)CRANE.truck.visible=false;}catch(e){}}}DIOM.op=op;DIOM.opv=opv;}
      DIO3D.dCam=d;DIO3D.vis=d<120&&!!DIO3D.model;holder.visible=DIO3D.vis||(SHUTTLE.t>=0&&!!DIO3D.model);geoCredit(level==='erde'&&(DIO3D.vis&&DIOM.op>0.5&&DIOM.ok||!!CLD.mapOk&&CLD.map.visible&&CLD.map.material.opacity>0.3));dioMeshLight();dioSpr.visible=!window.TD_ON&&(!DIO3D.vis||d>300);});
    addRep('erde','dio3d',anchor,()=>wp,DIO_V,{label:false,viewLocal:viewL,coRot:true,pri:0});}
   lowSkySetup();
@@ -4374,7 +4421,7 @@ function buildSonne(){
     if(id==='ganymed'){aur=new THREE.Group();addFx(aur);
       for(const sg of [1,-1]){const b=42*DEG,t=new THREE.Mesh(new THREE.TorusGeometry(Math.cos(b)*1.02,0.008,6,128),new THREE.MeshBasicMaterial({color:0x8fb8ff,transparent:true,opacity:0.35,blending:THREE.AdditiveBlending,depthWrite:false}));
         t.rotation.x=Math.PI/2;t.position.y=sg*Math.sin(b)*1.025;t.raycast=()=>{};aur.add(t);}}
-    const wp=new V3(),wq=new V3(); SOLIDS.sonne.push({p:()=>{mesh.updateWorldMatrix(true,false);return mesh.getWorldPosition(wq);},r:()=>rm*SOLAR_G*1.05});
+    const wp=new V3(),wq=new V3(); SOLIDS.sonne.push({moon:true,p:()=>{mesh.updateWorldMatrix(true,false);return mesh.getWorldPosition(wq);},r:()=>rm*SOLAR_G*1.05});
     const wpE=new V3();
     UPD.sonne.push((ms,d)=>{const a=2*Math.PI*(d/per)+ph;mesh.position.set(dist*Math.cos(a),0,-dist*Math.sin(a));mesh.rotation.y=a+Math.PI/2;
       if(id==='enceladus'&&fx[0]&&fx[0].visible){mesh.updateWorldMatrix(true,false);plumePhase(fx[0],mesh.getWorldPosition(wpE));}
@@ -5030,14 +5077,16 @@ function switchLevel(lv,cb){
     if(!out){const an=anchorIn(from),aim=window.TD_ON&&slow&&from==='gruppe'?SUN_G.clone():an?an.p:ctl.target.clone();fly={t0:now,dur:A,from:ctl.target.clone(),fromD:ctl.dist,to:aim,toD:Math.max(LEVEL_INFO[from].lim[0],(an?an.view:ctl.dist)*0.12),id:null,fromEl:ctl.el,toEl:ctl.el,fov0:45,fov1:30,fovE:W,lin:true};}}
   const TDS=!!window.TD_ON,zr=slow?0.85:1.3;   // Mission: gleichmäßige Zoomgeschwindigkeit (log. Abstand pro Sekunde)
   if(TDS&&fly&&!out){const fu=lvFac(from,lv);fly.toD=Math.min(fly.toD,LEVEL_INFO[lv].lim[1]*0.8/fu);if(from==='sonne'&&lv==='erde')fly.toD=Math.max(fly.toD,7/fu);}   // nur so weit heran, dass die neue Ebene denselben Abstand übernehmen kann; zur Erde: in 7 Erdradien Abstand wechseln   // nur so weit heran, dass die neue Ebene genau denselben Abstand übernehmen kann (kein Größensprung)
-  if(TDS&&out){fly={t0:now,dur:800,from:ctl.target.clone(),fromD:ctl.dist,to:ctl.target.clone(),toD:ctl.dist*0.8,id:null,fromEl:ctl.el,toEl:ctl.el,lin:true,cont:true};}   // Mission und Demo: zur nächsthöheren Ebene nicht hinausfliegen – am jetzigen Ort bleiben (nur sanft weitergleiten, während das Bild verschwimmt)
+  if(TDS&&out&&typeof TD!=='undefined'&&TD.phase==='attract'&&TD.coast){fly=null;}   /* Demo: mit dem bisherigen Schwung geradeaus weiter, während das Bild ausblendet */
+  else if(TDS&&out){fly={t0:now,dur:800,from:ctl.target.clone(),fromD:ctl.dist,to:ctl.target.clone(),toD:ctl.dist*0.8,id:null,fromEl:ctl.el,toEl:ctl.el,lin:true,cont:true};}   // Mission und Demo: zur nächsthöheren Ebene nicht hinausfliegen – am jetzigen Ort bleiben (nur sanft weitergleiten, während das Bild verschwimmt)
   if(TDS&&fly&&!out&&!slow&&fly.toD>ctl.dist){fly.toD=ctl.dist*0.8;fly.to=ctl.target.clone();fly.cont=true;}   // Demo-Neustart (Universum → Erde): nicht erst rückwärts hinaus, sondern gleich weitergleiten
   if(TDS&&fly&&slow&&!out&&ctl.dist<=fly.toD*6){fly.toD=Math.max(Math.min(fly.toD,ctl.dist*0.5),from==='sonne'&&lv==='erde'?Math.min(ctl.dist,7/lvFac(from,lv)):0);fly.cont=true;}   // Heimflug: schon am Ziel der Ebene – nicht anhalten, gleichmäßig ein Stück weiter, während das Bild verschwimmt   // Heimflug: sind wir schon am Ziel der Ebene, nicht noch einmal heranzoomen (kein doppelter Zoom)
+  if(TDS&&slow&&!out&&fly){fly.to=ctl.target.clone();fly.toD=ctl.dist*0.7;fly.cont=true;fly.fromEl=fly.toEl=ctl.el;delete fly.fromAz;delete fly.toAz;}   /* Heimflug: in der alten Ebene nur geradeaus weiter (kein Schwenk zur Seite); die neue Richtung wird im Dunkeln eingestellt */
   const demoOut=false;   // Demo: genau so hinauszoomen wie im Flugmodus (das Shuttle wendet dabei und fliegt auf die Kamera zu – es fliegt nie rückwärts)
   if(TDS&&fly){fly.fov0=null;fly.fov1=null;fly.eD=slow||fly.cont?(k=>k):ease;fly.fovE=k=>k;A=Math.max(fly.cont?800:2200,Math.min(9000,Math.abs(Math.log(fly.toD/fly.fromD))/zr*1000));fly.dur=A;}   // gleiches Tempo (Zoomgeschwindigkeit) in allen Ebenen   // Heimflug: gleichmäßig, ohne Erklär-Tafel
-  fade.classList.remove('out'); if(TDS){$('#wt-n').textContent='';$('#wt-t').textContent='';$('#wt-s').textContent='';const cv=renderer.domElement;setTimeout(()=>{cv.style.transition='filter .55s ease-in';cv.style.filter='blur(10px) brightness(.8)';fade.classList.add('dip');},Math.max(0,A-600));}   // Mission: Bild verschwimmt kurz, keine Tafel   // Mission: nur kurz abblenden, keine Tafel
+  fade.classList.remove('out'); if(TDS){$('#wt-n').textContent='';$('#wt-t').textContent='';$('#wt-s').textContent='';/* 13.47b: kein Abblenden mehr – beim Wechsel wird das letzte Bild der alten Ebene festgehalten und scharf in die neue Ebene übergeblendet (XF) */   /* einfach aus- und wieder einblenden (keine Unschärfe) */}   // Mission: Bild verschwimmt kurz, keine Tafel   // Mission: nur kurz abblenden, keine Tafel
   else if(!(from==='erde'&&lv==='sonne'))setTimeout(()=>fade.classList.add('on'),A*0.55);
-  setTimeout(()=>{
+  const body=()=>{
     const prevCtl={target:ctl.target.clone(),dist:ctl.dist,az:ctl.az,el:ctl.el,up:ctl.up.clone()};
     level=lv; fly=null;
     const h=I.home;
@@ -5068,7 +5117,8 @@ function switchLevel(lv,cb){
           if(wl>1e-30){w.divideScalar(wl);st={t:a2.p.clone(),d:wl};keepView={az:Math.atan2(w.x,w.z),el:Math.asin(Math.max(-1,Math.min(1,w.y))),up:keepView.up};s.az=keepView.az;s.el=keepView.el;}}}
       if(slow&&!out&&lv==='erde'){s=Object.assign(s,{target:st.t.clone(),dist:st.d,follow:null});Bd=0;}}   // Heimflug zur Erde: hier nicht noch einmal zoomen – der eine Anflug auf das Dio folgt direkt mit demselben Blick   // Heimflug: gleich weiter zum nächsten Ziel (z. B. zur Sonne, nicht zu Sagittarius A*)   // Heimflug: in der nächsten Ebene mit derselben Blickrichtung weiter
     if(demoOut){st={t:s.target.clone(),d:s.dist};keepView=null;Bd=0;}
-    if(TDS&&out&&keepView){s=Object.assign({},s,{target:st.t.clone(),dist:st.d,follow:null,az:keepView.az,el:keepView.el});Bd=0;}   // in der neuen Ebene am selben Ort weiter (nicht zur Gesamtansicht hinaus)
+    if(TDS&&out&&keepView){s=Object.assign({},s,{target:st.t.clone(),dist:st.d,follow:null,az:keepView.az,el:keepView.el});Bd=0;}
+    if(TDS&&typeof TD!=='undefined'&&TD.phase==='attract'&&TD.coast&&TD.coast.lv===from){const C=TD.coast;C.v.multiplyScalar(lvFac(from,lv));C.lv=lv;C.t=0;C.v0=null;C.k=0.12;C.vmax=1;C.aim=null;C.w=null;C.max=Math.max(C.max||4,12);}   /* Demo: mit demselben Schwung (umgerechnet) in der neuen Ebene geradeaus weiter – nahtlos */   // in der neuen Ebene am selben Ort weiter (nicht zur Gesamtansicht hinaus)
     Object.assign(ctl,{target:st.t.clone(),dist:st.d,az:keepView?keepView.az:s.az,el:keepView?keepView.el:s.el,follow:null}); if(keepView) ctl.up.copy(keepView.up); else if(s.up) ctl.up.copy(s.up); else ctl.up.set(0,Math.cos(s.el)<0?-1:1,0);
     if(MEAS.on) measStop(); setSpeed(I.speed); buildLabels(); updateLadder(); updateHud(); loadPhotos(lv);if(window.TD_ON&&typeof tdOrbitFilter==='function')tdOrbitFilter(true);   // Mission: Bahnen auch in gerade erst gebauten Ebenen filtern
     if(Bd){const el0=keepView?keepView.el:out?s.el+(s.el<1.2?0.16:-0.16):s.el;ctl.el=el0;
@@ -5079,16 +5129,17 @@ function switchLevel(lv,cb){
       if(fly.fov0!=null){camera.fov=fly.fov0;camera.updateProjectionMatrix();}}
     else Object.assign(ctl,{target:s.target.clone(),dist:s.dist,follow:s.follow||null});
     cb&&cb();
-    setTimeout(()=>{fade.classList.add('out');fade.classList.remove('on');fade.classList.remove('dip');const cv=renderer.domElement;if(cv.style.filter){cv.style.transition='filter .9s ease-out';cv.style.filter='';}},60);
+    if(XF.on){XF.on=false;requestAnimationFrame(()=>{XF.cv.style.transition='opacity 1.4s ease-in-out';XF.cv.style.opacity='0';});}
+    setTimeout(()=>{fade.classList.add('out');fade.classList.remove('on');fade.classList.remove('dip');const cv=renderer.domElement;if(cv.style.filter){cv.style.transition='filter .9s ease-out';cv.style.filter='';}if(cv.style.opacity!==''){cv.style.transition='opacity .9s ease-out';cv.style.opacity='';}},60);
     const nx=switching.next; switching=null; if(nx) switchLevel(nx[0],nx[1]);
-  },A+(reduceMotion?0:60));
+  };setTimeout(()=>{if(TDS&&XF.cv){XF.fn=body;XF.req=true;}else body();},A+(reduceMotion?0:60));   /* Flugmodus/Demo: erst im nächsten Bild (nach dem Zeichnen) festhalten, dann wechseln */
 }
 function select(id,{lv,flyTo:doFly=true}={}){
   if(!OBJ[id]||(EINFACH&&!SIMPLE[id])) return;
   let target=lv||(REPS[level].has(id)?level:OBJ[id].home);
   const rep=REPS[target].get(id);
   if(rep&&rep.jump){target=rep.jump;}
-  switchLevel(target,()=>{selected=id;if(doFly&&!SHIP.on) flyTo(id);showInfo(id);markLabels();applyPhoto(id,true);});
+  switchLevel(target,()=>{selected=id;if(doFly&&!SHIP.on){if(id==='dio'&&target==='erde'&&!window.TD_ON&&REPS.erde.has('dio3d')&&DIO3D.upW){flyTo('dio3d');if(fly){fly.upW=DIO3D.upW;fly.endFollow='dio3d';}}else flyTo(id);}   /* Dio: gleich in die 3D-Ansicht */showInfo(id);markLabels();applyPhoto(id,true);});
 }
 let drag=null, AUTO=null; const pointers=new Map();
 const wrapA=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -5394,7 +5445,25 @@ function offlineExtraURLs(){const L=[];
   const snd=[TD_SND.launch,TD_SND.countdown,...Object.values(TD_SND.extra||{})];for(const x of snd)for(const u of ((x&&x.urls)||[]))if(/^https?:/.test(u))L.push(u);
   return [...new Set(L)];}
 async function buildOffline(kind){const BIN=kind==='bin';
-  const ov=$('#offl'),pr=$('#o-prog'),tx=$('#o-t'); ov.hidden=false; $('#o-close').hidden=true; $('#o-h').textContent='Wird erstellt …';
+  const ov=$('#offl'),pr=$('#o-prog'),tx=$('#o-t'); ov.hidden=false; $('#o-close').hidden=true; $('#o-stop').hidden=false; $('#o-h').textContent='Wird erstellt …';$('#o-cur').innerHTML='';$('#o-log').innerHTML='';$('#o-dl').innerHTML='';
+  /* Fortschritt je Datei: alle Abrufe laufen während des Erstellens über diese Hülle – sie zeigt, welche Dateien gerade laden (mit MB), bricht hängende Abrufe nach 45 s ab und protokolliert Fehler */
+  const OF=window.fetch,act=new Map(),T0=performance.now(),stopAC=new AbortController();let aid=0,nFail=0;
+  const nm=u=>{try{const x=new URL(u,location.href),q=x.searchParams;let n=decodeURIComponent(x.pathname.split('/').filter(Boolean).pop()||x.hostname);if(q.get('titles'))n=decodeURIComponent(q.get('titles'))+' (Info)';else if(/wmts|gibs/i.test(x.hostname+x.pathname))n='Erdkachel '+x.pathname.split('/').slice(-3).join('/');else if(q.get('BBOX')||q.get('bbox'))n='Luftbild Landebahn';return n+' · '+x.hostname.replace(/^www\./,'');}catch(e){return String(u).slice(0,80);}};
+  const logF=(u,why)=>{nFail++;const d=document.createElement('div');d.textContent='✗ '+nm(u)+' – '+why;const L=$('#o-log');L.appendChild(d);L.scrollTop=L.scrollHeight;};
+  window.fetch=(u,opt={})=>{const url=typeof u==='string'?u:(u&&u.url)||String(u);if(!/^https?:/.test(url)||url.startsWith(location.origin))return OF(u,opt);
+    const id=++aid,ac=new AbortController(),rec={n:nm(url),got:0,tot:0};act.set(id,rec);const end=()=>{clearTimeout(tm);act.delete(id);};
+    const tm=setTimeout(()=>ac.abort(),/celestrak/.test(url)?15000:45000);   /* CelesTrak sperrt oft (403) oder antwortet sehr langsam: nicht lange warten, es gibt gespeicherte Bahndaten als Ersatz */const st=()=>ac.abort();stopAC.signal.addEventListener('abort',st);
+    return OF(u,{...opt,signal:ac.signal}).then(r=>{if(!r.ok){end();logF(url,'Fehler '+r.status);return r;}rec.tot=+r.headers.get('content-length')||0;if(!r.body||r.status<200||r.status>599){end();return r;}
+        const rd=r.body.getReader(),rs=new ReadableStream({async pull(c){try{const {done,value}=await rd.read();if(done){end();c.close();return;}rec.got+=value.length;c.enqueue(value);}catch(e){end();logF(url,ac.signal.aborted?'abgebrochen (zu langsam)':'Verbindung unterbrochen');c.error(e);}},cancel(){end();try{rd.cancel();}catch(e){}}});
+        return new Response(rs,{status:r.status,statusText:r.statusText,headers:r.headers});},
+      e=>{end();logF(url,ac.signal.aborted?'abgebrochen (keine Antwort)':'gesperrt oder nicht erreichbar');throw e;});};
+  const mmss=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+  const ui=setInterval(()=>{const rows=[...act.values()].map(r=>'<div class="f"><span>↓ '+esc(r.n)+'</span><b>'+(r.tot?nf(r.got/1048576,2)+' / '+nf(r.tot/1048576,2)+' MB':nf(r.got/1048576,2)+' MB')+'</b><i><u style="width:'+(r.tot?Math.min(100,r.got/r.tot*100).toFixed(0):(r.got?35:6))+'%"></u></i></div>');
+    $('#o-cur').innerHTML=rows.length?'<div style="opacity:.6;margin-bottom:2px">Lädt gerade ('+mmss((performance.now()-T0)/1000)+'):</div>'+rows.join(''):'';},250);
+  $('#o-stop').onclick=()=>{stopAC.abort();$('#o-h').textContent='Wird abgebrochen …';};
+  try{await buildOffline2(kind,BIN,ov,pr,tx,stopAC.signal,()=>nFail,mmss,T0);}catch(e){$('#o-h').textContent='Das hat nicht geklappt';tx.textContent='Fehler: '+(e&&e.message||e);$('#o-close').hidden=false;}
+  finally{window.fetch=OF;clearInterval(ui);$('#o-cur').innerHTML='';$('#o-stop').hidden=true;}}
+async function buildOffline2(kind,BIN,ov,pr,tx,SIG,nFail,mmss,T0){
   const f={},a={},w={},jobs=[]; let fails=0,bytes=0;
   const img=(key,urls,opt)=>jobs.push(async()=>{if(BIN){const b=await fetchBlob(urls);if(b){f[key]=b;bytes+=b.size;}else if(!opt)fails++;return;}const d=await fetchData(urls);if(d){f[key]=d;bytes+=d.length;}else if(!opt)fails++;});
   if(BIN){for(const u of offlineExtraURLs())img(u,[u],/nasa\.gov|wms\.nrw/.test(u));   /* Töne von nasa.gov und das Luftbild lassen sich je nach Server nicht laden (CORS) – dann bleiben sie online */
@@ -5419,36 +5488,48 @@ async function buildOffline(kind){const BIN=kind==='bin';
     if(sm.thumbnail){const d=await fetchData([bigger(sm.thumbnail.source,500),sm.thumbnail.source]);if(d){s2.thumbnail={source:d};bytes+=d.length;}}
     w[t]={s:s2,m:{items:lead&&s2.thumbnail?[{type:'image',leadImage:true,title:lead.title,caption:lead.caption,srcset:[{src:''}]}]:[]}};});
   let three='',fontCSS='',gp='',iss='';
-  jobs.push(async()=>{gp=await catFetchAll();});
-  jobs.push(async()=>{iss=await issFetch();});
-  if(!BIN)jobs.push(async()=>{const r=await fetch('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js').catch(()=>null);if(r&&r.ok)three=await r.text();});
+  const lsGet=k=>{try{const c=JSON.parse(localStorage.getItem(k)||'null');return c&&c.d?c.d:'';}catch(e){return '';}};
+  jobs.push(async()=>{gp=await catFetchAll();if(!gp)gp=lsGet('atlas-gp');});   /* CelesTrak sperrt (Fehler 403) bei zu häufigen Abrufen – dann die zuletzt im Browser gespeicherten Bahndaten nehmen */
+  jobs.push(async()=>{iss=await issFetch();if(!iss)iss=lsGet('atlas-iss');});
+  {const sc=[...document.scripts].find(x=>x.id!=='app'&&!x.src&&x.textContent.length>300000&&/WebGLRenderer/.test(x.textContent));if(sc)three=sc.textContent;}   /* 3D-Bibliothek ist schon in index.html eingebaut */
+  if(!BIN&&!three)jobs.push(async()=>{const r=await fetch('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js').catch(()=>null);if(r&&r.ok)three=await r.text();});
   jobs.push(async()=>{const l=document.querySelector('link[rel="stylesheet"][href*="fonts.googleapis"]');if(!l)return;const r=await fetch(l.href).catch(()=>null);if(!r||!r.ok)return;
     const css=await r.text();const blocks=css.split('/* ').filter(b=>/^latin(-ext)? \*\//.test(b)).map(b=>'/* '+b);
     for(let i=0;i<blocks.length;i++){const m=blocks[i].match(/url\((https:[^)]+)\)/);if(m){const d=await fetchData([m[1]]);if(d)blocks[i]=blocks[i].replace(m[1],d);}}
     fontCSS=blocks.join('\n');});
   let done=0,i=0; const N=jobs.length;
-  const run=async()=>{while(i<N){const j=jobs[i++];try{await j();}catch(e){fails++;}done++;pr.style.width=(done/N*100).toFixed(1)+'%';tx.textContent='Geladen: '+done+' von '+N+' · '+nf(bytes/1048576,1)+' MB';}};
+  const run=async()=>{while(i<N&&!SIG.aborted){const j=jobs[i++];try{await j();}catch(e){fails++;}done++;pr.style.width=(done/N*100).toFixed(1)+'%';tx.textContent='Fertig: '+done+' von '+N+' Dateien · '+nf(bytes/1048576,1)+' MB geladen'+(nFail()?' · '+nFail()+' Fehler':'')+' · Zeit '+mmss((performance.now()-T0)/1000);}};
   await Promise.all(Array.from({length:6},run));
+  if(SIG.aborted){$('#o-h').textContent='Abgebrochen';tx.textContent='Es wurde nichts gespeichert. '+done+' von '+N+' Dateien waren geladen.';$('#o-close').hidden=false;return;}
   if(BIN){const files=[],parts=[];let off=0;for(const u in f){const bl=f[u];files.push([u,bl.type||'',off,bl.size]);parts.push(bl);off+=bl.size;}
     const idx=new TextEncoder().encode(JSON.stringify({v:1,date:new Date().toISOString(),a,w,gp,gpT:Date.now(),iss,issT:Date.now(),fontCSS,files})),hd=new Uint8Array(12);hd.set(new TextEncoder().encode('DIOOFF01'));new DataView(hd.buffer).setUint32(8,idx.length,true);
     const blob=new Blob([hd,idx,...parts],{type:'application/octet-stream'}),PART=24*1048576,np=Math.ceil(blob.size/PART);   /* in Teile zu höchstens 24 MB (GitHub nimmt beim Hochladen im Browser höchstens 25 MB je Datei) */
-    for(let k=0;k<np;k++){const link=document.createElement('a');link.href=URL.createObjectURL(blob.slice(k*PART,Math.min(blob.size,(k+1)*PART)));link.download='offline-daten-'+(k+1)+'.bin';document.body.appendChild(link);link.click();link.remove();const h=link.href;setTimeout(()=>URL.revokeObjectURL(h),120000);await new Promise(r=>setTimeout(r,900));}
+    for(let k=0;k<np;k++){const link=document.createElement('a');link.href=URL.createObjectURL(blob.slice(k*PART,Math.min(blob.size,(k+1)*PART)));link.download='offline-daten-'+(k+1)+'.bin';link.textContent='⤓ offline-daten-'+(k+1)+'.bin ('+nf(Math.min(PART,blob.size-k*PART)/1048576,1)+' MB) – falls nicht automatisch gespeichert: hier klicken';$('#o-dl').appendChild(link.cloneNode(true));document.body.appendChild(link);link.click();link.remove();await new Promise(r=>setTimeout(r,900));}
     $('#o-h').textContent='Fertig!';tx.innerHTML=np+' Datei'+(np>1?'en':'')+' <b>offline-daten-1.bin'+(np>1?' … offline-daten-'+np+'.bin':'')+'</b> ('+nf(blob.size/1048576,0)+' MB zusammen) wurde'+(np>1?'n':'')+' heruntergeladen (der Browser fragt eventuell, ob mehrere Dateien gespeichert werden dürfen). Lade sie <b>neben index.html</b> auf GitHub hoch. Beim Start werden sie mit Fortschrittsbalken geladen.'+(fails?' '+fails+' Dateien konnten nicht geladen werden und bleiben online.':'');$('#o-close').hidden=false;return;}
   if(!three){$('#o-h').textContent='Das hat nicht geklappt';tx.textContent='Die 3D-Bibliothek konnte nicht geladen werden. Bitte mit Internetverbindung noch einmal versuchen.';$('#o-close').hidden=false;return;}
   let pre=window.__PRE.replace(/<\/body>\s*<\/html>\s*$/,'');
   pre=pre.replace(/<link rel="preconnect"[^>]*>\s*/g,'').replace(/<link rel="stylesheet" href="https:\/\/fonts[^>]*>/,fontCSS?'<style>'+fontCSS+'</style>':'');
   const data=JSON.stringify({f,a,w,gp,gpT:Date.now(),iss,issT:Date.now(),date:new Date().toISOString()}).replace(/<\/(script)/gi,'<\\/$1');
-  const html='<!doctype html>\n'+pre+'\n<script>'+three.replace(/<\/script/gi,'<\\/script')+'<\/script>\n<script>window.OFFLINE_DATA='+data+';<\/script>\n<script id="app">'+document.getElementById('app').textContent+'<\/script>\n</body>\n</html>\n';
+  const tailEl=document.getElementById('dio-tail'),hasThree=/three\.js r128 \(MIT\)/.test(pre.slice(0,800000));
+  const appSrc=document.getElementById('app').textContent.replace(/<\/script/gi,'<\\/script');
+  const html='<!doctype html>\n'+pre+'\n'+(hasThree?'':'<script>'+three.replace(/<\/script/gi,'<\\/script')+'<\/script>\n')+'<script>window.OFFLINE_DATA='+data+';<\/script>\n'
+    +(tailEl?'<script id="app" type="text/plain">'+appSrc+'<\/script>\n'+tailEl.textContent.replace(/<\\\/script/g,'<\/script'):'<script id="app">'+appSrc+'<\/script>')+'\n</body>\n</html>\n';   /* mit Auswahl Atlas/Kinder/Flugsimulator und Sperre wie index.html */
   const blob=new Blob([html],{type:'text/html'}),link=document.createElement('a');
-  link.href=URL.createObjectURL(blob); link.download='universum-atlas-offline.html'; document.body.appendChild(link); link.click(); link.remove();
-  setTimeout(()=>URL.revokeObjectURL(link.href),60000);
+  link.href=URL.createObjectURL(blob); link.download='universum-atlas-offline.html'; link.textContent='⤓ universum-atlas-offline.html ('+nf(blob.size/1048576,1)+' MB) – falls nicht automatisch gespeichert: hier klicken';$('#o-dl').appendChild(link.cloneNode(true)); document.body.appendChild(link); link.click(); link.remove();
   $('#o-h').textContent='Fertig!';
   tx.innerHTML='Die Datei <b>universum-atlas-offline.html</b> ('+nf(blob.size/1048576,0)+' MB) wurde heruntergeladen. Sie läuft ohne Internet in jedem aktuellen Browser, auch vom USB-Stick.'+(fails?' '+fails+' Dateien konnten nicht geladen werden und fehlen in der Offline-Version.':'')+' Nur die Links zu Wikipedia brauchen weiterhin Internet.';
   $('#o-close').hidden=false;
 }
-$('#o-close').onclick=()=>{$('#offl').hidden=true;};
+$('#o-close').onclick=()=>{if(window.DIO_BUILDER){offlineBuilderUI();return;}$('#offl').hidden=true;};
 $('#b-info').onclick=()=>{$('#info').hidden=false;}; $('#info-x').onclick=()=>{$('#info').hidden=true;};
 $('#info').addEventListener('click',e=>{if(e.target.id==='info')$('#info').hidden=true;});
+function offlineBuilderUI(){const ov=$('#offl');ov.hidden=false;$('#o-stop').hidden=true;$('#o-close').hidden=true;$('#o-cur').innerHTML='';$('#o-log').innerHTML='';$('#o-dl').innerHTML='';$('#o-prog').style.width='0';
+  $('#offl .kicker').textContent='Universum-Atlas · Offline-Daten';$('#o-h').textContent='Offline-Daten erstellen';
+  $('#o-t').innerHTML='Lädt alle Online-Daten (Fotos, Karten, Wolken, Texte, Töne) einmal herunter. Dafür ist Internet nötig; es dauert einige Minuten. Bitte wählen:'
+   +'<span class="row" style="display:flex;flex-direction:column;gap:10px;margin-top:14px"><button class="btn primary" id="ob-git">⤓ Für GitHub: offline-daten-1.bin, -2.bin …</button><small style="opacity:.75">Neben index.html hochladen. Die App lädt sie dann beim Start mit dem Ladebalken.</small>'
+   +'<button class="btn ghost" id="ob-loc">⤓ Für die lokale Nutzung: universum-atlas-offline.html</button><small style="opacity:.75">Eine einzige Datei für USB-Stick oder Laptop, läuft ohne Internet (alle drei Modi).</small></span>';
+  const go=k=>{buildOffline(k).then(()=>{$('#o-close').hidden=false;$('#o-close').textContent='Zurück';});};$('#ob-git').onclick=()=>go('bin');$('#ob-loc').onclick=()=>go('html');$('#o-close').onclick=()=>offlineBuilderUI();}
+if(window.DIO_BUILDER){document.body.classList.add('dio-builder');setTimeout(offlineBuilderUI,200);}
 $('#i-off').onclick=()=>buildOffline('html');$('#i-off2').onclick=()=>buildOffline('bin'); $('#l-off').onclick=()=>{$('#list').hidden=true;buildOffline('html');};
 if(OFF){document.body.classList.add('offline');$('#i-note').textContent='Offline-Version vom '+new Date(OFF.date).toLocaleDateString('de-DE')+': Texturen, Fotos und Wikipedia-Texte sind eingebaut, Internet ist nicht nötig. Ziehen = drehen, schnell wischen = automatisch drehen · Mausrad oder zwei Finger = zoomen.';
   document.querySelector('.brand small').textContent='Astronomie-AG · Offline-Version';}
@@ -6141,7 +6222,7 @@ const I18N_EN={
 // Intro
 'Eine Reise in fünf Maßstäben: von der Raumstation 400 km über unseren Köpfen bis an den Rand des beobachtbaren Universums, 46 Milliarden Lichtjahre entfernt. Jedes Objekt lässt sich anklicken und zeigt Steckbrief, Fotos und Wissenswertes.':'A journey across five scales: from the space station 400 km above our heads to the edge of the observable universe, 46 billion light-years away. Every object can be clicked and shows a profile, photos and facts.',
 'Erste Reise starten':'Start the first journey','Frei erkunden':'Explore freely',
-'Ziehen = drehen, schnell wischen = automatisch drehen · Mausrad oder zwei Finger = zoomen · Pfeiltasten = Reise vor und zurück. Fotos und Texturen werden live von Wikipedia und Wikimedia Commons geladen (Internet nötig). Für den Unterricht ohne Internet: „Offline-Version speichern“.':'Drag = rotate, fast swipe = automatic rotation · mouse wheel or two fingers = zoom · arrow keys = journey forward and back. Photos and textures load live from Wikipedia and Wikimedia Commons (internet needed). For lessons without internet: “Save offline version”.',
+'Ziehen = drehen, schnell wischen = automatisch drehen · Mausrad oder zwei Finger = zoomen · Pfeiltasten = Reise vor und zurück. Fotos und Texturen werden live von Wikipedia und Wikimedia Commons geladen (Internet nötig).':'Drag = rotate, fast swipe = automatic rotation · mouse wheel or two fingers = zoom · arrow keys = journey forward and back. Photos and textures load live from Wikipedia and Wikimedia Commons (internet needed). For lessons without internet: “Save offline version”.',
 '⤓ Offline-Version speichern':'⤓ Save offline version','Alles in eine Datei packen, die ohne Internet läuft':'Pack everything into one file that runs without internet',
 'Erde & Mond · Erdradien':'Earth & Moon · Earth radii','Sonnensystem · AE':'Solar System · AU','Milchstraße · 1 000 Lj':'Milky Way · 1,000 ly','Lokale Gruppe · 1 000 Lj':'Local Group · 1,000 ly','Universum · Mio. Lj':'Universe · million ly',
 'Universum-Atlas für Kinder':'Universe Atlas for Kids','Astronomie-AG · Entdecke das Weltall':'Astronomy Club · Discover space','Reise starten':'Start journey','Nachbar-Galaxien':'Neighbour galaxies',
@@ -6465,6 +6546,8 @@ function dynRes(ms){if(!(ms>0&&ms<400)||document.hidden)return;if(typeof TD!=='u
   const a=D.iv.slice().sort((x,y)=>x-y),med=a[20];let n=D.cur;
   if(med>23.5&&D.cur>mn&&D.t>3000)n=Math.max(mn,D.cur*0.88);else if(med<17.6&&D.cur<mx&&D.t>5000)n=Math.min(mx,D.cur*1.08);
   if(Math.abs(n-renderer.getPixelRatio())>0.02){D.cur=n;renderer.setPixelRatio(n);renderer.setSize(innerWidth,innerHeight,false);D.t=0;D.iv.length=0;}else if(D.t>5000)D.t=1500;}
+const CSM={q:null,lv:null};
+const XF={cv:null,req:false,fn:null,on:false};{const c=document.createElement('canvas');c.id='xfade';c.style.cssText='position:fixed;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;z-index:1';document.body.appendChild(c);XF.cv=c;}   /* scharfe Überblendung zwischen den Ebenen */
 function frame(now){
   dynRes(now-last);
   const dt=Math.min(window.DTCAP||0.1,(now-last)/1000); last=now;
@@ -6529,7 +6612,7 @@ function frame(now){
     if(!fly)ctl.up.lerp(w,Math.min(1,dt*4)).normalize();}
   { // Kamera bleibt außerhalb von Planeten, Monden und Sonne
     const c0=Math.cos(ctl.el),u=new V3(c0*Math.sin(ctl.az),Math.sin(ctl.el),c0*Math.cos(ctl.az));
-    if(!(fly&&fly.noClamp))for(const so of SOLIDS[level]){const c=so.p(),R=so.r();const tc=ctl.target.clone().sub(c),b=tc.dot(u),cc=tc.lengthSq()-R*R,disc=b*b-cc;
+    if(!(fly&&fly.noClamp)&&!(typeof TD!=='undefined'&&TD.phase==='attract'&&(TD.path||TD.coast||TD.orb&&(TD.orb.turn||TD.orb.flyby||TD.orb.swing))))for(const so of SOLIDS[level]){   /* Demo-Bahnen weichen Planeten selbst aus – hier nicht noch einmal (wechselnde Vergrößerung der Monde schob die Kamera für ein Bild weg) */const c=so.p(),R=so.r();const tc=ctl.target.clone().sub(c),b=tc.dot(u),cc=tc.lengthSq()-R*R,disc=b*b-cc;
       if(cc<0){ctl.dist=Math.max(ctl.dist,-b+Math.sqrt(Math.max(0,disc)));}
       else if(disc>0){const d1=-b-Math.sqrt(disc),d2=-b+Math.sqrt(disc);if(ctl.dist>d1&&ctl.dist<d2)ctl.dist=d1>0?d1:d2;}}
   }
@@ -6542,6 +6625,8 @@ function frame(now){
     ctl.up.copy(U); camera.up.copy(U);
   }
   camera.position.copy(camPos()); camera.lookAt(ctl.target); camera.updateMatrixWorld();
+  /* Demo: Blickrichtung minimal geglättet (0,18 s) – Wechsel der Drehgeschwindigkeit an den Übergängen (Anflug → Bogen → Weiterflug) werden weich statt ruckartig */
+  if(typeof TD!=='undefined'&&TD.phase==='attract'&&!SHIP.on&&dt>0){const q=camera.quaternion;if(CSM.q&&CSM.lv===level&&CSM.q.angleTo(q)<0.5){CSM.q.slerp(q,1-Math.exp(-dt/0.18));camera.quaternion.copy(CSM.q);camera.updateMatrixWorld();}else CSM.q=q.clone();CSM.lv=level;}else CSM.q=null;
   if(typeof TD!=='undefined'&&TD.demoShip)demoShipFrame(dt);
   }
   for(const a of AUTOS[level]){const dd=camTmp.copy(a.obj.position).distanceTo(camera.position);const W=Math.min(a.maxW,Math.max(a.L*a.trueS,dd*a.k));a.obj.scale.setScalar(W/a.L);}
@@ -6576,6 +6661,7 @@ function frame(now){
     renderer.render(SC[level],camera);
   });
   warpDraw();ovRender();
+  if(XF.req){XF.req=false;try{const c=XF.cv,src=renderer.domElement;if(c.width!==src.width||c.height!==src.height){c.width=src.width;c.height=src.height;}c.style.transition='none';c.style.opacity='1';c.getContext('2d').drawImage(src,0,0);XF.on=true;}catch(e){}const f=XF.fn;XF.fn=null;if(f)f();}   /* letztes Bild der alten Ebene festhalten, dann Ebene wechseln */
   $('#date').value=dateFmt.format(new Date(simMs));
   if(now-liveT>400){liveT=now;renderLive();}
   requestAnimationFrame(frame);
@@ -6720,22 +6806,22 @@ function tdPathFrame(dt){const P=TD.path;if(!P)return;if(switching||SHIP.on){TD.
   const sw=!o.noSwing,base=sw?svv:(o.baseFn?o.baseFn(P.vO&&P.vO.lengthSq()>0?P.vO.clone().normalize():new V3(1,0,0)):o.base).clone().normalize(),E=O.clone().addScaledVector(base,o.dist),Lc=Math.max(1e-12,C0.distanceTo(E));
   // Anfangsrichtung: an der Erde nie nach unten (sonst taucht die Bahn gleich zu Beginn in die Atmosphäre), Länge der Anfangstangente begrenzt
   let F0=P.F0.clone(),t0=0.6*Lc;if(EA){const Rr=C0.clone().sub(cE),rl=Rr.length();Rr.divideScalar(rl);const dn=F0.dot(Rr);if(dn<0.05)F0.addScaledVector(Rr,0.05-dn).normalize();t0=Math.min(t0,2*rl);}if(o.t0k)t0=Math.max(t0,o.t0k*Lc);   /* längere Anfangstangente: erst geradeaus weiter */
-  const T0=F0.multiplyScalar(t0),T1=(sw?uin.clone():base.clone().negate()).multiplyScalar(EA?Math.min(0.6*Lc,2*E.clone().sub(cE).length()):0.6*Lc);
+  const eT=!sw&&o.endT?o.endT(P):null,T0=F0.multiplyScalar(t0),T1=(sw?uin.clone():eT||base.clone().negate()).multiplyScalar(EA?Math.min(0.6*Lc,2*E.clone().sub(cE).length()):0.6*Lc);
   // Grundbahn: um die Erde auf einem Bogen (Richtung drehen, Abstand überblenden), sonst gerade; dazu Anfangs- und Endrichtung (Hermite)
   const B=s=>{if(!EA)return C0.clone().lerp(E,s);const a=C0.clone().sub(cE),b=E.clone().sub(cE),ra=a.length(),rb=b.length();return slerpDir(a.divideScalar(ra),b.divideScalar(rb),s).multiplyScalar(Math.exp(Math.log(ra)+(Math.log(rb)-Math.log(ra))*s*s*(2-s))).add(cE);};   /* Abstand zur Erde wächst anfangs nicht sprunghaft (Anfangstangente waagerecht, keine Delle nach unten) */
   const ep=1e-3,dB0=B(ep).sub(B(0)).divideScalar(ep),dB1=B(1).sub(B(1-ep)).divideScalar(ep),c0=T0.clone().sub(dB0),c1=T1.clone().sub(dB1);
   let gAx=null,gTh=0;if(EA){const ua=C0.clone().sub(cE).normalize(),ub=E.clone().sub(cE).normalize();gTh=Math.acos(Math.max(-1,Math.min(1,ua.dot(ub))));const ax=ua.cross(ub);if(ax.lengthSq()>1e-12&&gTh>1e-6)gAx=ax.normalize();}
   // an der Erde: Korrekturen für Anfangs- und Endrichtung mit dem Bogen mitdrehen (bleiben waagerecht, ziehen die Bahn nicht nach innen)
   const wE=EA?0.002:0.06,curve=s=>{const p=B(s);if(gAx){p.addScaledVector(c0.clone().applyAxisAngle(gAx,gTh*s),s*(1-s)*(1-s)).addScaledVector(c1.clone().applyAxisAngle(gAx,-gTh*(1-s)),s*s*(s-1));}else p.addScaledVector(c0,s*(1-s)*(1-s)).addScaledVector(c1,s*s*(s-1));const w=Math.min(1,s/wE,(1-s)/wE);
-    if(w>0)for(const so of SOLIDS[level]){const c=so.p(),isE=so===EA,R=so.r()*(isE?1+230/RE_KM:1.25),wd=isE?12/RE_KM:so.r()*0.03,d=p.clone().sub(c),Ld=d.length();if(Ld<1e-15)continue;const x=Ld-R,lift=0.5*(Math.sqrt(x*x+wd*wd)-x);if(lift>1e-6*R)p.copy(c).addScaledVector(d.divideScalar(Ld),Ld+lift*w);}
+    if(w>0)for(const so of SOLIDS[level]){if(so.moon&&TD.phase==='attract')continue;const c=so.p(),isE=so===EA,R=so.r()*(isE?1+230/RE_KM:1.25),wd=isE?12/RE_KM:so.r()*0.03,d=p.clone().sub(c),Ld=d.length();if(Ld<1e-15)continue;const x=Ld-R,lift=0.5*(Math.sqrt(x*x+wd*wd)-x);if(lift>1e-6*R)p.copy(c).addScaledVector(d.divideScalar(Ld),Ld+lift*w);}
     return p;};
   const N=48,pts=[],acc=[0];for(let i=0;i<=N;i++){pts.push(curve(i/N));if(i)acc.push(acc[i-1]+pts[i].distanceTo(pts[i-1]));}const Lp=Math.max(1e-15,acc[N]);
   // Abstand zum Ziel nimmt gleichmäßig im Maßstab ab (wie bei allen Anflügen); Anfangstempo = jetziges Tempo, Endtempo = langsames Weitergleiten am Ziel
   const D0=Lp+o.dist,lnR=Math.log(D0/o.dist),T=P.dur/1000,Tp=P.pass||18,om=2.6/(Tp+3)*(o.omK||1),v0n=Math.min(o.v0max!=null?o.v0max:2,P.v0*T/(D0*lnR)),v1n=sw?om*T/lnR:o.flyby?((o.flyV||1.8)/Tp)*T/lnR:(1.05/Tp)*T/lnR;   /* Endtempo = Tempo im Bogen ums Ziel */
   const e=tdProf(k,v0n,v1n,0.5,0.32),dO=Math.exp(Math.log(D0)-lnR*e),a=Math.max(0,Math.min(Lp,Lp-(dO-o.dist)));
   let i=1;while(i<N&&acc[i]<a)i++;const s=Math.min(1,((i-1)+(a-acc[i-1])/Math.max(1e-18,acc[i]-acc[i-1]))/N);
-  const pos=k>=1?E.clone():curve(s),ds=0.003,tg=curve(Math.min(1,s+ds)).sub(curve(Math.max(0,s-ds)));if(P.cont===undefined)P.cont=camera.position.clone().sub(pos);if(P.cont)pos.addScaledVector(P.cont,1-sst(0,0.3,k));   /* erster Bahnpunkt = jetziger Kameraort (nie ein Sprung) */
-  if(P.carry){const cr=REPS[level].get(P.carry.id);if(cr){const dl=cr.p.clone().sub(P.carry.lp);P.carry.lp.copy(cr.p);if(!P.carry.n){P.carry.n=1;dl.set(0,0,0);}if(dl.length()<o.dist*0.5)P.carry.off.addScaledVector(dl,1-sst(1.5,10,P.t/1000));}pos.addScaledVector(P.carry.off,1-sst(0.45,0.95,k));}   /* Versatz bis zum Ziel wieder abbauen (sonst Sprung beim Übergang in den Bogen) */if(tg.lengthSq()<1e-30)tg.copy(O).sub(pos);tg.normalize();
+  const pos=k>=1?E.clone():curve(s),ds=0.003,tg=curve(Math.min(1,s+ds)).sub(curve(Math.max(0,s-ds)));if(P.cont===undefined){P.cont=camera.position.clone().sub(pos);if(!P.carry&&TD.cv&&dt>0&&TD.cv.length()*dt<o.dist*20+P.C0.distanceTo(O)*0.01)P.cont.addScaledVector(TD.cv,dt);}   /* erstes Bild: mit dem bisherigen Tempo weiter (kein Stillstand für ein Bild) */if(P.cont)pos.addScaledVector(P.cont,1-sst(0,0.3,k));   /* erster Bahnpunkt = jetziger Kameraort (nie ein Sprung) */
+  if(P.carry){const cr=REPS[level].get(P.carry.id);if(cr){const dl=cr.p.clone().sub(P.carry.lp);P.carry.lp.copy(cr.p);if(dl.length()<o.dist*0.5)P.carry.off.addScaledVector(dl,1-sst(1.5,10,P.t/1000));}pos.addScaledVector(P.carry.off,1-sst(0.45,0.95,k));}   /* Versatz bis zum Ziel wieder abbauen (sonst Sprung beim Übergang in den Bogen) */if(tg.lengthSq()<1e-30)tg.copy(O).sub(pos);tg.normalize();
   // Blick: in Flugrichtung, gegen Ende allmählich um bis zu 24° zum Ziel hin (es liegt dann seitlich vorn im Bild); am Anfang aus der bisherigen Blickrichtung übergeblendet
   const toO=O.clone().sub(pos),Ld=Math.max(o.dist,toO.length()),wl=(x=>x*x*(3-2*x))(Math.max(0,Math.min(1,(k-0.55)/0.45)));let look=tg.clone();if(!sw){const w2=o.flyby?0:(x=>x*x*(3-2*x))(Math.max(0,Math.min(1,(k-0.86)/0.14)));look=tg.clone().multiplyScalar(1-w2).addScaledVector(toO.clone().normalize(),w2).normalize();}else{const pr=toO.clone().addScaledVector(tg,-toO.dot(tg));if(pr.lengthSq()>1e-30&&toO.dot(tg)>-0.2*toO.length()){pr.normalize();const b=(o.beta||24)*DEG*wl;look=tg.clone().multiplyScalar(Math.cos(b)).addScaledVector(pr,Math.sin(b)).normalize();}}
   if(o.lookTgt){look=look.clone().multiplyScalar(1-o.lookTgt).addScaledVector(toO.clone().normalize(),o.lookTgt).normalize();}   /* Ziel bleibt die ganze Zeit im Bild */
@@ -6743,23 +6829,23 @@ function tdPathFrame(dt){const P=TD.path;if(!P)return;if(switching||SHIP.on){TD.
   if(!P.Lc)P.Lc=look.clone();else{const kr=(o.lookRate||2.2)+20*(1-sst(0,1.5,P.t/1000));P.Lc.lerp(look,1-Math.exp(-dt*kr)).normalize();look=P.Lc.clone();}   /* Blick folgt weich (keine schnellen Schwenks, wenn die Bahn am Anfang abbiegt) */
   ctl.target.copy(pos).addScaledVector(look,Ld);ctl.dist=Ld;setDir(look.clone().negate());
   const Nu=EA?pos.clone().sub(cE).normalize():(o.axis||ctl.up).clone().normalize();{const {u,U}=camBasis();ctl.up.copy(upToward(U,Nu,u,1-Math.exp(-dt*1.2)));}
-  if(k>=1&&!sw&&o.flyby){TD.path=null;ctl.follow=null;ctl._lq=null;TD.orb={flyby:true,id:P.id,d:o.dist,ctrFn:o.ctrFn||null,axis:(o.axis||Nu).clone().normalize(),vrel:(o.flyV||1.8)*o.dist/Tp,t:0,pass:P.pass,c:null,lp:null,F:tg.clone(),fbl:true,minUp:o.minUp?o.minUp*o.dist:0};try{tdFlybyFrame(TD.orb,dt);}catch(e){}return;}   /* gleich im selben Bild weiter (sonst stand die Kamera ein Bild lang still: Ruck) */   // langsam am Ziel vorbei (im mitfliegenden System)
+  if(k>=1&&!sw&&o.flyby){TD.path=null;ctl.follow=null;ctl._lq=null;TD.orb={flyby:true,id:P.id,d:o.dist,bmax:o.bmax,keepF:!!o.keepF,ctrFn:o.ctrFn||null,axis:(o.axis||Nu).clone().normalize(),vrel:(o.flyV||1.8)*o.dist/Tp,t:0,pass:P.pass,c:null,lp:null,F:tg.clone(),fbl:true,minUp:o.minUp?o.minUp*o.dist:0,p0:pos.clone()};{const st=TD.orb.vrel*dt,mv=camera.position.distanceTo(pos),fr=st>0?Math.max(0,Math.min(1,1-mv/st)):1;try{tdFlybyFrame(TD.orb,dt*fr);}catch(e){}}return;}   /* Startpunkt = letzter Bahnpunkt (dieses Bild ist schon ein Schritt) */   /* gleich im selben Bild weiter (sonst stand die Kamera ein Bild lang still: Ruck) */   // langsam am Ziel vorbei (im mitfliegenden System)
   if(k>=1&&!sw){TD.path=null;ctl.follow=P.id;ctl._lq=null;TD.orb={id:P.id,tp:null,dist:o.dist,base:tdCurDir(),axis:(o.axis||Nu).clone().normalize(),mode:o.mode||'pend',rate:o.rate||0.05,t:0,pass:P.pass,ctrFn:o.ctrFn||null};if(r.coRot&&r.obj)TD.orb.lq=r.obj.quaternion.clone();return;}
-  if(k>=1){TD.path=null;ctl.follow=null;ctl._lq=null;TD.orb={swing:true,id:P.id,d:o.dist,sv:svv.clone(),u:uin.clone(),N:U.clone().addScaledVector(uin,-U.dot(uin)).normalize(),ph:0,om,beta:(o.beta||24)*DEG,t:0,pass:P.pass,keep:true,exitFn:o.exitFn||null,boost:!!o.boost};try{tdSwingFrame(TD.orb,dt);}catch(e){}}}   // weiter im Bogen ums Ziel (Swing-by) – gleich im selben Bild (kein Stillstand)
+  if(k>=1){TD.path=null;ctl.follow=null;ctl._lq=null;TD.orb={swing:true,id:P.id,d:o.dist,sv:svv.clone(),u:uin.clone(),N:U.clone().addScaledVector(uin,-U.dot(uin)).normalize(),ph:0,om,beta:(o.beta||24)*DEG,t:0,pass:P.pass,keep:true,exitFn:o.exitFn||null,boost:!!o.boost};{const st=om*o.dist*dt,mv=camera.position.distanceTo(E),fr=st>0?Math.max(0,Math.min(1,1-mv/st)):1;try{tdSwingFrame(TD.orb,dt*fr);}catch(e){}}}}   /* nur so weit im Bogen weiter, wie dieses Bild noch an einem vollen Schritt fehlt (kein Doppel- und kein Nullschritt) */   // weiter im Bogen ums Ziel (Swing-by) – gleich im selben Bild (kein Stillstand)
 // Swing-by: Kamera (mit dem Shuttle davor) fliegt gleichmäßig auf einem Bogen ums Ziel, Blick in Flugrichtung, um 24° zum Ziel gedreht (Ziel seitlich vorn im Bild)
 function tdSwingFrame(o,dt){const r=REPS[level].get(o.id);if(!r){TD.orb=null;return;}const O=r.p,ph=(o.ph+=o.om*dt),c=Math.cos(ph),sn=Math.sin(ph);
   const rad=o.sv.clone().multiplyScalar(c).addScaledVector(o.u,sn),tg=o.sv.clone().multiplyScalar(-sn).addScaledVector(o.u,c),pos=O.clone().addScaledVector(rad,o.d);
-  if(o.exitFn&&o.t>0.5){const X=o.exitFn(),dd=X?tg.dot(X):0,pk=o.pd!=null&&dd<o.pd&&o.pd>0.85;o.pd=dd;if(X?(dd>Math.cos(3*DEG)||pk||ph>Math.PI*1.3):ph>Math.PI*0.5){TD.orb=null;TD.passOv=o.boost?3.5:2.5;TD.coast={aim:X?X.clone().normalize():null,v:tg.clone().multiplyScalar(o.om*o.d),t:0,k:o.boost?-0.9:0,vmax:o.boost?10:1,max:60,lv:level,w:TD.angW?TD.angW.clone():null};return;}}   /* Swing-by mit Schwung: danach beschleunigen (bis zum Zehnfachen) */o.t=(o.t||0)+dt;   /* Ausfahrt aus dem Bogen genau in Richtung nächstes Ziel: geradeaus weiter */
+  if(o.exitFn&&o.t>0.5){const X=o.exitFn(),dd=X?tg.dot(X):0,pk=o.pd!=null&&dd<o.pd&&o.pd>0.85;o.pd=dd;if(X?(dd>Math.cos(3*DEG)||pk||ph>Math.PI*1.3):ph>Math.PI*0.5){TD.orb=null;TD.passOv=o.boost?8:2.5;TD.coast={aim:X?X.clone().normalize():null,v:tg.clone().multiplyScalar(o.om*o.d),t:0,k:o.boost?-0.15:0,vmax:o.boost?2.5:1,max:60,lv:level,w:TD.angW?TD.angW.clone():null};return;}}   /* Swing-by mit Schwung: danach beschleunigen (bis zum Zehnfachen) */o.t=(o.t||0)+dt;   /* Ausfahrt aus dem Bogen genau in Richtung nächstes Ziel: geradeaus weiter */
   let look=tg.multiplyScalar(Math.cos(o.beta)).addScaledVector(rad,-Math.sin(o.beta)).normalize();if(!o.q0){const cf=new V3(0,0,-1).applyQuaternion(camera.quaternion);o.q0=new THREE.Quaternion().setFromUnitVectors(look.clone(),cf);}{const e=sst(0,3.5,o.t||0);if(e<1)look.applyQuaternion(new THREE.Quaternion().slerp(o.q0,1-e)).normalize();}   /* Blick beginnt genau dort, wo er war, und dreht sich mit dem Bogen weich in die Bogen-Ansicht */ctl.follow=null;   /* Blick dreht sich weich in den Bogen ein (vorher setzte die Drehung schlagartig ein) */ctl.target.copy(pos).addScaledVector(look,o.d);ctl.dist=o.d;setDir(look.clone().negate());
   {const {u,U}=camBasis();const Nn=level==='erde'&&SOLIDS.erde[0]?pos.clone().sub(SOLIDS.erde[0].p()).normalize():o.N;ctl.up.copy(upToward(U,Nn,u,1-Math.exp(-dt*1.2)));}}
 // Vorbeiflug an einem schnell umlaufenden Mond (Daphnis): im mitfliegenden System (Flugrichtung, radial, seitlich) gleitet die Kamera langsam geradeaus am Mond vorbei;
 // Blick in Flugrichtung, solange der Mond vorn liegt leicht zu ihm hin (höchstens 30°), dann wieder geradeaus – er zieht seitlich vorbei
 function tdFlybyFrame(o,dt){const r=REPS[level].get(o.id);if(!r){TD.orb=null;return;}const ctr=o.ctrFn?o.ctrFn():new V3(),O=r.p.clone(),rel=O.clone().sub(ctr);
-  if(!o.lp){o.lp=rel.clone();if(!o.F)return;}const v=rel.clone().sub(o.lp);o.lp.copy(rel);const R=rel.clone().normalize();if(v.lengthSq()>1e-40){const F=v.addScaledVector(R,-v.dot(R)).normalize();if(o.fbl&&o.F){o.Fi=o.Fi||o.F.clone();o.F=slerpDir(o.Fi,F,sst(0,6,o.bt||0));}else o.F=o.F?o.F.lerp(F,Math.min(1,dt*2)).normalize():F;}   /* aus dem Anflug: Flugrichtung weich (6 s) in die Bahnrichtung überblenden, kein Ruck */else if(!o.F)return;
-  const Fd=o.F,Sd=new V3().crossVectors(Fd,R).normalize();if(!o.c){const d=camera.position.clone().sub(O);o.c=[d.dot(Fd),d.dot(R),d.dot(Sd)];}o.c[0]+=o.vrel*dt;
+  if(!o.lp){o.lp=rel.clone();if(!o.F)return;}const v=rel.clone().sub(o.lp);o.lp.copy(rel);const R=rel.clone().normalize();if(v.lengthSq()>1e-40&&!o.keepF){const F=v.addScaledVector(R,-v.dot(R)).normalize();if(o.fbl&&o.F){o.Fi=o.Fi||o.F.clone();o.F=slerpDir(o.Fi,F,sst(0,6,o.bt||0));}else o.F=o.F?o.F.lerp(F,Math.min(1,dt*2)).normalize():F;}   /* aus dem Anflug: Flugrichtung weich (6 s) in die Bahnrichtung überblenden, kein Ruck */else if(!o.F)return;
+  const Fd=o.F.clone().addScaledVector(R,-o.F.dot(R)).normalize(),Sd=new V3().crossVectors(Fd,R).normalize();if(!o.c){const d=o.p0?o.p0.clone().sub(O):camera.position.clone().sub(TD.objLast&&TD.objLast.id===o.id?TD.objLast.p:O);o.c=[d.dot(Fd),d.dot(R),d.dot(Sd)];}o.c[0]+=o.vrel*dt*(o.ramp?sst(0,o.ramp,o.bt||0):1);
   const pos=O.clone().addScaledVector(Fd,o.c[0]).addScaledVector(R,o.c[1]).addScaledVector(Sd,o.c[2]);if(o.minUp){const h=pos.clone().sub(ctr).dot(o.axis);if(h<o.minUp){const dh=o.minUp-h;pos.addScaledVector(o.axis,dh);o.c[2]+=dh*Math.sign(Sd.dot(o.axis)||1);}}   /* über der Ringebene bleiben */
-  const toO=O.clone().sub(pos).normalize(),a=Math.acos(Math.max(-1,Math.min(1,toO.dot(Fd))));
-  o.bt=(o.bt||0)+dt;const bm=(o.bmax||30)*DEG,b=(a<=bm?a:bm*Math.max(0,1-(a-bm)/((o.bfade||50)*DEG)))*sst(0,3,o.bt);let look=Fd.clone();const pr=toO.clone().addScaledVector(Fd,-toO.dot(Fd));if(pr.lengthSq()>1e-20&&b>1e-4){pr.normalize();look=Fd.clone().multiplyScalar(Math.cos(b)).addScaledVector(pr,Math.sin(b)).normalize();}
+  const toO=O.clone().sub(pos).normalize(),a=Math.acos(Math.max(-1,Math.min(1,toO.dot(o.F))));
+  o.bt=(o.bt||0)+dt;const bm=(o.bmax||30)*DEG,b=(a<=bm?a:bm*Math.max(0,1-(a-bm)/((o.bfade||50)*DEG)))*sst(0,3,o.bt);let look=o.F.clone();const pr=toO.clone().addScaledVector(Fd,-toO.dot(o.F));if(pr.lengthSq()>1e-20&&b>1e-4){pr.normalize();look=o.F.clone().multiplyScalar(Math.cos(b)).addScaledVector(pr,Math.sin(b)).normalize();}
   o.look=(o.look||new V3(0,0,-1).applyQuaternion(camera.quaternion)).lerp(look,Math.min(1,dt*2)).normalize();ctl.follow=null;ctl.target.copy(pos).addScaledVector(o.look,o.d);ctl.dist=o.d;setDir(o.look.clone().negate());
   {const {u,U}=camBasis();ctl.up.copy(upToward(U,o.axis,u,1-Math.exp(-dt*1.2)));}}
 // Eindrehen auf das nächste Ziel: Flugrichtung dreht gleichmäßig (weich an- und auslaufend, max. ~9°/s) zum Ziel, das Tempo wächst dabei stetig;
@@ -6770,8 +6856,8 @@ function tdTurn(aimFn,done){const prev=TD.orb,F=new V3(0,0,-1).applyQuaternion(c
   TD.hold=true;TD.path=null;TD.orb={turn:true,aimFn,done,F:F0,look:F.clone(),v,v0:v,w:0,ax,t:0,mv,pos:camera.position.clone()};}
 function tdTurnFrame(o,dt){if(dt<=0)return;o.t+=dt;const A=o.aimFn();if(!A){TD.orb=null;TD.hold=false;return;}
   const c=Math.max(-1,Math.min(1,o.F.dot(A))),a=Math.acos(c);let ax=o.F.clone().cross(A);if(ax.length()<1e-4||ax.dot(o.ax)<0)ax=o.ax.clone().addScaledVector(o.F,-o.ax.dot(o.F));ax.normalize();o.ax.lerp(ax,Math.min(1,dt*2)).normalize();
-  const WM=9*DEG,AC=4*DEG,wd=Math.min(WM,Math.sqrt(2*AC*Math.max(0,a-0.2*DEG)));o.w+=Math.max(-AC*dt,Math.min(AC*dt,wd-o.w));o.F.applyAxisAngle(o.ax,Math.min(a,o.w*dt)).normalize();
-  o.v*=Math.exp(dt*0.35*sst(0,3,o.t));   /* stetig schneller (vom langsamen Vorbeigleiten aus) */
+  const WM=6*DEG,AC=2.5*DEG,wd=Math.min(WM,Math.sqrt(2*AC*Math.max(0,a-0.2*DEG)));o.w+=Math.max(-AC*dt,Math.min(AC*dt,wd-o.w));o.F.applyAxisAngle(o.ax,Math.min(a,o.w*dt)).normalize();
+  o.v*=Math.exp(dt*0.22*sst(0,4,o.t));   /* stetig schneller (vom langsamen Vorbeigleiten aus) */
   if(o.mv){const r=REPS[level].get(o.mv.id);if(r){const dl=r.p.clone().sub(o.mv.lp);o.mv.lp.copy(r.p);if(dl.length()<o.v*50+ctl.dist*5)o.pos.addScaledVector(dl,1-sst(0,4,o.t));}}   /* Mitflug mit dem Mond weich auslaufen lassen */
   o.pos.addScaledVector(o.F,o.v*dt);for(const so of SOLIDS[level]){const C=so.p(),R=so.r()*1.3,d=o.pos.clone().sub(C),L=d.length();if(L<R&&L>0)o.pos.copy(C).addScaledVector(d.divideScalar(L),R);}
   if(!o.q0)o.q0=new THREE.Quaternion().setFromUnitVectors(o.F.clone(),o.look.clone());o.look=o.F.clone().applyQuaternion(new THREE.Quaternion().slerp(o.q0,1-sst(0,6,o.t))).normalize();ctl.follow=null;   /* bisherige Blickabweichung (zum Mond hin) weich über 6 s abbauen */ctl.target.copy(o.pos).addScaledVector(o.look,ctl.dist);setDir(o.look.clone().negate());
@@ -6795,7 +6881,7 @@ function tdDioOrbit(dist=1.4e-4,rate=0.07){const r=REPS.erde.get('dio3d'),up=DIO
 function tdPadOrbit(rate=0.035){if(!SHUTTLE.rep){tdDioOrbit(1.4e-4,rate);return;}DIO3D.model.updateWorldMatrix(true,true);const up=DIO3D.upW(),dio=DIO3D.model.localToWorld(new V3(0,8,0));let sp=SHUTTLE.rep.pos().clone();if(sp.distanceTo(dio)*RE_KM>3)sp=DIO3D.model.localToWorld(DIOM.pad.clone());   // frisch aus dem Modell (nicht aus einem älteren Zwischenwert)
   let h=sp.clone().sub(dio);h.addScaledVector(up,-h.dot(up));if(h.lengthSq()<1e-20)h=new V3(1,0,0).addScaledVector(up,-up.x);h.normalize();   // Kamera hinter der Rakete, das Dio dahinter im Bild
   const mid=dio.clone().lerp(sp,0.5),upM=mid.clone().normalize(),el=45*DEG,base=h.addScaledVector(upM,-h.dot(upM)).normalize().multiplyScalar(Math.cos(el)).addScaledVector(upM,Math.sin(el));   // 45° schräg von oben, waagerecht um Dio und Rampe kreisen
-  tdOrbit('dio3d',{dist:(0.42/Math.cos(el)-0.16)/RE_KM,base,axis:upM,mode:'spin',rate});if(TD.orb&&TD.phase==='attract')TD.orb.keep=true;tdTopApproach();}   // Mittelpunkt mitdrehend (Dio), Rampe liegt im Kreis mit im Bild
+  tdOrbit('dio3d',{dist:(0.42/Math.cos(el)-0.16)/RE_KM,base,axis:upM,mode:'spin',rate});if(TD.orb&&TD.phase==='attract')TD.orb.keep=true;if(fly&&TD.phase==='attract'&&ctl.dist>0.5)fly.dur*=2.2;tdTopApproach();}   /* Demo-Start von weit draußen: ruhiger auf die Erde zu (die Erde drehte sich vorher in 1,5 s unter der Kamera weg) */   // Mittelpunkt mitdrehend (Dio), Rampe liegt im Kreis mit im Bild
 // ---------- Ton (synthetisch) ----------
 function tdAudio(){if(TD.ac||!window.AudioContext&&!window.webkitAudioContext)return;try{const AC=window.AudioContext||window.webkitAudioContext;const ac=TD.ac=window.DIO_AC||new AC();   /* in der Auswahl (Fingertipp) schon freigeschaltet: Ton auch beim ersten Demo-Start */
   const n=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),d=n.getChannelData(0);let b=0;for(let i=0;i<d.length;i++){b=(b+0.02*(Math.random()*2-1))/1.02;d[i]=b*3.5;}
@@ -6830,13 +6916,18 @@ function tdOrbitFilter(on){const T=new Set();if(on){for(const lv in TD_POOL)for(
   // Kometenschweife sind bei echten Abständen riesige Striche quer durchs Bild: in der Mission ausblenden
   if(SC.sonne)SC.sonne.traverse(o=>{if(o.isPoints&&o.material&&o.material.uniforms&&o.material.uniforms.uNuc){if(on)o.layers.set(5);else o.layers.set(0);}});
   const all=$('#o-orbits')?$('#o-orbits').checked:true;for(const k in ORBITS)for(const o of ORBITS[k]){const id=o.userData&&o.userData.oid,show=!on||!!id&&(T.has(id)||(k==='sonne'&&o.userData.planet));o.traverse(q=>q.layers.set(show?0:5));if(!on)o.visible=all;}}   // über Ebenen (layers) statt visible: andere Programmteile schalten visible selbst um
-function tdOn(){if(TD.on)return;TD.on=true;if(window.DIO_AC&&TD.snd)try{tdAudio();}catch(e){}if(!TD.gest){TD.gest=1;const g=()=>{if(!TD.snd)return;tdAudio();try{if(TD.ac&&TD.ac.state==='suspended')TD.ac.resume();}catch(e){}};for(const ev of ['pointerdown','keydown','touchstart'])document.addEventListener(ev,g,{capture:true,passive:true});}tdOrbitFilter(true);tdDayTime();setTimeout(tdOfflineFill,9000);setTimeout(tdPrewarmShuttle,2500);try{DIO3D.preTiles&&DIO3D.preTiles();}catch(e){}window.TD_ON=true;tdPreload();renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));document.body.classList.add('tdot');tdEl('tdot').hidden=false;$('#intro').hidden=true;stopTour();if(MEAS.on)measStop();tdAttract();}
-function tdOff(){if(TD.turn)try{TD.turn.g.gain.value=0;}catch(e){}tdOrbitFilter(false);tdXStop();TD.ride=null;tdRideHud(null);for(const x of [CD_AUD,NASA_AUD])try{x&&x.pause();}catch(e){}renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));TD.on=false;window.TD_ON=false;tdClear();TD.phase='off';TD.orb=null;if(SHIP.on)shipOff();AUTO=null;document.body.classList.remove('tdot');tdEl('tdot').hidden=true;tdEngine();}
+function tdOn(){if(TD.on)return;TD.on=true;if(DIO3D.craneLater){try{craneBuild(DIO3D.craneLater);}catch(e){}DIO3D.craneLater=null;}else if(!window.ATLAS_TDOT){try{craneVis(true);}catch(e){}}DIOM.force=true;if(window.DIO_AC&&TD.snd)try{tdAudio();}catch(e){}if(!TD.gest){TD.gest=1;const g=()=>{if(!TD.snd)return;tdAudio();try{if(TD.ac&&TD.ac.state==='suspended')TD.ac.resume();}catch(e){}};for(const ev of ['pointerdown','keydown','touchstart'])document.addEventListener(ev,g,{capture:true,passive:true});}tdOrbitFilter(true);tdDayTime();setTimeout(tdOfflineFill,9000);setTimeout(tdPrewarmShuttle,2500);try{DIO3D.preTiles&&DIO3D.preTiles();}catch(e){}window.TD_ON=true;tdPreload();renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));document.body.classList.add('tdot');tdEl('tdot').hidden=false;$('#intro').hidden=true;stopTour();if(MEAS.on)measStop();tdAttract();}
+function tdOff(){try{DIOM.force=true;}catch(e){}if(TD.turn)try{TD.turn.g.gain.value=0;}catch(e){}tdOrbitFilter(false);tdXStop();TD.ride=null;tdRideHud(null);for(const x of [CD_AUD,NASA_AUD])try{x&&x.pause();}catch(e){}renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));TD.on=false;window.TD_ON=false;tdClear();TD.phase='off';TD.orb=null;if(SHIP.on)shipOff();AUTO=null;document.body.classList.remove('tdot');tdEl('tdot').hidden=true;tdEngine();}
 // ---------- Wartemodus: Demo-Flug ----------
 // Milchstraße zu Beginn: hinaus und hinauf, bis die ganze Scheibe schräg von oben (≈ 30°) im Bild ist, dann langsam drehen
 // Demo: das Shuttle wendet zum Betrachter, solange die Kamera zurückfährt (Ebenenwechsel nach außen, Flug in die Totale)
 function demoTurn(kind){const D=TD.demoShip;if(!D)return;D.turnReq=true;D.reqT=performance.now();D.reqKind=kind;D.reqLv=level;}
-function tdLvTotale(lv){if(TD.phase==='attract'&&TD.demoShip)demoTurn('totale');AUTO=null;TD.orb=null;TD.path=null;ctl.follow=null;const h=LEVEL_INFO[lv].home;fly={t0:performance.now(),dur:6000,from:ctl.target.clone(),fromD:ctl.dist,to:(h.target||new V3()).clone(),toD:h.dist*(lv==='galaxie'?1.15:1.05),id:null,fromEl:ctl.el,toEl:lv==='galaxie'?30*DEG:h.el};tdLater(()=>{if(!fly&&level===lv)tdTotale(0.03);},6150);}
+function tdTotView(lv){const h=LEVEL_INFO[lv].home;return {t:(h.target||new V3()).clone(),d:h.dist*(lv==='galaxie'?1.15:1.05),el:lv==='galaxie'?30*DEG:h.el,az:h.az};}
+function tdTotaleStart(lv){if(TD.phase!=='attract')return;const T=tdTotView(lv),I=LEVEL_INFO[lv];TD.coast=null;TD.orb=null;TD.path=null;fly=null;ctl.follow=null;ctl.target.copy(T.t);ctl.dist=Math.min(I.lim[1]*0.95,T.d*1.7);ctl.az=T.az;ctl.el=T.el;ctl.up.set(0,1,0);TD.totPre=lv;}   /* im Dunkeln: weiter draußen auf der Linie der Totale */
+function tdLvTotale(lv){AUTO=null;TD.orb=null;TD.path=null;ctl.follow=null;const T=tdTotView(lv);
+  if(TD.phase==='attract'&&TD.totPre===lv){TD.totPre=null;fly={t0:performance.now(),dur:7000,from:ctl.target.clone(),fromD:ctl.dist,to:T.t.clone(),toD:T.d,id:null,fromEl:ctl.el,toEl:ctl.el};tdLater(()=>{if(!fly&&level===lv)tdTotale(0);},7150);return;}   /* geradeaus auf die Totale zu (kein Schwenk, keine Seitwärtsbewegung), dann ruhig stehen */
+  fly={t0:performance.now(),dur:6000,from:ctl.target.clone(),fromD:ctl.dist,to:T.t.clone(),toD:T.d,id:null,fromEl:ctl.el,toEl:T.el};tdLater(()=>{if(!fly&&level===lv)tdTotale(TD.phase==='attract'?0:0.03);},6150);}
+function tdCruise(){if(!TD.coast){const f=new V3(0,0,-1).applyQuaternion(camera.quaternion);TD.coast={v:f.multiplyScalar(ctl.dist*0.12),t:0,k:0.12,max:12,lv:level};}}   /* Demo: in der neuen Ebene mit dem Schwung geradeaus weitergleiten */
 function tdGalTotale(){tdLvTotale('galaxie');}
 // Richtung von der Erde zum Saturn im System „Erde & Mond“ (äquatorial; das Sonnensystem ist ekliptikal)
 function tdSaturnDirE(){if(!SOLAR_AU.saturn||!SOLAR_AU.erde)return null;const d=SOLAR_AU.saturn(simMs).clone().sub(SOLAR_AU.erde(simMs));   /* aus der Bahnrechnung (die Sonnensystem-Ebene wird gerade nicht aktualisiert) */if(d.lengthSq()<1e-20)return null;return d.normalize().applyAxisAngle(new V3(1,0,0),EPS);}
@@ -6849,25 +6940,30 @@ const TD_DEMO=[
   ['erde',15,()=>{tdPath('iss',{dist:2.1e-4,baseFn:v=>tdIssBase(v),mode:'pend',rate:0.0001,noSwing:true});}],   // vorwärts auf einer Kurve über der Atmosphäre zur ISS (von hinten heran, in ihrer Flugrichtung)
   ['erde',24,()=>{const go=()=>{TD.hold=false;if(TD.phase!=='attract')return;tdPath('mond',{carry:'iss',v0max:0.08,lookBlend:0.5,lookRate:1.2,dur:36000,t0k:0.5,beta:60,exitFn:tdSaturnDirE,omK:2.0,boost:true,dist:REPS.erde.get('mond').view*0.72,base:tdFwdBase('mond',null),mode:'pend',rate:0.05});};
     /* erst langsam geradeaus an der ISS vorbei gleiten (mit ihr mitfliegend, sie zieht unter uns durch und bleibt im Bild), dann zum Mond */
-    const r=REPS.erde.get('iss');if(r&&TD.orb&&TD.orb.id==='iss'){const ctr=()=>SOLIDS.erde[0]?SOLIDS.erde[0].p():new V3();TD.orb={flyby:true,id:'iss',d:2.1e-4,ctrFn:ctr,axis:r.p.clone().sub(ctr()).normalize(),vrel:2.6e-5,bmax:50,bfade:90,t:0,pass:99,c:null,lp:null,F:new V3(0,0,-1).applyQuaternion(camera.quaternion)};TD.hold=true;tdLater(go,9500);}else go();}],   // von der ISS einfach geradeaus weiter, Swing-by am Mond Richtung Saturn
+    const r=REPS.erde.get('iss');if(r&&TD.orb&&TD.orb.id==='iss'){const ctr=()=>SOLIDS.erde[0]?SOLIDS.erde[0].p():new V3();TD.orb={flyby:true,id:'iss',d:2.1e-4,ctrFn:ctr,axis:r.p.clone().sub(ctr()).normalize(),vrel:2.6e-5,bmax:50,bfade:90,ramp:3,t:0,pass:99,c:null,lp:null,F:new V3(0,0,-1).applyQuaternion(camera.quaternion)};TD.hold=true;tdLater(go,9500);}else go();}],   // von der ISS einfach geradeaus weiter, Swing-by am Mond Richtung Saturn
   ['sonne',18,()=>{const r=REPS.sonne.get('daphnis'),N=tdRing(),sp=new V3();SAT.pivot.getWorldPosition(sp);const rad=r.p.clone().sub(sp).normalize(),T=N.clone().cross(rad).normalize();
-    tdPath('daphnis',{aimStart:true,dur:34000,lookTgt:0.3,lookBlend:0.25,dist:r.view*2.5,flyby:true,flyV:0.4,minUp:0.4,lookRate:0.6,baseFn:v=>v.clone().negate().multiplyScalar(0.9).addScaledVector(N,0.5).addScaledVector(rad,0.38).normalize(),axis:N,mode:'spin',rate:0.045,ctrFn:()=>SAT.pivot.getWorldPosition(new V3()),noSwing:true});   /* von hinten in ihrer Bahnrichtung folgen (Kamera fliegt vorwärts mit) */}],
+    const d0=r.p.clone().sub(camPos()).normalize(),dH=d0.clone().addScaledVector(N,-d0.dot(N));if(dH.lengthSq()<1e-6)dH.copy(T);dH.normalize();
+    tdPath('daphnis',{aimStart:true,dur:34000,lookTgt:0,lookBlend:0.3,dist:r.view*2.5,flyby:true,keepF:true,flyV:0.5,minUp:0.4,lookRate:0.6,bmax:8,endT:()=>dH.clone(),baseFn:()=>dH.clone().negate().addScaledVector(N,0.45).normalize(),   /* 13.47b: von hinten, knapp über der Ringebene, am Ende waagerecht in Bahnrichtung – eine ruhige Linie über Daphnis hinweg */axis:N,mode:'spin',rate:0.045,ctrFn:()=>SAT.pivot.getWorldPosition(new V3()),noSwing:true});   /* von hinten in ihrer Bahnrichtung folgen (Kamera fliegt vorwärts mit) */}],
   ['sonne',22,()=>{const J=()=>{const r=REPS.sonne.get('jupiter');return r?r.p.clone().sub(camPos()).normalize():null;};
     /* nach Daphnis: in einer ruhigen, gleichmäßigen Kurve (höchstens ~9°/s) um den Saturn herum auf den Jupiter eindrehen, dabei schneller werden – erst dann geradeaus zum Jupiter */
-    tdTurn(J,()=>tdPath('jupiter',{v0max:0.12,exitFn:()=>{const r=REPS.sonne.get('jupiter');return r?r.p.clone().normalize():null;},omK:1.8,beta:55,boost:true,lookRate:1.0,lookBlend:0.3,dist:REPS.sonne.get('jupiter').view*0.9,base:tdFwdBase('jupiter',tdBehind('jupiter',0.25)),mode:'spin',rate:0.06,dur:24000}));}],
-  ['galaxie',8,()=>{tdGalTotale();}],
-  ['galaxie',30,()=>{tdPath('sgra',{beta:55,dist:REPS.galaxie.get('sgra').view*1.2,base:tdFwdBase('sgra',tdBehind('sgra',0.55)),mode:'spin',rate:0.03,dur:26000});}],   // direkt und langsam zu Sagittarius A*
-  ['gruppe',8,()=>{tdLvTotale('gruppe');}],
-  ['gruppe',18,()=>{tdPath('andromeda',{dist:REPS.gruppe.get('andromeda').view*0.9,base:tdFwdBase('andromeda',tdBehind('andromeda',0.35)),mode:'spin',rate:0.05});}],
-  ['kosmos',8,()=>{tdLvTotale('kosmos');}],
-  ['kosmos',16,()=>{tdPath('bootesvoid',{dist:REPS.kosmos.get('bootesvoid').view*0.8,base:tdFwdBase('bootesvoid',tdBehind('bootesvoid',0.3)),mode:'spin',rate:0.05});}],
+    tdTurn(J,()=>tdPath('jupiter',{v0max:0.06,exitFn:()=>{const r=REPS.sonne.get('jupiter');return r?r.p.clone().normalize():null;},omK:1.8,beta:55,boost:true,lookRate:1.0,lookBlend:0.3,dist:REPS.sonne.get('jupiter').view*0.9,base:tdFwdBase('jupiter',tdBehind('jupiter',0.25)),mode:'spin',rate:0.06,dur:38000}));}],
+  ['galaxie',8,()=>{tdCruise();}],   // nahtlos weiter geradeaus (keine Totale mehr: kein Schwenk, kein Rückwärtsflug)
+  ['galaxie',30,()=>{tdPath('sgra',{beta:55,lookRate:0.8,t0k:0.6,dist:REPS.galaxie.get('sgra').view*1.2,base:tdFwdBase('sgra',tdBehind('sgra',0.55)),mode:'spin',rate:0.03,dur:26000});}],   // direkt und langsam zu Sagittarius A*
+  ['gruppe',8,()=>{tdCruise();}],
+  ['gruppe',18,()=>{tdPath('andromeda',{lookRate:0.8,t0k:0.6,dist:REPS.gruppe.get('andromeda').view*0.9,base:tdFwdBase('andromeda',tdBehind('andromeda',0.35)),mode:'spin',rate:0.05});}],
+  ['kosmos',8,()=>{tdCruise();}],
+  ['kosmos',16,()=>{tdPath('bootesvoid',{lookRate:0.8,t0k:0.6,dist:REPS.kosmos.get('bootesvoid').view*0.8,base:tdFwdBase('bootesvoid',tdBehind('bootesvoid',0.3)),mode:'spin',rate:0.05});}],
   ['kosmos',8,()=>{tdHome(true);}]];   // Heimflug durch alle Ebenen (ohne Alien) und Landung am Dio wie im Flugmodus
 // alles vorab bauen und Shader übersetzen, damit beim Ebenenwechsel nichts ruckelt
 let TD_PRE=false;function tdPreload(){if(TD_PRE)return;TD_PRE=true;const jobs=LAZY3D.splice(0);let i=0;const run=()=>{const t0=performance.now();while(i<jobs.length&&performance.now()-t0<12){try{jobs[i].run();}catch(e){}i++;}
     if(i<jobs.length)setTimeout(run,30);else{let k=0;const comp=()=>{if(k<LEVELS.length){try{renderer.compile(SC[LEVELS[k]],camera);}catch(e){}k++;setTimeout(comp,60);}};comp();}};setTimeout(run,800);}
 function tdGoLevel(lv,cb){AUTO=null;if(level===lv){cb();return;}
   /* Demo, hinaus in die nächsthöhere Ebene: erst wendet das Shuttle in einer Kurve (zum Betrachter), dann fährt die Kamera zurück */
-  const D=TD.demoShip;if(TD.phase==='attract'&&D&&D.mode!=='gone'&&CHASE.model&&CHASE.model.visible&&LEVELS.indexOf(lv)>LEVELS.indexOf(level)&&!(level==='erde'&&lv==='sonne')&&!D.turnReq){demoTurn('switch');setTimeout(()=>{if(TD.phase!=='attract'){D.turnReq=false;return;}TD.orb=null;delete saved[lv];switchLevel(lv,()=>{});tdIdle(cb);},2600);return;}
+  /* Demo, hinaus in die nächsthöhere Ebene: das Shuttle wendet NICHT – es fliegt (mit der Kamera) einfach geradeaus weiter, das Bild blendet aus;
+     in der neuen Ebene beginnt die Totale schon im Dunkeln (weiter draußen, Blick auf das Zentrum), danach geht es geradeaus darauf zu: immer in Richtung der Shuttle-Nase */
+  if(TD.phase==='attract'&&LEVELS.indexOf(lv)>LEVELS.indexOf(level)&&!(level==='erde'&&lv==='sonne')){
+    if(!TD.coast){const f=new V3(0,0,-1).applyQuaternion(camera.quaternion),cv=TD.cv&&TD.cv.length()>ctl.dist*0.05?TD.cv.clone():f.multiplyScalar(ctl.dist*0.15);TD.coast={v:cv,t:0,k:0,max:6,lv:level};}
+    TD.orb=null;TD.path=null;delete saved[lv];switchLevel(lv,()=>{});tdIdle(cb);return;}
   TD.orb=null;delete saved[lv];switchLevel(lv,()=>{});tdIdle(cb);}
 // alle Fenster und Knöpfe einer abgebrochenen Mission wegräumen
 function tdResetUI(){for(const id of ['td-msg','td-choose','td-info','td-photo','td-jump'])tdEl(id)&&(tdEl(id).hidden=true);const m=tdEl('td-msg');if(m){m.classList.remove('in','mini');m.innerHTML='';}
@@ -6922,6 +7018,14 @@ function tdCountdown(){tdClear();TD.ride=null;tdRideHud(null);TD.demoLaunch=fals
   poll();}
 // nach dem Abheben: warten, bis das Shuttle oben aus dem Bild steigt, dann an Bord wechseln
 // Kamera bleibt nach dem Abheben stehen (folgt nicht mehr), damit das Shuttle oben aus dem Bild steigt
+function tdSkipLaunch(){if(!['count','liftoff','launch'].includes(TD.phase))return;tdUnlockAudio();
+  try{CD_AUD&&CD_AUD.pause();}catch(e){}try{NASA_AUD&&NASA_AUD.pause();}catch(e){}try{SHUTTLE.sndStop&&SHUTTLE.sndStop();}catch(e){}
+  tdClear();TD.ride=null;tdRideHud(null);TD.orb=null;fly=null;AUTO=null;ctl.follow=null;SHUTTLE.t=-1;if(SHUTTLE.stack)SHUTTLE.stack.visible=false;if(SHUTTLE.trail&&SHUTTLE.trail.P)SHUTTLE.trail.P=[];
+  const E=SOLIDS.erde[0],c=E.p(),up=DIO3D.upW?DIO3D.upW().normalize():camera.position.clone().normalize(),pos=c.clone().addScaledVector(up,E.r()*1.06);
+  let fw=new V3(0,1,0).cross(up);if(fw.lengthSq()<1e-6)fw.set(1,0,0);fw.normalize().addScaledVector(up,-0.12).normalize();   /* in der Umlaufbahn über Rheine, Blick nach Osten knapp unter den Horizont */
+  if(SHIP.on)shipOff();shipOn();SHIP.pos.copy(pos);SHIP.q.setFromRotationMatrix(new THREE.Matrix4().lookAt(pos,pos.clone().add(fw),up));SHIP.climb=null;SHIP.coast=0;
+  TD.phase='launch';$('#cockpit').hidden=false;tdShow('td-hud');tdHud(null);tdLever(0.35);tdBanner('Start übersprungen – das Shuttle ist schon in der Umlaufbahn. Warp-Antrieb an!');
+  tdLater(()=>{tdEl('td-jump').hidden=true;tdChoose('erde');},2500);}
 function tdHoldCam(){if(fly)return;TD.orb=null;ctl.follow=null;}
 function tdLiftWatch(){if(TD.phase!=='liftoff'&&!(TD.phase==='attract'&&TD.demoLaunch))return;const lift=SHUTTLE.t-6.3;
   if(!SHUTTLE.g||SHUTTLE.t<0){tdRide();return;}
@@ -7009,8 +7113,8 @@ function tdFly(T){if(TD.ride&&TD.phase!=='attract'){TD.flyQ=T;tdLater(()=>{if(TD
   if(level!=='erde'){tdLever(0);SHIP.th=0;}tdShow('td-hud');tdHud(T);tdEl('td-helpb').classList.remove('on');
   tdBanner(level==='erde'?'Folge dem gelben Pfeil! Bring das Ziel ins Fadenkreuz.':'Kippe zum Lenken · Schubhebel nach vorn · Ziel ins Fadenkreuz!');}
 function tdHud(T){tdEl('td-goal').innerHTML=T?`<small>Ebene ${TD_LV.indexOf(T.lv)+1} von 5 · ${TD_LVN[T.lv]}</small><b>${esc(tdName(T.id))}</b>`:'<small>Start</small><b>Dionysianum</b>';tdEl('td-dist').innerHTML='';tdEl('td-time').textContent='';tdStamps();}
-function tdFrame(dt,now){if(!TD.on)return;{const f=new V3(0,0,-1).applyQuaternion(camera.quaternion);if(TD.lf&&dt>0){const ax=new V3().crossVectors(TD.lf,f),sn=ax.length();TD.angW=sn>1e-9?ax.divideScalar(sn).multiplyScalar(Math.asin(Math.min(1,sn))/dt):new V3();}TD.lf=f;}   /* Drehgeschwindigkeit des Blicks (für weiche Übergänge) */{const pre=TD.phase==='calib'||TD.phase==='count';if(TD.preC!==pre){TD.preC=pre;document.body.classList.toggle('td-pre',pre);}}   /* Missionszahlen 1–5 nicht vor und während des Countdowns */camVelTrack(dt);tdEngine();tdTurnSnd();shuttleFrame(dt);trailFrame();ufoFrame(dt);if(TD.phase==='liftoff'&&TD.orb)TD.orb.dist*=1+dt*0.045;tdOrbitFrame(dt);tdPathFrame(dt);
-  if(TD.coast&&TD.coast.lv&&TD.coast.lv!==level)TD.coast=null;if(TD.coast&&!TD.path&&!SHIP.on&&!fly&&!switching){ctl.target.addScaledVector(TD.coast.v,dt);if(TD.coast.w){const wm=TD.coast.w.length()*Math.exp(-TD.coast.t/1.3);if(wm>1e-5){const cp=camPos(),Lv=ctl.target.clone().sub(cp);Lv.applyAxisAngle(TD.coast.w.clone().normalize(),wm*dt);ctl.target.copy(cp).add(Lv);setDir(Lv.clone().normalize().negate());}}   /* Drehung aus dem Bogen läuft weich aus */if(TD.coast&&TD.coast.aim){const cp=camPos(),Lv=ctl.target.clone().sub(cp),dl=Lv.length(),nv=Lv.divideScalar(dl).lerp(TD.coast.aim,1-Math.exp(-dt*0.8)).normalize();ctl.target.copy(cp).addScaledVector(nv,dl);setDir(nv.clone().negate());TD.coast.v.lerp(TD.coast.aim.clone().multiplyScalar(TD.coast.v.length()),1-Math.exp(-dt*1.2));}   /* nach dem Swing-by Blick und Flug genau auf das nächste Ziel (Saturn) ausrichten */{const C=TD.coast;if(C.v0==null)C.v0=C.v.length();const f=Math.exp(-dt*(C.k!=null?C.k:0.4));if(f<1||C.v.length()*f<=C.v0*(C.vmax||1))C.v.multiplyScalar(f);}if((TD.coast.t+=dt)>(TD.coast.max||4))TD.coast=null;}   /* Demo: nach dem Loslassen des Verfolgers mit dem Schwung weiter, bis die Bahn zum nächsten Ziel beginnt (kein Anhalten) */
+function tdFrame(dt,now){if(!TD.on)return;{const b=TD.skB||(TD.skB=tdEl('td-skipl'));if(b){const sh=['count','liftoff','launch'].includes(TD.phase)&&!!(TD.ride||TD.phase!=='launch');if(b.hidden===sh)b.hidden=!sh;if(!b.onclick)b.onclick=tdSkipLaunch;}}{if(TD.lcp&&dt>0&&TD.lcpLv===level&&!switching)TD.cv=camera.position.clone().sub(TD.lcp).divideScalar(dt);else TD.cv=null;TD.lcp=camera.position.clone();TD.lcpLv=level;const oid=TD.orb&&TD.orb.id||TD.path&&TD.path.id,ro=oid&&REPS[level].get(oid);TD.objLast=TD.objCur;TD.objCur=ro?{id:oid,p:ro.p.clone()}:null;}   /* letztes Kamera-Tempo und letzter Ort des Ziels: für ruckfreie Übergänge */{const f=new V3(0,0,-1).applyQuaternion(camera.quaternion);if(TD.lf&&dt>0){const ax=new V3().crossVectors(TD.lf,f),sn=ax.length();TD.angW=sn>1e-9?ax.divideScalar(sn).multiplyScalar(Math.asin(Math.min(1,sn))/dt):new V3();}TD.lf=f;}   /* Drehgeschwindigkeit des Blicks (für weiche Übergänge) */{const pre=TD.phase==='calib'||TD.phase==='count';if(TD.preC!==pre){TD.preC=pre;document.body.classList.toggle('td-pre',pre);}}   /* Missionszahlen 1–5 nicht vor und während des Countdowns */camVelTrack(dt);tdEngine();tdTurnSnd();shuttleFrame(dt);trailFrame();ufoFrame(dt);if(TD.phase==='liftoff'&&TD.orb)TD.orb.dist*=1+dt*0.045;tdOrbitFrame(dt);tdPathFrame(dt);
+  if(TD.coast&&TD.coast.lv&&TD.coast.lv!==level)TD.coast=null;if(TD.coast&&!TD.path&&!SHIP.on&&!fly&&(!switching||TD.coast.lv===level)){ctl.target.addScaledVector(TD.coast.v,dt);if(TD.coast.w){const wm=TD.coast.w.length()*Math.exp(-TD.coast.t/1.3);if(wm>1e-5){const cp=camPos(),Lv=ctl.target.clone().sub(cp);Lv.applyAxisAngle(TD.coast.w.clone().normalize(),wm*dt);ctl.target.copy(cp).add(Lv);setDir(Lv.clone().normalize().negate());}}   /* Drehung aus dem Bogen läuft weich aus */if(TD.coast&&TD.coast.aim){const cp=camPos(),Lv=ctl.target.clone().sub(cp),dl=Lv.length(),nv=Lv.divideScalar(dl).lerp(TD.coast.aim,1-Math.exp(-dt*0.8)).normalize();ctl.target.copy(cp).addScaledVector(nv,dl);setDir(nv.clone().negate());TD.coast.v.lerp(TD.coast.aim.clone().multiplyScalar(TD.coast.v.length()),1-Math.exp(-dt*1.2));}   /* nach dem Swing-by Blick und Flug genau auf das nächste Ziel (Saturn) ausrichten */{const C=TD.coast;if(C.v0==null)C.v0=C.v.length();const f=Math.exp(-dt*(C.k!=null?C.k:0.4));if(f<1||C.v.length()*f<=C.v0*(C.vmax||1))C.v.multiplyScalar(f);}if((TD.coast.t+=dt)>(TD.coast.max||4))TD.coast=null;}   /* Demo: nach dem Loslassen des Verfolgers mit dem Schwung weiter, bis die Bahn zum nächsten Ziel beginnt (kein Anhalten) */
   if(TD.kW||TD.kS){tdLever(TD.lever+(TD.kW?1:-1)*dt*0.7);TD.last=now;}
   tdRideFrame(dt);
   rocksFrame(dt);
@@ -7097,18 +7201,18 @@ function demoShipFrame(dt){const D=TD.demoShip,M=CHASE.model,okP=TD.phase==='att
     M.quaternion.setFromRotationMatrix(new THREE.Matrix4().lookAt(new V3(),fwd,up));M.scale.setScalar(0.02*s/M.userData.L);try{demoPlasma(M,dt);}catch(e){}if(T>5.5){M.visible=false;D.mode='gone';}return;}
   if(D.mode==='gone'){M.visible=false;return;}
   let side=new V3();if(D.lp&&dt>0){const v=camera.position.clone().sub(D.lp).divideScalar(dt),sp=v.length();{const bk=switching&&sp>ctl.dist*0.08&&v.dot(fwd)<-0.6*sp?1:0;D.bk=(D.bk||0)+(bk-(D.bk||0))*Math.min(1,dt*1.5);}if(sp>ctl.dist*0.01){side=v.normalize();side.addScaledVector(fwd,-side.dot(fwd));if(side.length()>0.15)side.setLength(0.15);}}D.lp=camera.position.clone();
-  if(switching||D.turnReq)side.set(0,0,0);D.side=(D.side||new V3()).lerp(side,Math.min(1,dt*1.5));   /* beim Ebenenwechsel geradeaus (kein seitliches Ausweichen) */const rgt=new V3().crossVectors(fwd,up).normalize(),dir=fwd.clone().add(D.side).addScaledVector(rgt,-Math.max(-0.12,Math.min(0.12,(D.yr||0)*0.5*(TD.orb&&TD.orb.swing?0.2:1)))).normalize();   /* Nase zeigt leicht in die Kurve */
-  if(D.lf&&dt>0){const cr=new V3().crossVectors(D.lf,fwd),yaw=cr.dot(up)/dt,pit=cr.dot(new V3().crossVectors(fwd,up).normalize())/dt;D.pr=(D.pr||0)+(pit-(D.pr||0))*Math.min(1,dt*3);D.yr=(D.yr||0)+(yaw-(D.yr||0))*Math.min(1,dt*3);{const cs=TD.orb&&TD.orb.swing||switching||D.turnReq?0.15:1;D.bank+=(Math.max(-0.55,Math.min(0.55,D.yr*1.6*cs))-D.bank)*Math.min(1,dt*2.5);}   /* im Swing-by dreht sich die Kamera, das Shuttle bleibt ruhig im Bild */}D.lf=fwd.clone();   /* Linkskurve → nach links neigen (früher vertauscht: das Shuttle lag falsch herum in der Kurve) */
+  if(switching||D.turnReq)side.set(0,0,0);D.side=(D.side||new V3()).lerp(side,Math.min(1,dt*1.5));   /* beim Ebenenwechsel geradeaus (kein seitliches Ausweichen) */const rgt=new V3().crossVectors(fwd,up).normalize(),dir=fwd.clone().add(D.side).addScaledVector(rgt,-Math.max(-0.12,Math.min(0.12,(D.yr||0)*0.5))).normalize();   /* Nase zeigt leicht in die Kurve */
+  if(D.lf&&dt>0){const cr=new V3().crossVectors(D.lf,fwd),yaw=cr.dot(up)/dt,pit=cr.dot(new V3().crossVectors(fwd,up).normalize())/dt;D.pr=(D.pr||0)+(pit-(D.pr||0))*Math.min(1,dt*3);D.yr=(D.yr||0)+(yaw-(D.yr||0))*Math.min(1,dt*3);{D.bank+=(Math.max(-0.6,Math.min(0.6,D.yr*1.4))-D.bank)*Math.min(1,dt*2.5);}   /* wie im Flugmodus: jede Richtungsänderung → Schräglage in die Kurve (auch im Swing-by) */   /* im Swing-by dreht sich die Kamera, das Shuttle bleibt ruhig im Bild */}D.lf=fwd.clone();   /* Linkskurve → nach links neigen (früher vertauscht: das Shuttle lag falsch herum in der Kurve) */
   D.vis=Math.min(1,(D.vis==null?1:D.vis)+dt*1.2);M.visible=true;
-  M.position.copy(camera.position).addScaledVector(fwd,0.1*s).addScaledVector(up,-0.015*s);if(D.rel0){D.tb+=dt;const e=sst(0,3,D.tb);if(e>=1)D.rel0=null;else{const p0=D.rel0.clone().multiplyScalar(s).applyQuaternion(camera.quaternion).add(camera.position);M.position.lerp(p0,1-e);D.blendQ=1-e;}}
+  M.position.copy(camera.position).addScaledVector(fwd,0.1*s).addScaledVector(up,-0.015*s);{const ox=Math.max(-0.022,Math.min(0.022,-(D.yr||0)*0.05)),oy=Math.max(-0.014,Math.min(0.014,(D.pr||0)*0.04));M.position.addScaledVector(rgt,ox*s).addScaledVector(up,oy*s);}   /* wie die nachgeführte Kamera im Flugmodus: in Kurven wandert das Shuttle etwas zur Kurveninnenseite ins Bild */if(D.rel0){D.tb+=dt;const e=sst(0,3,D.tb);if(e>=1)D.rel0=null;else{const p0=D.rel0.clone().multiplyScalar(s).applyQuaternion(camera.quaternion).add(camera.position);M.position.lerp(p0,1-e);D.blendQ=1-e;}}
   const mq=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(new V3(),dir,up));M.quaternion.copy(mq);
   // Demo, beim Hinauszoomen (Kamera fährt zurück): das Shuttle wendet in einer Kurve und fliegt auf die Kamera zu – so fliegt es nie rückwärts
-  {if(D.turnReq){const age=performance.now()-(D.reqT||0);if(age>25000||(D.reqKind==='switch'?(level!==D.reqLv&&!switching&&!fly&&age>3000):(age>800&&!fly)))D.turnReq=false;}const outZ=!!D.turnReq;D.outZ=outZ;D.yaw=D.yaw||0;D.yw=D.yw||0;{const tg=outZ?Math.PI:0,a=(tg-D.yaw);D.yw+=(a*3.2-D.yw*2.6)*Math.min(0.1,dt);D.yaw+=D.yw*dt;}   /* Wende mit weichem Anlauf und Auslauf (gedämpfte Feder, ≈ 2,5 s) */
+  {if(D.turnReq){const age=performance.now()-(D.reqT||0);if(age>25000||(D.reqKind==='switch'?(level!==D.reqLv&&!switching&&!fly&&age>3000):(age>800&&!fly)))D.turnReq=false;}const outZ=!!D.turnReq;D.outZ=outZ;D.yaw=D.yaw||0;D.yw=D.yw||0;{const tg=outZ?Math.PI:0,a=(tg-D.yaw);D.yw+=(a*0.8-D.yw*1.5)*Math.min(0.1,dt);D.yaw+=D.yw*dt;}   /* Wende mit weichem Anlauf und Auslauf (gedämpfte Feder, ≈ 2,5 s) */
     /* Wende beim Ebenenwechsel: nicht das Shuttle dreht sich vor der Kamera, sondern die Kamera kreist um das Shuttle (der Hintergrund dreht sich mit) */
     {const orbitCam=false,dY=D.yaw-(D.yPrev==null?D.yaw:D.yPrev);D.yPrev=D.yaw;
      if((orbitCam||D.orbC)&&Math.abs(dY)>1e-6&&!switching){D.orbC=orbitCam||Math.abs(D.yaw)>1e-3&&D.orbC;const S=camera.position.clone().addScaledVector(fwd,0.1*s).addScaledVector(up,-0.015*s),Ua=up.clone().normalize(),cp=camPos();
        const T2=ctl.target.clone().sub(S).applyAxisAngle(Ua,-dY).add(S),C2=cp.sub(S).applyAxisAngle(Ua,-dY).add(S);ctl.target.copy(T2);setDir(C2.sub(T2).normalize());}}
-    if(Math.abs(D.yaw)>1e-4)M.rotateY(D.yaw);M.rotateZ(D.bank+0.35*Math.sin(D.yaw));   /* Wende auf der Stelle (keine Seitwärtsbewegung) */if(D.rq0&&D.blendQ>0){const q0=camera.quaternion.clone().multiply(D.rq0);M.quaternion.slerp(q0,D.blendQ);D.blendQ=0;}else if(D.rq0&&!D.rel0)D.rq0=null;}
+    if(Math.abs(D.yaw)>1e-4)M.rotateY(D.yaw);M.rotateZ(D.bank+Math.max(-0.6,Math.min(0.6,(D.yw||0)*0.6)));   /* Wende auf der Stelle (keine Seitwärtsbewegung) */if(D.rq0&&D.blendQ>0){const q0=camera.quaternion.clone().multiply(D.rq0);M.quaternion.slerp(q0,D.blendQ);D.blendQ=0;}else if(D.rq0&&!D.rel0)D.rq0=null;}
   M.scale.setScalar(0.02*s*Math.max(0.05,D.vis)/M.userData.L);shipFX(M,dt);try{demoPlasma(M,dt);}catch(e){}}
 function chaseFreeFrame(dt){const F=CHASE.free,M=CHASE.model;if(!F||!M)return;if(SHIP.on||level!==F.lv){CHASE.free=null;if(!SHIP.on)M.visible=false;return;}F.t+=dt;F.v.multiplyScalar(Math.exp(dt*0.7));M.position.addScaledVector(F.v,dt);
   if(M.userData.glow)M.userData.glow.material.opacity=0.9;if(F.t>9){M.visible=false;CHASE.free=null;}}
@@ -7243,15 +7347,15 @@ function rocksFrame(dt){const T=TD.cur;if(!TD.on||TD.phase!=='fly'||!SHIP.on||!T
   const R=REPS[level].get(T.id);if(!R)return;const to=R.p.clone().sub(SHIP.pos),d=to.length();if(d<TD.thr*3){if(CHASE.rocks.length)rocksClear();return;}to.normalize();
   rockMats();
   CHASE.rockT-=dt;const ahead=CHASE.rocks.filter(r=>r.m.position.clone().sub(SHIP.pos).dot(to)>0).length;
-  if(CHASE.rockT<=0&&ahead<3){CHASE.rockT=2.2+Math.random()*1.5;const junk=level==='erde';
+  if(CHASE.rockT<=0&&ahead<4){CHASE.rockT=1.5+Math.random()*1.1;   /* 13.48: etwas schwieriger – häufiger, näher an der Flugbahn, manche treiben quer */const junk=level==='erde';
     // vor dem Schiff in die Flugbahn setzen (etwas seitlich), Größe passend zur Entfernung
-    const sd=d*(0.42+Math.random()*0.18),side=new V3().crossVectors(to,new V3(0,1,0).applyQuaternion(SHIP.q)).normalize(),upv=new V3().crossVectors(side,to).normalize();
-    const rad=sd*(0.02+Math.random()*0.015),a=Math.random()*Math.PI*2,rr=rad*2.6*Math.random();
+    const sd=d*(0.36+Math.random()*0.18),side=new V3().crossVectors(to,new V3(0,1,0).applyQuaternion(SHIP.q)).normalize(),upv=new V3().crossVectors(side,to).normalize();
+    const rad=sd*(0.024+Math.random()*0.018),a=Math.random()*Math.PI*2,rr=rad*1.7*Math.random();
     const m=junk?rockJunk():level==='galaxie'?rockDust():level==='gruppe'?rockCluster():level==='kosmos'?rockBH():rockRock();const fm=rockFadeSetup(m);m.position.copy(SHIP.pos).addScaledVector(to,sd).addScaledVector(side,Math.cos(a)*rr).addScaledVector(upv,Math.sin(a)*rr);
-    m.scale.setScalar(junk?rad/1.4:rad);m.rotation.set(Math.random()*6,Math.random()*6,0);m.raycast=()=>{};SC[level].add(m);CHASE.rocks.push({m,r:rad,w:new V3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).multiplyScalar(0.6),hit:false,fm,age:0});if(!CHASE.warned||performance.now()-CHASE.warned>12000){CHASE.warned=performance.now();tdToast('⚠️ '+ROCK_TXT[level][0]+' voraus – lenke drumherum!');}}
-  for(let i=CHASE.rocks.length-1;i>=0;i--){const o=CHASE.rocks[i];o.age+=dt;if(o.fm){const a=Math.min(1,o.age/1.3),aa=a*a*(3-2*a);for(const mt of o.fm){if(mt.userData.spr!=null){mt.opacity=aa*mt.userData.spr;continue;}mt.opacity=aa;if(a>=1&&!mt.blending!==THREE.AdditiveBlending&&mt.userData.keepT!==true&&!(mt.map&&mt.blending===THREE.AdditiveBlending)){mt.transparent=false;mt.depthWrite=true;mt.needsUpdate=true;}}if(a>=1)o.fm=null;}o.m.rotation.x+=o.w.x*dt;o.m.rotation.y+=o.w.y*dt;const rel=o.m.position.clone().sub(SHIP.pos),dist=rel.length();
+    m.scale.setScalar(junk?rad/1.4:rad);m.rotation.set(Math.random()*6,Math.random()*6,0);m.raycast=()=>{};SC[level].add(m);CHASE.rocks.push({m,r:rad,w:new V3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).multiplyScalar(0.6),hit:false,fm,age:0,dv:Math.random()<0.4?side.clone().multiplyScalar((Math.random()<0.5?-1:1)*rad*(0.5+Math.random()*0.5)):null});if(!CHASE.warned||performance.now()-CHASE.warned>12000){CHASE.warned=performance.now();tdToast('⚠️ '+ROCK_TXT[level][0]+' voraus – lenke drumherum!');}}
+  for(let i=CHASE.rocks.length-1;i>=0;i--){const o=CHASE.rocks[i];o.age+=dt;if(o.dv)o.m.position.addScaledVector(o.dv,dt);if(o.fm){const a=Math.min(1,o.age/1.3),aa=a*a*(3-2*a);for(const mt of o.fm){if(mt.userData.spr!=null){mt.opacity=aa*mt.userData.spr;continue;}mt.opacity=aa;if(a>=1&&!mt.blending!==THREE.AdditiveBlending&&mt.userData.keepT!==true&&!(mt.map&&mt.blending===THREE.AdditiveBlending)){mt.transparent=false;mt.depthWrite=true;mt.needsUpdate=true;}}if(a>=1)o.fm=null;}o.m.rotation.x+=o.w.x*dt;o.m.rotation.y+=o.w.y*dt;const rel=o.m.position.clone().sub(SHIP.pos),dist=rel.length();
     if(rel.dot(to)<-o.r*6||dist>d*1.5){SC[level].remove(o.m);CHASE.rocks.splice(i,1);continue;}
-    if(!o.hit&&!TD.help&&dist<o.r*1.25){o.hit=true;tdLever(TD.lever*0.35);CHASE.hitT=0.6;setTimeout(()=>{if(o.m.parent)o.m.parent.remove(o.m);},700);TD.hits=(TD.hits||0)+1;
+    if(!o.hit&&!TD.help&&dist<o.r*1.4){o.hit=true;tdLever(TD.lever*0.35);CHASE.hitT=0.6;setTimeout(()=>{if(o.m.parent)o.m.parent.remove(o.m);},700);TD.hits=(TD.hits||0)+1;
       if(TD.hits>=3){tdMissionFail();return;}tdToast('💥 '+ROCK_TXT[level][1]+' Schaden '+TD.hits+' von 3 – lenke drumherum!');tdDamage();tdBump();tdTone(110,0.35,'sawtooth',0.25);
       SHIP.pos.addScaledVector(rel.normalize(),-o.r*1.5);}}}
 function tdSpeed(){const e=tdEl('td-speed');if(!e)return;if(!SHIP.on||!SHIP.last){e.textContent='';return;}const R=SHIP.last,c=R.u==='km'?SHIP.spd/299792.458:SHIP.spd*365.25*86400;
@@ -7427,12 +7531,13 @@ function tdLandFrame(dt){const L=TD.land;if(!L)return;L.t+=dt;const root=DIO3D.m
     const R=L.RC*Math.sin(L.TH1),zs=L.RC*Math.cos(L.TH1)*c.scale.y;for(let i=0;i<L.NG;i++){const a=i/L.NG*Math.PI*2,q=new V3(Math.cos(a)*R*c.scale.x,Math.sin(a)*R*c.scale.z,zs).applyMatrix4(L.chute.matrix);pa.setXYZ(i*2,cf.x,cf.y,cf.z);pa.setXYZ(i*2+1,q.x,q.y,q.z);}
     const e1=cf.clone().addScaledVector(d.ax,-12);e1.y=cf.y;pa.setXYZ(L.NG*2,cf.x,cf.y,cf.z);pa.setXYZ(L.NG*2+1,e1.x,e1.y,e1.z);pa.setXYZ(L.NG*2+2,cf.x,cf.y,cf.z);pa.setXYZ(L.NG*2+3,cf.x,cf.y,cf.z);pa.needsUpdate=true;}
   // Kamera: fliegt neben dem Shuttle mit (östlich, etwas dahinter); im Endanflug und beim Ausrollen rückt das Dio ins Bild. Anfangs weich aus der Anflug-Lage übergeblendet
-  root.updateMatrixWorld();let off;{const w=landCamOff(p),wd=new V3(w.x,0,w.z).normalize();if(!L.offDir)L.offDir=wd.clone();else{const ang=L.offDir.angleTo(wd);if(ang>1e-6){const ax=new V3().crossVectors(L.offDir,wd);if(ax.lengthSq()<1e-12)ax.set(0,1,0);L.offDir.applyAxisAngle(ax.normalize(),Math.min(ang,7*DEG*dt));}}const ek=L.phase==='roll'?sm(1-(L.v||0)/90):0;off=L.offDir.clone().multiplyScalar(165+25*ek).add(new V3(0,62+9*ek,0));}   /* beim Ausrollen 25 m weiter weg */   /* Seitenwechsel höchstens 7°/s (ruhige Kamera, auch wenn das Shuttle am Dio vorbeirollt) */
+  root.updateMatrixWorld();let off;{const w=landCamOff(p),wd=new V3(w.x,0,w.z).normalize();if(!L.offDir)L.offDir=wd.clone();else{const ang=L.offDir.angleTo(wd);if(ang>1e-6){const ax=new V3().crossVectors(L.offDir,wd);if(ax.lengthSq()<1e-12)ax.set(0,1,0);L.offDir.applyAxisAngle(ax.normalize(),Math.min(ang,7*DEG*dt));}}const ek=L.phase==='roll'?sm(1-(L.v||0)/90):0;off=L.offDir.clone().multiplyScalar(165+25*ek).add(new V3(0,92+9*ek,0));}   /* 13.47: 30 m höher */   /* beim Ausrollen 25 m weiter weg */   /* Seitenwechsel höchstens 7°/s (ruhige Kamera, auch wenn das Shuttle am Dio vorbeirollt) */
   const camL=p.clone().add(off);
   // nie in Bäume oder Dächer: Abstand zum Gelände unter der Kamera (alle 0,25 s neu gemessen) mindestens 30 m
-  L.gT=(L.gT||0)-dt;if(L.gT<=0){L.gT=0.4;L.gYt=dioGroundYc(camL.x,camL.z);if(L.gY==null)L.gY=L.gYt;}if(L.gYt!=null){L.gY+=(L.gYt-L.gY)*(1-Math.exp(-dt*2.5));camL.y=Math.max(camL.y,L.gY+60);}   /* Bodenhöhe gemerkt (10-m-Raster) und weich nachgeführt: vorher Stufen alle 0,25 s und teure Strahltests – die Kamera ruckelte auf der Bahn */
+  L.gT=(L.gT||0)-dt;if(L.gT<=0){L.gT=0.4;L.gYt=dioGroundYc(camL.x,camL.z);if(L.gY==null)L.gY=L.gYt;}if(L.gYt!=null){L.gY+=(L.gYt-L.gY)*(1-Math.exp(-dt*2.5));camL.y=Math.max(camL.y,L.gY+90);}   /* Bodenhöhe gemerkt (10-m-Raster) und weich nachgeführt: vorher Stufen alle 0,25 s und teure Strahltests – die Kamera ruckelte auf der Bahn */
   const lkL=p.clone().lerp(DIO_C,Math.min(0.5,90/Math.max(1,p.distanceTo(DIO_C))+0.12));   // Blick zum Dio hin: von weitem in Richtung Dio, nah am Dio beide (Shuttle und Dio) im Bild
-  const kb=sm(L.t/3),C=L.C0,cpos=p.clone().add(C.pos.clone().lerp(camL.clone().sub(p),kb)),clk=p.clone().add(C.look.clone().lerp(lkL.clone().sub(p),kb)),cw=root.localToWorld(cpos),tw=root.localToWorld(clk);
+  const C=L.C0;if(L.blT==null){const a0=C.look.clone().sub(C.pos).normalize(),a1=lkL.clone().sub(camL).normalize();L.blT=3+6*Math.acos(Math.max(-1,Math.min(1,a0.dot(a1))))/Math.PI;}   /* große Drehung → langsamer überblenden (bis 9 s) */
+  const kb=sm(L.t/L.blT),cpos=p.clone().add(C.pos.clone().lerp(camL.clone().sub(p),kb)),lv0=C.look.clone().sub(C.pos),lv1=lkL.clone().sub(camL),l0=Math.max(1,lv0.length()),l1=Math.max(1,lv1.length()),dl=slerpDir(lv0.normalize(),lv1.normalize(),kb),clk=cpos.clone().addScaledVector(dl,Math.exp(Math.log(l0)+(Math.log(l1)-Math.log(l0))*kb)),cw=root.localToWorld(cpos),tw=root.localToWorld(clk);   /* Blickrichtung drehend überblenden (vorher wurde der Zielpunkt geradlinig verschoben – lag er weit weg, wirbelte die Kamera beim Beginn der Landung herum) */
   const v=cw.clone().sub(tw);ctl.target.copy(tw);ctl.dist=v.length();setDir(v.normalize());if(DIO3D.upW)ctl.up.copy(DIO3D.upW());
   // Ende: das Shuttle steht, der Schirm liegt am Boden – die Kamera schwenkt langsam weiter
   if(L.stopT&&L.t>L.stopT+3&&!L.ended){L.ended=true;TD.land=null;TD.landW=L.W;TD.landChute=[L.chute,L.lines];tdBanner('Gelandet! Willkommen zurück am Dionysianum.');if(TD.phase!=='attract')tdConfetti(9000);
@@ -7774,7 +7879,7 @@ tdInit();
 if(/[?&#]tdot\b/.test(location.search+location.hash)||window.ATLAS_TDOT)setTimeout(tdOn,600);
 requestAnimationFrame(frame);
 </script>
-
+<script type="text/plain" id="dio-tail">
 <style>
 #dio-choose{position:fixed;inset:0;z-index:2147483000;background:radial-gradient(circle at 50% 35%,#16244a,#05070d 75%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3.5vh;font-family:'Atkinson Hyperlegible',system-ui,sans-serif;text-align:center;padding:4vh 4vw}
 #dio-choose h1{margin:0;font-size:clamp(28px,4.6vw,58px);font-weight:700}#dio-choose p{margin:0;color:#c9d3e6;font-size:clamp(15px,1.8vw,22px)}
@@ -7785,6 +7890,7 @@ requestAnimationFrame(frame);
 #dio-choose small{color:#f0c674;letter-spacing:.12em;text-transform:uppercase;font-size:clamp(12px,1.3vw,16px)}
 #dio-bar{position:fixed;top:calc(3px + env(safe-area-inset-top,0px));right:3px;z-index:2147483001;display:flex;gap:4px}
 #dio-bar button{width:30px;height:30px;border:0;border-radius:9px;background:#0006;color:#fff;font-size:15px;line-height:30px;padding:0;opacity:.5;cursor:pointer}
+body.dio-bar-on .top{padding-right:calc(80px + env(safe-area-inset-right,0px))}   /* Platz für Haus- und Schloss-Knopf: keine Überschneidung mit den Ebenen */
 #dio-bar button:hover{opacity:.9}#dio-bar.locked #dio-lock{opacity:.75;background:#5a1e1e99}#dio-bar.locked #dio-home{opacity:.25}
 #dio-code,#dio-resume{position:fixed;inset:0;z-index:2147483002;background:#000b;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;color:#fff}
 #dio-code .box{background:#0b1330;border:2px solid #f0c674;border-radius:20px;padding:24px 28px;text-align:center;min-width:280px}
@@ -7819,7 +7925,7 @@ function code(title,ok){var o=document.createElement('div');o.id='dio-code';var 
   function close(){removeEventListener('keydown',key,true);o.remove();}addEventListener('keydown',key,true);o.querySelector('.cx').onclick=function(e){e.stopPropagation();close();};
   ['pointerdown','touchstart','mousedown','click','wheel'].forEach(function(t){o.addEventListener(t,function(e){e.stopPropagation();});});document.body.appendChild(o);}
 function home(){try{sessionStorage.removeItem('dioModus');sessionStorage.setItem('dioLock','0');}catch(e){}L=false;exitFs();location.replace(location.pathname+location.search);}
-function bar(){var b=$('dio-bar');b.hidden=false;setLock(L);
+function bar(){var b=$('dio-bar');b.hidden=false;document.body.classList.add('dio-bar-on');setLock(L);
   $('dio-lock').onclick=function(e){e.stopPropagation();code(L?'Entsperren':'Sperren',function(){setLock(!L);});};
   $('dio-home').onclick=function(e){e.stopPropagation();if(L)code('Zurück zur Auswahl',home);else home();};
   ['pointerdown','touchstart','mousedown'].forEach(function(t){b.addEventListener(t,function(e){e.stopPropagation();});});}
@@ -7831,23 +7937,24 @@ var FILES=[["rheine-3d-1.bin", 23324336], ["rheine-3d-2.bin", 23324336], ["umgeb
 function abs(u){try{return new URL(u,location.href).href;}catch(e){return u;}}
 function mapURL(u){if(typeof u!=='string'||!u||u.indexOf('blob:')===0||u.indexOf('data:')===0)return u;var h=abs(u),O=window.OFFLINE_DATA;
   if(O&&O.f){var r=O.f[h]||O.f[u]||(O.a&&O.a[u]&&O.f[O.a[u]]);if(r)return r;}var b=window.DIO_FILES[h];if(b){if(!BLOBU[h])BLOBU[h]=URL.createObjectURL(b);return BLOBU[h];}return u;}
-function patch(){var F=window.fetch.bind(window);window.fetch=function(i,o){var u=typeof i==='string'?i:(i&&i.url);if(u&&(!o||!o.method||o.method==='GET')){var h=abs(u),b=window.DIO_FILES[h];if(b)return Promise.resolve(new Response(b));var m=mapURL(u);if(m!==u)return F(m);}return F(i,o);};
+function patch(){var F=window.fetch.bind(window);window.fetch=function(i,o){var u=typeof i==='string'?i:(i&&i.url);if(u&&(!o||!o.method||o.method==='GET')){var h=abs(u),b=window.DIO_FILES[h];if(b){delete window.DIO_FILES[h];return Promise.resolve(new Response(b));}var m=mapURL(u);if(m!==u)return F(m);}return F(i,o);};
   [window.HTMLImageElement,window.HTMLMediaElement].forEach(function(C){if(!C)return;var d=Object.getOwnPropertyDescriptor(C.prototype,'src');if(!d||!d.set)return;Object.defineProperty(C.prototype,'src',{configurable:true,enumerable:d.enumerable,get:d.get,set:function(v){d.set.call(this,mapURL(v));}});});}
 function parseOff(blob){return blob.slice(0,12).arrayBuffer().then(function(h){var t=new TextDecoder().decode(new Uint8Array(h,0,8));if(t!=='DIOOFF01')throw 0;var n=new DataView(h).getUint32(8,true);
   return blob.slice(12,12+n).text().then(function(js){var J=JSON.parse(js),f={},base=12+n;J.files.forEach(function(e){f[e[0]]=URL.createObjectURL(blob.slice(base+e[2],base+e[2]+e[3],e[1]||''));});
     window.OFFLINE_DATA={f:f,a:J.a||{},w:J.w||{},gp:J.gp,gpT:J.gpT,iss:J.iss,issT:J.issT,date:J.date,fontCSS:J.fontCSS};if(J.fontCSS){var st=document.createElement('style');st.textContent=J.fontCSS;document.head.appendChild(st);}});});}
 function preload(m,done){if(location.protocol==='file:'){done();return;}
   var o=document.createElement('div');o.id='dio-load';o.innerHTML='<h2>Lade Daten …</h2><div class="bar"><i></i></div><div class="mb">wird vorbereitet</div><small>3D-Karte von Rheine, Luftbilder und Offline-Daten</small>';document.body.appendChild(o);
-  var bar=o.querySelector('.bar i'),mb=o.querySelector('.mb'),list=FILES.map(function(f){return {u:f[0],n:f[1]};}),tot=0,got=0;
-  function fmt(x){return (x/1048576).toFixed(1).replace('.',',');}function show(){bar.style.width=(tot?Math.min(100,got/tot*100):0).toFixed(1)+'%';mb.textContent=fmt(got)+' / '+fmt(tot)+' MB';}
+  var bar=o.querySelector('.bar i'),mb=o.querySelector('.mb'),list=FILES.map(function(f){return {u:f[0],n:f[1]};}),tot=0,got=0,nd=0,cur=[],T0=Date.now();
+  function fmt(x){return (x/1048576).toFixed(1).replace('.',',');}function show(){bar.style.width=(tot?Math.min(100,got/tot*100):0).toFixed(1)+'%';mb.textContent=fmt(got)+' / '+fmt(tot)+' MB · Datei '+Math.min(list.length,nd+1)+' von '+list.length+(cur.length?' · '+cur.join(', '):'');}
   function probe(k){var u='offline-daten-'+k+'.bin';return fetch(u,{method:'HEAD',cache:'no-store'}).then(function(r){if(!r.ok)return;list.push({u:u,n:+r.headers.get('content-length')||0,off:true});return probe(k+1);}).catch(function(){});}
-  function get(e){return fetch(e.u).then(function(r){if(!r.ok)throw 0;if(!e.n)e.n=+r.headers.get('content-length')||0;if(!r.body||!r.body.getReader)return r.blob().then(function(b){got+=b.size;show();return b;});
+  function get(e){cur.push(e.u);show();return fetch(e.u).then(function(r){if(!r.ok)throw 0;if(!e.n)e.n=+r.headers.get('content-length')||0;if(!r.body||!r.body.getReader)return r.blob().then(function(b){got+=b.size;show();return b;});
       var rd=r.body.getReader(),ch=[];function pump(){return rd.read().then(function(x){if(x.done)return new Blob(ch);ch.push(x.value);got+=x.value.length;show();return pump();});}return pump();})
-    .then(function(b){e.b=b;if(!e.off)window.DIO_FILES[abs(e.u)]=b;}).catch(function(){});}
+    .then(function(b){e.b=b;if(!e.off)window.DIO_FILES[abs(e.u)]=b;}).catch(function(){}).then(function(){cur.splice(cur.indexOf(e.u),1);nd++;show();});}
   probe(1).then(function(){list.forEach(function(e){tot+=e.n;});show();var i=0;function nx(){if(i>=list.length)return Promise.resolve();var e=list[i++];return get(e).then(nx);}return Promise.all([nx(),nx()]);})
   .then(function(){var parts=list.filter(function(e){return e.off&&e.b;}).map(function(e){return e.b;});return parts.length?parseOff(new Blob(parts)).catch(function(){}):null;})
   .then(function(){patch();o.classList.add('prep');o.querySelector('h2').textContent='Bereite alles vor …';mb.textContent=window.OFFLINE_DATA?'Daten und Offline-Paket geladen':'Daten geladen';done();
-    var t0=Date.now();(function w(){var ok=m!=='flug'||(typeof DIOM!=='undefined'&&DIOM.ok&&!DIOM.q.length);if(ok||Date.now()-t0>25000){setTimeout(function(){o.style.transition='opacity .6s';o.style.opacity='0';setTimeout(function(){o.remove();},700);},m==='flug'?1500:400);return;}setTimeout(w,200);})();});}
+    var t0=Date.now();(function w(){var ok=m!=='flug'||(typeof DIOM!=='undefined'&&DIOM.ok&&!DIOM.q.length);if((ok&&Date.now()-T0>2500)||Date.now()-t0>25000){setTimeout(function(){o.style.transition='opacity .6s';o.style.opacity='0';setTimeout(function(){o.remove();},700);},m==='flug'?1500:400);return;}setTimeout(w,200);})();});}
+function builder(){var c=$('dio-choose');if(c)c.remove();window.DIO_MODE='atlas';var src=$('app');if(src&&src.type==='text/plain'){var sc=document.createElement('script');sc.textContent=src.textContent;document.body.appendChild(sc);}}
 function start(m){window.DIO_MODE=m;if(m==='kinder')window.ATLAS_EINFACH=true;if(m==='flug')window.ATLAS_TDOT=true;document.title=NAMES[m]||document.title;try{sessionStorage.setItem('dioModus',m);}catch(e){}
   var ch=$('dio-choose');if(ch)ch.remove();preload(m,function(){var src=$('app');if(src&&src.type==='text/plain'){var sc=document.createElement('script');sc.textContent=src.textContent;document.body.appendChild(sc);}bar();wrap();});}
 // gesperrt: Vollbild verlassen (z. B. mit Esc) → Hinweis, ein Tippen holt das Vollbild zurück; Neuladen/Verlassen der Seite fragt nach
@@ -7855,7 +7962,92 @@ function onFs(){if(!L||isFs()||!(document.documentElement.requestFullscreen||doc
 document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
 addEventListener('beforeunload',function(e){if(L){e.preventDefault();e.returnValue='';return '';}});
 var m=window.DIO_MODE,ch=$('dio-choose');
-if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){fs();try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}start(b.dataset.m);};});}
+if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){fs();try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}start(b.dataset.m);};});}
+})();<\/script>
+</script>
+<style>
+#dio-choose{position:fixed;inset:0;z-index:2147483000;background:radial-gradient(circle at 50% 35%,#16244a,#05070d 75%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3.5vh;font-family:'Atkinson Hyperlegible',system-ui,sans-serif;text-align:center;padding:4vh 4vw}
+#dio-choose h1{margin:0;font-size:clamp(28px,4.6vw,58px);font-weight:700}#dio-choose p{margin:0;color:#c9d3e6;font-size:clamp(15px,1.8vw,22px)}
+#dio-choose .opts{display:flex;gap:2.4vw;flex-wrap:wrap;justify-content:center;width:min(1200px,94vw)}
+#dio-choose button{flex:1 1 260px;max-width:380px;min-height:30vh;background:#0f1a3aee;border:3px solid #8fa8d8;border-radius:26px;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2vh;padding:3vh 2vw;font-family:inherit}
+#dio-choose button:hover,#dio-choose button:active{border-color:#f0c674;background:#22284a}
+#dio-choose b{font-size:clamp(22px,2.8vw,36px)}#dio-choose span{font-size:clamp(14px,1.5vw,19px);color:#cfe0ff;line-height:1.35}#dio-choose i{font-style:normal;font-size:clamp(46px,6vw,80px)}
+#dio-choose small{color:#f0c674;letter-spacing:.12em;text-transform:uppercase;font-size:clamp(12px,1.3vw,16px)}
+#dio-bar{position:fixed;top:calc(3px + env(safe-area-inset-top,0px));right:3px;z-index:2147483001;display:flex;gap:4px}
+#dio-bar button{width:30px;height:30px;border:0;border-radius:9px;background:#0006;color:#fff;font-size:15px;line-height:30px;padding:0;opacity:.5;cursor:pointer}
+body.dio-bar-on .top{padding-right:calc(80px + env(safe-area-inset-right,0px))}   /* Platz für Haus- und Schloss-Knopf: keine Überschneidung mit den Ebenen */
+#dio-bar button:hover{opacity:.9}#dio-bar.locked #dio-lock{opacity:.75;background:#5a1e1e99}#dio-bar.locked #dio-home{opacity:.25}
+#dio-code,#dio-resume{position:fixed;inset:0;z-index:2147483002;background:#000b;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;color:#fff}
+#dio-code .box{background:#0b1330;border:2px solid #f0c674;border-radius:20px;padding:24px 28px;text-align:center;min-width:280px}
+#dio-code h3{margin:0 0 6px;font-size:20px}#dio-code .dots{font-size:30px;letter-spacing:.3em;height:40px;margin:6px 0}#dio-code .msg{color:#ff9b9b;height:20px;font-size:14px}
+#dio-code .pad{display:grid;grid-template-columns:repeat(3,64px);gap:8px;justify-content:center;margin-top:8px}
+#dio-code .pad button{height:54px;border-radius:12px;border:1px solid #8fa8d8;background:#13204a;color:#fff;font-size:22px;cursor:pointer}
+#dio-resume{flex-direction:column;gap:12px;font-size:22px;cursor:pointer}#dio-resume b{font-size:60px}
+#dio-load{position:fixed;inset:0;z-index:2147483003;background:radial-gradient(circle at 50% 35%,#16244a,#05070d 75%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;font-family:'Atkinson Hyperlegible',system-ui,sans-serif;text-align:center}
+#dio-load h2{margin:0;font-size:clamp(22px,3vw,36px)}#dio-load .bar{width:min(560px,80vw);height:18px;border-radius:10px;background:#ffffff1f;overflow:hidden;border:1px solid #8fa8d8}
+#dio-load .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f0c674,#ffdf9e);transition:width .2s}#dio-load .mb{font-size:clamp(15px,1.8vw,20px);color:#cfe0ff}#dio-load small{color:#8fa8d8;font-size:13px}
+#dio-load.prep .bar i{width:35%!important;animation:dioprep 1.2s ease-in-out infinite alternate}@keyframes dioprep{from{margin-left:0}to{margin-left:65%}}
+</style>
+<div id="dio-choose" hidden><small>Gymnasium Dionysianum Rheine · Astronomie-AG</small><h1>Universum-Atlas</h1><p>Was möchtest du starten?</p>
+ <div class="opts"><button data-m="atlas"><i>🔭</i><b>Universum-Atlas</b><span>Vom Dio bis zum Rand des beobachtbaren Universums – alle Ebenen, Fakten und Fotos.</span></button>
+ <button data-m="kinder"><i>🧒</i><b>Atlas für Kinder</b><span>Derselbe Atlas mit einfachen Texten und weniger Objekten.</span></button>
+ <button data-m="flug"><i>🚀</i><b>Flugsimulator</b><span>Weltraum-Mission: Start am Dio, Ziele einfangen, Heimflug und Landung.</span></button></div>
+ <p style="font-size:13px;opacity:.7">© 2026 Stephan Holtkötter</p></div>
+<div id="dio-bar" hidden><button id="dio-home" title="Zurück zur Auswahl" aria-label="Zurück zur Auswahl">⌂</button><button id="dio-lock" title="Sperren (Code)" aria-label="Sperren">🔓</button></div>
+<script>/* Auswahl, Schloss und Home */
+(function(){var CODE='1659',L=false;try{L=sessionStorage.getItem('dioLock')==='1';}catch(e){}
+var NAMES={atlas:'Universum-Atlas',kinder:'Universum-Atlas für Kinder',flug:'Weltraum-Mission · Dionysianum'};
+var $=function(id){return document.getElementById(id);};
+function isFs(){return !!(document.fullscreenElement||document.webkitFullscreenElement);}
+function fs(){var d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen;if(f&&!isFs()){try{var r=f.call(d);if(r&&r.catch)r.catch(function(){});}catch(e){}}}
+function exitFs(){var f=document.exitFullscreen||document.webkitExitFullscreen;if(f&&isFs()){try{f.call(document);}catch(e){}}}
+function setLock(v){L=v;try{sessionStorage.setItem('dioLock',v?'1':'0');}catch(e){}var b=$('dio-bar');b.classList.toggle('locked',v);$('dio-lock').textContent=v?'🔒':'🔓';$('dio-lock').title=v?'Entsperren (Code)':'Sperren (Code)';if(v)fs();}
+window.DIO_LOCKED=function(){return L;};
+function code(title,ok){var o=document.createElement('div');o.id='dio-code';var val='';o.innerHTML='<div class="box"><h3>'+title+'</h3><div class="dots"></div><div class="msg"></div><div class="pad"></div><div style="margin-top:12px"><button class="cx" style="background:none;border:0;color:#c9d3e6;font-size:16px;cursor:pointer">Abbrechen</button></div></div>';
+  var pad=o.querySelector('.pad'),dots=o.querySelector('.dots'),msg=o.querySelector('.msg');['1','2','3','4','5','6','7','8','9','⌫','0','OK'].forEach(function(k){var b=document.createElement('button');b.textContent=k;b.onclick=function(e){e.stopPropagation();
+    if(k==='⌫')val=val.slice(0,-1);else if(k==='OK'){if(val===CODE){close();ok();return;}msg.textContent='Falscher Code';val='';}else if(val.length<6)val+=k;dots.textContent='●'.repeat(val.length);if(val.length===4){if(val===CODE){close();ok();}else{msg.textContent='Falscher Code';val='';setTimeout(function(){dots.textContent='';},250);}}};pad.appendChild(b);});
+  function key(e){e.stopImmediatePropagation();if(/^[0-9]$/.test(e.key)){val+=e.key;dots.textContent='●'.repeat(val.length);if(val===CODE){close();ok();}else if(val.length>=4){msg.textContent='Falscher Code';val='';dots.textContent='';}}else if(e.key==='Escape')close();else if(e.key==='Backspace'){val=val.slice(0,-1);dots.textContent='●'.repeat(val.length);}}
+  function close(){removeEventListener('keydown',key,true);o.remove();}addEventListener('keydown',key,true);o.querySelector('.cx').onclick=function(e){e.stopPropagation();close();};
+  ['pointerdown','touchstart','mousedown','click','wheel'].forEach(function(t){o.addEventListener(t,function(e){e.stopPropagation();});});document.body.appendChild(o);}
+function home(){try{sessionStorage.removeItem('dioModus');sessionStorage.setItem('dioLock','0');}catch(e){}L=false;exitFs();location.replace(location.pathname+location.search);}
+function bar(){var b=$('dio-bar');b.hidden=false;document.body.classList.add('dio-bar-on');setLock(L);
+  $('dio-lock').onclick=function(e){e.stopPropagation();code(L?'Entsperren':'Sperren',function(){setLock(!L);});};
+  $('dio-home').onclick=function(e){e.stopPropagation();if(L)code('Zurück zur Auswahl',home);else home();};
+  ['pointerdown','touchstart','mousedown'].forEach(function(t){b.addEventListener(t,function(e){e.stopPropagation();});});}
+function wrap(){var m=window.DIO_MODE;if(typeof window.tdOff==='function'){var o=window.tdOff;window.tdOff=function(){if(L)return;return o.apply(this,arguments);};}
+  if(m!=='flug'&&typeof window.tdOn==='function'){var n=window.tdOn;window.tdOn=function(){if(L)return;return n.apply(this,arguments);};}}
+
+// ---- Laden mit Fortschrittsbalken: 3D-Karte, Luftbilder und (falls hochgeladen) die Offline-Daten (offline-daten-1.bin, -2.bin, …) ----
+var FILES=[["rheine-3d-1.bin", 23324336], ["rheine-3d-2.bin", 23324336], ["umgebung-8km.jpg", 841652], ["umgebung-32km.jpg", 734784], ["umgebung-100km.jpg", 4861798]];window.DIO_FILES={};var BLOBU={};
+function abs(u){try{return new URL(u,location.href).href;}catch(e){return u;}}
+function mapURL(u){if(typeof u!=='string'||!u||u.indexOf('blob:')===0||u.indexOf('data:')===0)return u;var h=abs(u),O=window.OFFLINE_DATA;
+  if(O&&O.f){var r=O.f[h]||O.f[u]||(O.a&&O.a[u]&&O.f[O.a[u]]);if(r)return r;}var b=window.DIO_FILES[h];if(b){if(!BLOBU[h])BLOBU[h]=URL.createObjectURL(b);return BLOBU[h];}return u;}
+function patch(){var F=window.fetch.bind(window);window.fetch=function(i,o){var u=typeof i==='string'?i:(i&&i.url);if(u&&(!o||!o.method||o.method==='GET')){var h=abs(u),b=window.DIO_FILES[h];if(b){delete window.DIO_FILES[h];return Promise.resolve(new Response(b));}var m=mapURL(u);if(m!==u)return F(m);}return F(i,o);};
+  [window.HTMLImageElement,window.HTMLMediaElement].forEach(function(C){if(!C)return;var d=Object.getOwnPropertyDescriptor(C.prototype,'src');if(!d||!d.set)return;Object.defineProperty(C.prototype,'src',{configurable:true,enumerable:d.enumerable,get:d.get,set:function(v){d.set.call(this,mapURL(v));}});});}
+function parseOff(blob){return blob.slice(0,12).arrayBuffer().then(function(h){var t=new TextDecoder().decode(new Uint8Array(h,0,8));if(t!=='DIOOFF01')throw 0;var n=new DataView(h).getUint32(8,true);
+  return blob.slice(12,12+n).text().then(function(js){var J=JSON.parse(js),f={},base=12+n;J.files.forEach(function(e){f[e[0]]=URL.createObjectURL(blob.slice(base+e[2],base+e[2]+e[3],e[1]||''));});
+    window.OFFLINE_DATA={f:f,a:J.a||{},w:J.w||{},gp:J.gp,gpT:J.gpT,iss:J.iss,issT:J.issT,date:J.date,fontCSS:J.fontCSS};if(J.fontCSS){var st=document.createElement('style');st.textContent=J.fontCSS;document.head.appendChild(st);}});});}
+function preload(m,done){if(location.protocol==='file:'){done();return;}
+  var o=document.createElement('div');o.id='dio-load';o.innerHTML='<h2>Lade Daten …</h2><div class="bar"><i></i></div><div class="mb">wird vorbereitet</div><small>3D-Karte von Rheine, Luftbilder und Offline-Daten</small>';document.body.appendChild(o);
+  var bar=o.querySelector('.bar i'),mb=o.querySelector('.mb'),list=FILES.map(function(f){return {u:f[0],n:f[1]};}),tot=0,got=0,nd=0,cur=[],T0=Date.now();
+  function fmt(x){return (x/1048576).toFixed(1).replace('.',',');}function show(){bar.style.width=(tot?Math.min(100,got/tot*100):0).toFixed(1)+'%';mb.textContent=fmt(got)+' / '+fmt(tot)+' MB · Datei '+Math.min(list.length,nd+1)+' von '+list.length+(cur.length?' · '+cur.join(', '):'');}
+  function probe(k){var u='offline-daten-'+k+'.bin';return fetch(u,{method:'HEAD',cache:'no-store'}).then(function(r){if(!r.ok)return;list.push({u:u,n:+r.headers.get('content-length')||0,off:true});return probe(k+1);}).catch(function(){});}
+  function get(e){cur.push(e.u);show();return fetch(e.u).then(function(r){if(!r.ok)throw 0;if(!e.n)e.n=+r.headers.get('content-length')||0;if(!r.body||!r.body.getReader)return r.blob().then(function(b){got+=b.size;show();return b;});
+      var rd=r.body.getReader(),ch=[];function pump(){return rd.read().then(function(x){if(x.done)return new Blob(ch);ch.push(x.value);got+=x.value.length;show();return pump();});}return pump();})
+    .then(function(b){e.b=b;if(!e.off)window.DIO_FILES[abs(e.u)]=b;}).catch(function(){}).then(function(){cur.splice(cur.indexOf(e.u),1);nd++;show();});}
+  probe(1).then(function(){list.forEach(function(e){tot+=e.n;});show();var i=0;function nx(){if(i>=list.length)return Promise.resolve();var e=list[i++];return get(e).then(nx);}return Promise.all([nx(),nx()]);})
+  .then(function(){var parts=list.filter(function(e){return e.off&&e.b;}).map(function(e){return e.b;});return parts.length?parseOff(new Blob(parts)).catch(function(){}):null;})
+  .then(function(){patch();o.classList.add('prep');o.querySelector('h2').textContent='Bereite alles vor …';mb.textContent=window.OFFLINE_DATA?'Daten und Offline-Paket geladen':'Daten geladen';done();
+    var t0=Date.now();(function w(){var ok=m!=='flug'||(typeof DIOM!=='undefined'&&DIOM.ok&&!DIOM.q.length);if((ok&&Date.now()-T0>2500)||Date.now()-t0>25000){setTimeout(function(){o.style.transition='opacity .6s';o.style.opacity='0';setTimeout(function(){o.remove();},700);},m==='flug'?1500:400);return;}setTimeout(w,200);})();});}
+function builder(){var c=$('dio-choose');if(c)c.remove();window.DIO_MODE='atlas';var src=$('app');if(src&&src.type==='text/plain'){var sc=document.createElement('script');sc.textContent=src.textContent;document.body.appendChild(sc);}}
+function start(m){window.DIO_MODE=m;if(m==='kinder')window.ATLAS_EINFACH=true;if(m==='flug')window.ATLAS_TDOT=true;document.title=NAMES[m]||document.title;try{sessionStorage.setItem('dioModus',m);}catch(e){}
+  var ch=$('dio-choose');if(ch)ch.remove();preload(m,function(){var src=$('app');if(src&&src.type==='text/plain'){var sc=document.createElement('script');sc.textContent=src.textContent;document.body.appendChild(sc);}bar();wrap();});}
+// gesperrt: Vollbild verlassen (z. B. mit Esc) → Hinweis, ein Tippen holt das Vollbild zurück; Neuladen/Verlassen der Seite fragt nach
+function onFs(){if(!L||isFs()||!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen))return;if($('dio-resume'))return;var r=document.createElement('div');r.id='dio-resume';r.innerHTML='<b>🔒</b><span>Gesperrt – zum Weitermachen tippen</span>';r.onclick=function(){fs();r.remove();};document.body.appendChild(r);}
+document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
+addEventListener('beforeunload',function(e){if(L){e.preventDefault();e.returnValue='';return '';}});
+var m=window.DIO_MODE,ch=$('dio-choose');
+if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){fs();try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}start(b.dataset.m);};});}
 })();</script>
 </body>
 </html>

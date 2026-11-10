@@ -84,16 +84,48 @@
 - Die Erdachse wird nicht mehr angezeigt.
 
 
+## Neu in Version 13.48
+- **iPad 8 (13.48b):** Speicherbedarf gesenkt – Süd-Karte in halber Auflösung, auf iPad/iPhone nie die 8k-Erdtexturen (je ca. 130 MB Grafikspeicher), die 3D-Modell-Daten werden nach dem Einlesen sofort freigegeben.
+- **Genauere Karte im Süden bis Münster:** Zwischen etwa 10 und 44 km südlich von Rheine (von ca. 20 km westlich bis 26 km östlich, Münster eingeschlossen) liegt jetzt ein Satellitenbild mit etwa 24 m pro Bildpunkt (vorher etwa 49 m; die zunächst eingebauten 12 m waren für das iPad 8 zu viel Speicher). Es wird beim Start aus Kartenkacheln (Sentinel-2 cloudless, EOX) zusammengesetzt und weich in die übrige Karte übergeblendet. Mit `offline-daten-erstellen.html` kommen diese Kacheln auch ins Offline-Paket – dafür das Paket neu erstellen.
+- **Wolken realistischer:** Jede Wolke ist jetzt ein Büschel aus mehreren kleinen Teilen – flache, etwas dunklere Unterseite, nach oben gewölbt wie Blumenkohl, oben kleiner. Die Basishöhe schwankt von Gegend zu Gegend leicht.
+- **Ausweichen schwieriger:** Weltraumschrott, Asteroiden usw. kommen häufiger, liegen näher an der Flugbahn, sind etwas größer, tauchen etwas später auf, und manche treiben quer durch die Bahn. Nach 3 Treffern ist die Mission wie bisher beendet.
+- **Raketenstart überspringen:** Während Countdown, Start und Mitflug unten rechts der Knopf **„⏭ Start überspringen“**. Das Shuttle ist dann sofort in der Umlaufbahn über Rheine, und es geht gleich mit der Zielauswahl weiter.
+
+## Neu in Version 13.47b
+- **Ebenenwechsel nahtlos:** Kein Ab- und Aufblenden mehr. Das letzte Bild der alten Ebene wird festgehalten und in 1,4 s scharf in die neue Ebene übergeblendet; die Kamera fliegt dabei mit demselben Schwung geradeaus weiter.
+- **Demo – langsam aus dem Sonnensystem:** Nach dem Jupiter-Swing-by fliegt das Shuttle etwa 10 s lang sichtbar und gleichmäßig beschleunigend geradeaus hinaus (höchstens 2,5-fach), dann geht es nahtlos in der Milchstraße weiter – immer in Richtung der Shuttle-Nase. Die Totalen in Milchstraße, Lokaler Gruppe und Universum entfallen dafür (sie hätten einen Schwenk oder Rückwärtsflug erfordert); die Flüge zu Sagittarius A*, Andromeda und Boötes-Void beginnen ruhiger.
+- **Demo – Daphnis:** eine gerade Linie: Anflug direkt aus der Flugrichtung, am Ende waagerecht knapp über der Ringebene, ruhig über Daphnis hinweg (ohne Hinschwenken), dann eine gleichmäßige Kurve zum Jupiter.
+- **Demo – Flug zum Jupiter ruhiger:** Kurve höchstens 6°/s, langsamer beschleunigend, Anflug 38 s statt 24 s.
+- **Demo-Start:** Der Zoom auf die Erde dauert länger; die Erde dreht sich nicht mehr hastig unter der Kamera weg (Spitze vorher 55°/s, jetzt etwa 25°/s).
+- **Landung – Ems:** Der Rand des 3D-Modells (Datengrenze an der Landesgrenze, durch die die Ems fließt) war halbdurchsichtig und wurde je nach Blickwinkel in wechselnder Reihenfolge gezeichnet – das flackerte. Jetzt löst er sich in ein festes, am Gelände haftendes Muster auf.
+- **Kran:** Die Bäume im Umkreis von etwa 32 m um den Kran sind flach (nur im Flugsimulator) – der Kran ragt nicht mehr in die Bäume.
+
+## Neu in Version 13.47
+- **Demo – Shuttle fliegt wie im Flugmodus:** Bei jeder Richtungsänderung neigt es sich in die Kurve, dreht die Nase leicht hinein und wandert etwas zur Kurveninnenseite ins Bild (wie bei der nachgeführten Kamera im Flugmodus) – auch im Swing-by um Mond und Jupiter.
+- **Demo – Ruckler an den Übergängen behoben** (Bild-für-Bild gemessen): ISS-Abflug (ein Bild Stillstand, Tempo springt), Mond (Beginn des Bogens), Daphnis (Sprung beim Übergang in den Vorbeiflug), Jupiter (Kamera wurde für ein Bild von einem Mond „weggeschoben“). Zusätzlich wird die Blickrichtung im Demo minimal geglättet (0,18 s), damit Wechsel der Drehgeschwindigkeit weich sind.
+- **Ebenenwechsel:** nur noch Aus- und Einblenden, keine Unschärfe mehr (Demo und Flugmodus).
+- **Demo – hinaus in die nächste Ebene:** Das Shuttle wendet nicht mehr und bewegt sich nicht seitwärts. Es fliegt geradeaus weiter, das Bild blendet aus; in der neuen Ebene beginnt die Totale weiter draußen, und die Kamera fliegt geradeaus (in Richtung der Shuttle-Nase) auf sie zu. Dort steht das Bild ruhig (kein Kreisen).
+- **Demo – Abflug aus dem Sonnensystem langsamer** (nach dem Jupiter-Swing-by höchstens 4-fach statt 10-fach beschleunigt).
+- **Heimflug:** Zu Beginn jeder Ebene nur geradeaus, kein Schwenk zur Seite; die neue Richtung wird während des Ausblendens eingestellt.
+- **Landung:** Kamera 30 m höher. Der Rand des 3D-Modells (u. a. an der Ems) flimmert nicht mehr: Das Auflösungsmuster am Rand hängt jetzt am Gelände statt am Bildschirm.
+- **Landung:** Zu Beginn der Landung wirbelte die Kamera bei bestimmten Anflugrichtungen kurz herum (bis 240°/s). Jetzt dreht sie sich ruhig in die Landeansicht (große Drehungen langsamer, bis 9 s; gemessen höchstens etwa 30°/s).
+- **Atlas und Atlas für Kinder:** Kran, Shuttle, Raketen, Truck, Landebahn und Startrampe gibt es dort nicht mehr (auch die Bäume an Landebahn und Rampe bleiben natürlich). Sie erscheinen nur im Flugsimulator – oder wenn im Atlas mit 🚀 die Mission gestartet wird.
+- **Atlas: Klick auf „Dio“** auf der Erdkugel fliegt direkt in die 3D-Ansicht des Dionysianums.
+- **Offline-Daten erstellen:** CelesTrak (Satelliten-Bahndaten) wird nach 15 s übersprungen; dann werden die zuletzt im Browser gespeicherten Bahndaten verwendet.
+
 ## Neu in Version 13.46
-- **Alles in einer Datei, ohne Internet:** three.js ist jetzt direkt in `index.html` eingebaut. Alle übrigen Online-Daten (Karten-Kacheln, Wolken, Luftbild, Fotos, Wikipedia-Texte, Schrift, ISS-/Planetendaten, Töne) sammelt die App in **Offline-Paket-Dateien** `offline-daten-1.bin`, `offline-daten-2.bin`, … (je höchstens 24 MB, passend zur GitHub-Grenze von 25 MB).
-  - **So entsteht das Paket (einmalig, an einem Rechner mit Internet):** `index.html` öffnen → **Atlas** → **Info (ⓘ)** → **„⤓ Offline-Daten für GitHub“**. Die App lädt alles herunter (das dauert einige Minuten) und speichert danach eine oder mehrere Dateien `offline-daten-N.bin` im Download-Ordner.
-  - **Hochladen:** Alle `offline-daten-*.bin`-Dateien in denselben GitHub-Ordner wie `index.html` laden („Add file → Upload files“). Beim nächsten Erzeugen die alten Dateien ersetzen bzw. überzählige löschen.
-  - Was der Browser nicht herunterladen darf (manche NASA-Töne und das NRW-Luftbild sperren das), bleibt online. Die App meldet am Ende, wie viele Dateien das waren.
-- **Lade-Balken:** Zu Beginn jedes Modus (Atlas, Kinder, Flugsimulator) zeigt ein Balken den Fortschritt und die Datenmenge (z. B. „37,2 / 81,5 MB“). Dabei werden 3D-Modell, Umgebungsbilder und das Offline-Paket vorab geladen, im Flugsimulator auch die Karte rund um Rheine. Erst danach startet der Modus – ohne Ruckler durch Nachladen.
+- **Alles in einer Datei, ohne Internet:** three.js ist jetzt direkt in `index.html` eingebaut. Alle übrigen Online-Daten (Karten-Kacheln, Wolken, Luftbild, Fotos, Wikipedia-Texte, Schrift, ISS-/Planetendaten, Töne) erstellt die eigene Datei **`offline-daten-erstellen.html`** (im Atlas gibt es keine Download-Knöpfe mehr).
+  - **So geht's (einmalig, an einem Rechner mit Internet):** `offline-daten-erstellen.html` öffnen (doppelklicken genügt, oder auf GitHub `…/offline-daten-erstellen.html`) und wählen:
+    - **„Für GitHub“** → speichert `offline-daten-1.bin`, `offline-daten-2.bin`, … (je höchstens 24 MB). Alle in denselben GitHub-Ordner wie `index.html` hochladen; beim nächsten Erzeugen alte Dateien ersetzen bzw. überzählige löschen.
+    - **„Für die lokale Nutzung“** → speichert eine einzige Datei `universum-atlas-offline.html` mit Auswahl Atlas / Kinder / Flugsimulator, die ohne Internet läuft (USB-Stick, Laptop). Das 3D-Modell von Rheine ist darin nicht enthalten (dafür das selbst gebaute Dio-Modell).
+  - Während des Ladens zeigt die Seite „Fertig: x von N Dateien“, die Zeit, welche Dateien gerade laden (mit MB) und rot, welche nicht geladen werden konnten. Hängt ein Abruf länger als 45 s, wird er übersprungen. „Abbrechen“ ist jederzeit möglich. Falls der Browser die Dateien nicht von selbst speichert, erscheinen am Ende Links zum Anklicken.
+  - Was der Browser nicht herunterladen darf (manche NASA-Töne, das NRW-Luftbild), bleibt online.
+- **Lade-Balken:** Zu Beginn jedes Modus (Atlas, Kinder, Flugsimulator) zeigt ein Balken mindestens 2,5 Sekunden lang den Fortschritt, die Datenmenge und die Datei (z. B. „37,2 / 50,6 MB · Datei 3 von 5 · rheine-3d-2.bin“). Nur beim Öffnen als lokale Datei (Doppelklick) entfällt er. Dabei werden 3D-Modell, Umgebungsbilder und das Offline-Paket vorab geladen, im Flugsimulator auch die Karte rund um Rheine. Erst danach startet der Modus – ohne Ruckler durch Nachladen.
 - **Demo – Wolken:** deutlich weniger und unauffälliger, dafür über dem Dio, wo die Kamera herunterfährt, eine geschlossene Wolkendecke, durch die sie hindurchtaucht.
 - **Demo – Shuttle:** kein Flimmern mehr beim Übergang zur Shuttle-Ansicht nach dem Abwurf des Tanks. Die drei Haupttriebwerke haben innen eine schwarze Abdeckung (man kann nicht mehr hindurchsehen).
 - **Demo – Mond → Saturn:** Der Swing-by um den Mond endet geradewegs in Richtung Saturn; das Shuttle richtet Flug und Blick danach genau auf den Saturn aus.
 - **Demo – Saturn und Daphnis (neu angelegt):** Das Shuttle fliegt zum Saturn, nähert sich Daphnis langsam und fließend über den Ringen, gleitet an ihm vorbei und dreht dann in einer ruhigen, gleichmäßigen Kurve um den Saturn herum auf den Jupiter ein (höchstens etwa 9° pro Sekunde, weich an- und auslaufend). Erst dann fliegt es geradeaus zum Jupiter. Der eigene Saturn-Halt entfällt.
+- **Haus- und Schloss-Knopf** überdecken im Atlas nicht mehr die Ebenen-Auswahl.
 - **Demo – Systemwechsel:** keine seitliche Bewegung des Shuttles mehr. Wenn es wenden muss, dreht es sich ruhig auf der Stelle; die Kamera kreist nicht mehr um es herum.
 
 ## Neu in Version 13.45
