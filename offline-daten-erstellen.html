@@ -3858,7 +3858,7 @@ function rheineSky(earth,holderM,sunW){
     CLD.img=img;if(location.protocol!=='file:')img.src='umgebung-100km.jpg';}
   // Nordwestdeutschland bis zu den Nordseeinseln (im Norden über die 100-km-Karte hinaus): Sentinel-2 cloudless (EOX), beim Start aus Kartenkacheln zusammengesetzt.
   // Liegt unter der 100-km-Karte und über den groben Erdkacheln; jeder Eckpunkt bekommt seine Bildkoordinate aus der echten geografischen Lage (UTM → Länge/Breite → Kachel)
-  {const X0=-125000,X1=125000,Z0=-200000,Z1=-40000,SX=50,SZ=32,ZL=10,T=2**ZL;
+  {const X0=-125000,X1=125000,Z0=-200000,Z1=-40000,SX=50,SZ=32,ZL=IOS||window.DIO_LITE?9:10,T=2**ZL;   /* iPad: Nordsee-Karte halb so groß */
    const utmInv=(E,N)=>{const a=6378137,f=1/298.257223563,k0=0.9996,e2=f*(2-f),ep2=e2/(1-e2),x=E-500000,mu=N/k0/(a*(1-e2/4-3*e2*e2/64-5*e2*e2*e2/256)),e1=(1-Math.sqrt(1-e2))/(1+Math.sqrt(1-e2));
      const p1=mu+(3*e1/2-27*e1**3/32)*Math.sin(2*mu)+(21*e1*e1/16-55*e1**4/32)*Math.sin(4*mu)+(151*e1**3/96)*Math.sin(6*mu)+(1097*e1**4/512)*Math.sin(8*mu);
      const sn=Math.sin(p1),cs=Math.cos(p1),t=Math.tan(p1),C1=ep2*cs*cs,T1=t*t,N1=a/Math.sqrt(1-e2*sn*sn),R1=a*(1-e2)/Math.pow(1-e2*sn*sn,1.5),D=x/(N1*k0);
@@ -4125,7 +4125,7 @@ function buildErde(){
    UPD.erde.push(()=>{anchor.quaternion.copy(earth.quaternion);earth.updateMatrixWorld();wp.copy(cen).applyMatrix4(earth.matrixWorld);
      const d=camera.position.distanceTo(wp)*RE_KM;
      if((d<30000||window.TD_ON)&&!DIO3D.model){DIO3D.model=dioMeshModel(sunW);holder.add(DIO3D.model);}
-     if(DIOM.q.length){const t=DIOM.q.shift();try{renderer.initTexture&&renderer.initTexture(t);}catch(e){}}   // Texturen nach und nach hochladen (eine pro Bild), damit es beim Anflug nicht ruckelt
+     if(DIOM.q.length){const t=DIOM.q.shift();try{renderer.initTexture&&renderer.initTexture(t);if((IOS||window.DIO_LITE)&&renderer.initTexture&&t.image&&t.image.close){const im=t.image;setTimeout(()=>{try{im.close();}catch(e){}},50);}}catch(e){}}   /* iPad: nach dem Hochladen die Kopie im Arbeitsspeicher freigeben */   // Texturen nach und nach hochladen (eine pro Bild), damit es beim Anflug nicht ruckelt
      // 3D-Mesh und Luftbilder erst ab etwa 120 km Abstand zeigen, bis 70 km weich einblenden (aus großer Ferne nur die Erdkarte – kein Flackern)
      // Jetzt: nur unter der Wolkendecke über Rheine; der Wechsel geschieht beim Durchfliegen der Wolken
      // Vorwärmen: sobald alles geladen ist, das ganze Mesh einige Bilder lang unsichtbar zeichnen (Daten liegen dann schon auf der Grafikkarte – nach den Wolken ist es sofort da)
@@ -4143,7 +4143,8 @@ function buildErde(){
   const tileURL=(z,r,c)=>'https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/BlueMarble_NextGeneration/default/500m/'+z+'/'+r+'/'+c+'.jpeg';
   const tileTex=key=>{let e=TC.get(key);if(e){e.t=performance.now();return e;}e={t:performance.now(),tex:null};TC.set(key,e);
     const [z,r,c]=key.split('/');texLoader.load(tileURL(z,r,c),tx=>{tx.anisotropy=MAXANI;try{renderer.initTexture&&renderer.initTexture(tx);}catch(er){}e.tex=tx;},undefined,()=>{e.fail=true;});
-    if(TC.size>180){const old=[...TC.entries()].filter(([k,v])=>v.tex&&!TM.has(k)).sort((a,b)=>a[1].t-b[1].t).slice(0,TC.size-180);for(const [k,v] of old){v.tex.dispose();TC.delete(k);}}
+    const TCMAX=IOS||window.DIO_LITE?100:180;   /* iPad: weniger Erdkacheln im Speicher (180 × 512² ≈ 250 MB – Absturz direkt nach dem Flug durch die Wolken); dazu kleinerer Umkreis */
+    if(TC.size>TCMAX){const old=[...TC.entries()].filter(([k,v])=>v.tex&&!TM.has(k)).sort((a,b)=>a[1].t-b[1].t).slice(0,TC.size-TCMAX);for(const [k,v] of old){v.tex.dispose();TC.delete(k);}}
     return e;};
   // Farbangleich: mittlere Farbe jeder Kachel mit derselben Stelle der Grundkarte vergleichen und daraus einen gemeinsamen Faktor bilden
   const TG={b:[0,0,0],t:[0,0,0],done:new Set()};
@@ -4166,7 +4167,7 @@ function buildErde(){
   const tmpC=new V3();
   // Kacheln rund um Rheine vorab laden (Weltraum-Mission startet dort)
   DIO3D.preTiles=()=>{const U=new V3().copy(lonlat(7.43184,52.28292));for(const L of [5,6]){const sz=288/2**L,ncol=360/sz,nrow=180/sz;const lat=52.28292;let phi=Math.atan2(U.z,-U.x)/DEG;if(phi<0)phi+=360;
-    const cr=Math.floor((90-lat)/sz),cc=Math.floor(phi/sz),k=3,kc=Math.ceil(k/Math.cos(lat*DEG));for(let r=cr-k;r<=cr+k;r++)for(let c=cc-kc;c<=cc+kc;c++)if(r>=0&&r<nrow)tileTex(L+'/'+r+'/'+(((c%ncol)+ncol)%ncol));}};
+    const cr=Math.floor((90-lat)/sz),cc=Math.floor(phi/sz),k=(IOS||window.DIO_LITE)?2:3,kc=Math.ceil(k/Math.cos(lat*DEG));for(let r=cr-k;r<=cr+k;r++)for(let c=cc-kc;c<=cc+kc;c++)if(r>=0&&r<nrow)tileTex(L+'/'+r+'/'+(((c%ncol)+ncol)%ncol));}};
   UPD.erde.push(()=>{
     const h=camera.position.length()-1;
     if(cloudMat.alphaMap) cloudMat.opacity=0.55*Math.min(1,Math.max(0,(h-0.004)/0.05));   /* Weltkarten-Wolken unauffälliger */ // Wolken nah an der Erde ausblenden – erst unter ≈ 400 km, dann übernimmt die Wolkendecke über Rheine (weicher Übergang)
@@ -4179,13 +4180,13 @@ function buildErde(){
       const L=TILE.L, sz=288/2**L, ncol=360/sz, nrow=180/sz;
       earth.updateMatrixWorld(); tmpC.copy(camera.position); earth.worldToLocal(tmpC); tmpC.normalize();
       const lat=90-Math.acos(Math.max(-1,Math.min(1,tmpC.y)))/DEG; let phi=Math.atan2(tmpC.z,-tmpC.x)/DEG; if(phi<0)phi+=360;
-      const cr=Math.floor((90-lat)/sz), cc=Math.floor(phi/sz), k=L===5?4:3, kc=Math.min(Math.floor(ncol/2),Math.ceil(k/Math.max(0.2,Math.cos(lat*DEG))));
+      const cr=Math.floor((90-lat)/sz), cc=Math.floor(phi/sz), k=(IOS||window.DIO_LITE)?2:L===5?4:3, kc=Math.min(Math.floor(ncol/2),Math.ceil(k/Math.max(0.2,Math.cos(lat*DEG))));
       {const U=TILE.U[L],R=(k+0.5)*sz*DEG;U.cen.value.lerp(tmpC,TILE.cenOk?0.08:1).normalize();TILE.cenOk=true;U.rr.value.set(R*0.3,R*0.92);}
       for(let r=cr-k;r<=cr+k;r++){if(r<0||r>=nrow)continue;for(let c=cc-kc;c<=cc+kc;c++) want.add(L+'/'+r+'/'+(((c%ncol)+ncol)%ncol));}
     }
     else{   // weiter weg: die Detailkarte bleibt stehen (nicht wieder abschalten); ist noch keine da, die Kacheln um Rheine zeigen
       if(TM.size){for(const k of (TILE.want||new Set(TM.keys())))want.add(k);}else{const L=5,sz=288/2**L,ncol=360/sz,nrow=180/sz,U=lonlat(7.43184,52.28292).normalize(),lat=90-Math.acos(Math.max(-1,Math.min(1,U.y)))/DEG;let phi=Math.atan2(U.z,-U.x)/DEG;if(phi<0)phi+=360;
-      {const R=3.5*sz*DEG;TILE.U[5].cen.value.copy(U);TILE.U[5].rr.value.set(R*0.3,R*0.92);}const cr=Math.floor((90-lat)/sz),cc=Math.floor(phi/sz),k=3,kc=Math.ceil(k/Math.cos(lat*DEG));for(let r=cr-k;r<=cr+k;r++)if(r>=0&&r<nrow)for(let c=cc-kc;c<=cc+kc;c++)want.add(L+'/'+r+'/'+(((c%ncol)+ncol)%ncol));}}
+      {const R=3.5*sz*DEG;TILE.U[5].cen.value.copy(U);TILE.U[5].rr.value.set(R*0.3,R*0.92);}const cr=Math.floor((90-lat)/sz),cc=Math.floor(phi/sz),k=(IOS||window.DIO_LITE)?2:3,kc=Math.ceil(k/Math.cos(lat*DEG));for(let r=cr-k;r<=cr+k;r++)if(r>=0&&r<nrow)for(let c=cc-kc;c<=cc+kc;c++)want.add(L+'/'+r+'/'+(((c%ncol)+ncol)%ncol));}}
     let ready=true;for(const key of want){const e=tileTex(key);if(!e.tex&&!e.fail)ready=false;}
     // Überblenden statt Umschalten: neue Kacheln blenden ein, erst danach blenden die alten aus (feinere Stufe liegt oben)
     const nowT=performance.now(),dtT=Math.min(0.1,(nowT-(TILE.t||nowT))/1000);TILE.t=nowT;
