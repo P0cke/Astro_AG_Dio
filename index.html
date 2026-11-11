@@ -338,9 +338,9 @@ body.tdot #labels .lbl{font-size:17px}
 #td-count{display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(#0000 40%,#0008)}
 #td-num{font:800 clamp(120px,22vw,300px)/1 system-ui,-apple-system,sans-serif;color:#f0c674;text-shadow:0 0 60px #f0c674}
 #td-num.pop{animation:tdpop .9s ease-out}@keyframes tdpop{0%{transform:scale(2.4);opacity:0}30%{opacity:1}100%{transform:scale(1)}}
-.td-stamps{display:flex;gap:1.2vw;justify-content:center}
+.td-stamps{display:flex;--g:1.2vw;gap:var(--g);justify-content:center}
 .td-stamps span{width:clamp(54px,7vw,92px);height:clamp(54px,7vw,92px);border-radius:50%;border:3px dashed #8fa8d8;display:grid;place-items:center;font:700 clamp(22px,3vw,40px) system-ui,-apple-system,sans-serif;color:#8fa8d8;position:relative;background:#0b1330aa}
-.td-stamps span i{position:absolute;top:104%;font:600 clamp(11px,1.2vw,16px) system-ui,-apple-system,sans-serif;font-style:normal;white-space:nowrap;color:#cfe0ff}
+.td-stamps span i{position:absolute;top:104%;left:50%;transform:translateX(-50%);width:calc(100% + var(--g) - 4px);text-align:center;line-height:1.15;font:600 clamp(11px,1.2vw,16px) system-ui,-apple-system,sans-serif;font-style:normal;white-space:normal;overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto;color:#cfe0ff}   /* 13.48k: lange Namen umbrechen statt überlappen */
 .td-stamps span.got{border:3px solid #f0c674;color:#fff;background:#3a2c0acc;box-shadow:0 0 24px #f0c67488}
 .td-stamps span.pop{animation:tdstamp .8s cubic-bezier(.2,1.6,.4,1)}@keyframes tdstamp{0%{transform:scale(3) rotate(-30deg);opacity:0}100%{transform:none;opacity:1}}
 #td-hud{pointer-events:auto}body.chase #cockpit .ck-frame,body.chase #cockpit .ck-ret{display:none!important}#td-cam{position:absolute;right:2vw;top:12vh;z-index:3;font-size:clamp(14px,1.6vw,20px);padding:.5em .8em;border-radius:14px;border:2px solid #f0c674;background:#0b1330d9;color:#fff}
@@ -385,6 +385,7 @@ body.tdot #labels .lbl{font-size:17px}
 #td-catch{position:absolute;left:50%;top:50%;width:clamp(120px,14vw,190px);height:clamp(120px,14vw,190px);transform:translate(-50%,-50%);border-radius:50%;--p:0;opacity:0;transition:opacity .3s;
   background:conic-gradient(#7dffb0 calc(var(--p)*360deg),#ffffff22 0);-webkit-mask:radial-gradient(farthest-side,#0000 calc(100% - 9px),#000 0);mask:radial-gradient(farthest-side,#0000 calc(100% - 9px),#000 0)}
 #td-catch.on{opacity:1}
+body.td-free .ck-ret,body.td-free #ck-tgt,body.td-free #td-catch,body.td-free #td-tip,body.td-free #td-dist{display:none!important}   /* 13.48k: freier Flug ohne Führung */
 #td-tip{position:absolute;left:50%;top:calc(50% + clamp(70px,8vw,105px));transform:translateX(-50%);font:800 clamp(18px,2.4vw,32px) system-ui,sans-serif;color:#7dffb0;text-shadow:0 0 12px #000}
 #td-time{position:absolute;top:calc(2vh + clamp(100px,13vw,160px));left:2vw;font:700 clamp(16px,2vw,26px) system-ui,sans-serif;color:#f0c674;text-shadow:0 1px 6px #000}
 #td-choose{position:absolute;inset:0;background:#0006}
@@ -438,14 +439,14 @@ body.tdot #fade .wt b{font-size:clamp(18px,2.6vw,30px)}body.tdot #fade .wt span{
 .tp-role{color:#f0c674;font-weight:700;font-size:clamp(18px,2.2vw,30px);letter-spacing:.06em}
 .tp-info{font-size:clamp(16px,2vw,28px);line-height:1.5;text-align:left}.tp-small{color:#aab6cc;font-size:clamp(12px,1.3vw,17px);margin-top:1.5vh}
 .tp-logo{height:clamp(56px,10vh,110px);margin-top:1.5vh;background:#fff;border-radius:10px;padding:5px 12px}
-#td-pass .td-stamps{margin:2vh 0 5vh}
+#td-pass .td-stamps{margin:2vh 0 9vh;--g:3vw}
 #td-offl{position:fixed;z-index:32;right:2vw;bottom:2vh;background:#0b1426ee;border:1px solid #7dffa888;border-radius:12px;padding:8px 14px;color:#dfffe9;font:600 14px system-ui,-apple-system,sans-serif;pointer-events:none}
 #td-cdsub{font:600 clamp(16px,2.2vw,28px)/1.3 system-ui,-apple-system,sans-serif;color:#ffe9b0;text-shadow:0 0 12px #000,0 0 3px #000;margin:.2em 0 0;min-height:1.3em}
 #td-ridehud{position:fixed;z-index:31;pointer-events:none;left:2vw;bottom:3vh;width:min(330px,42vw);background:#0b1426d9;border:1px solid #9fc8ff55;border-radius:14px;padding:10px 14px;color:#e8eefc;font:500 clamp(12px,1.3vw,16px)/1.35 system-ui,-apple-system,sans-serif}
 #td-ridehud b{font-size:1.35em;color:#fff}#td-ridehud .r{margin:.35em 0}#td-ridehud small{display:block;color:#aab6cc;font-size:.82em}#td-ridehud .t{color:#f0c674;font-weight:700;letter-spacing:.04em;font-size:.85em}
 #td-sndinfo{position:fixed;z-index:31;pointer-events:none;left:50%;top:calc(1.2vh + 54px);transform:translateX(-50%) translateY(-6px);max-width:min(560px,80vw);background:#0b1426e6;border:1px solid #f0c67466;border-radius:12px;padding:7px 14px;color:#e8eefc;font:500 clamp(11px,1.15vw,14px)/1.35 system-ui,-apple-system,sans-serif;text-align:center;opacity:0;transition:opacity .5s,transform .5s}
 #td-sndinfo.on{opacity:1;transform:translateX(-50%) translateY(0)}#td-sndinfo b{display:block;color:#f0c674;font-weight:700;margin-bottom:2px}#td-sndinfo small{display:block;color:#aab6cc;font-size:.88em}@keyframes tdin2{from{opacity:0;transform:translate(-50%,-30%)}}
-#td-end .td-stamps{margin:3vh 0 4vh}
+#td-end .td-stamps{margin:3vh 0 8vh;--g:3vw}
 #td-corner{position:absolute;left:0;top:0;width:90px;height:90px;z-index:5}
 #td-snd{position:absolute;left:50%;transform:translateX(-50%);top:1.2vh;z-index:5;font-size:28px;background:#0008;border:0;border-radius:12px;padding:6px 10px;color:#fff}
 #td-hud ~ #td-snd{}
@@ -5748,7 +5749,7 @@ function shipUI(now){
   $('#ck-warn').hidden=now-SHIP.warn>1500;
   // Zielmarkierung bzw. Richtungspfeil am Rand
   const tg=$('#ck-tgt');
-  if(!t){tg.hidden=true;return;}
+  if(!t||(TD.on&&['glide','visit','free','jump','home','quiz','pass','end','failend'].includes(TD.phase))){tg.hidden=true;return;}   /* 13.48k: nach Erreichen des Ziels und im freien Flug kein Pfeil */
   // Richtung im Kamerasystem (nicht über die Projektionsmatrix: deren Nah-/Fernebene stammt vom letzten Zeichendurchgang mit sehr kleiner Fernebene –
   // ferne Ziele galten deshalb als „hinter der Kamera“ und der Pfeil zeigte in die Gegenrichtung)
   camera.updateMatrixWorld();const W=innerWidth, H=innerHeight,vc=REPS[level].get(t).p.clone().sub(camera.position).applyQuaternion(camera.quaternion.clone().invert()),tf=Math.tan(camera.fov*DEG/2);
@@ -7006,7 +7007,7 @@ function tdAttract(){tdClear();craneAbort();TD.hold=false;TD.passOv=null;try{if(
 // ---------- Start: Nulllage ----------
 async function tdStart(){craneAbort();TD.demoHome=false;TD.slowSw=false;TD.land=null;TD.landPre=null;tdAudio();tdUnlockAudio();setTimeout(launchPrep,50);if(TD.ac&&TD.ac.state==='suspended')TD.ac.resume();tdClear();TD.ride=null;tdRideHud(null);TD.demoLaunch=false;if(SHIP.on)shipOff();fly=null;shuttleReset();TD.hits=0;TD.failed=false;try{tdDamage();}catch(e){}   // laufenden Demo-Start abbrechen, Rakete wieder auf die Rampe
   tdResetUI();TD.cur=null;TD.visited=[];TD.bonusDone=[];TD.help=false;AUTO=null;TD.orb=null;TD.phase='calib';tdShow('td-calib');
-  {const need=tiltNeedPerm();if(need)tiltAsk();else if(!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});}   /* Sensor-Frage zuerst, Vollbild später */
+  if(tiltNeedPerm())tiltAsk();   /* 13.48k: kein automatischer Vollbildmodus mehr */
   if(!TILT.on){TILT.on=true;addEventListener('deviceorientation',tiltRead);}TD.last=performance.now();}
 {let lastW=0;const rot=()=>{try{const land=innerWidth>innerHeight;if(TD.on&&TILT.a!=null&&['launch','choose','fly','visit','count','liftoff','calib'].includes(TD.phase)&&performance.now()-lastW>4000){lastW=performance.now();tdBanner('Das Bild hat sich gedreht – die Steuerung bleibt wie beim Start. Tipp: Im Kontrollzentrum die Ausrichtungssperre 🔒 einschalten.');}}catch(e){}};
   addEventListener('orientationchange',rot);try{screen.orientation&&screen.orientation.addEventListener('change',rot);}catch(e){}   /* iPadOS meldet „orientationchange“ nicht immer – daher auch screen.orientation */}
@@ -7156,7 +7157,7 @@ function tdFly(T){if(TD.ride&&TD.phase!=='attract'){TD.flyQ=T;tdLater(()=>{if(TD
   if(level!=='erde'){tdLever(0);SHIP.th=0;}tdShow('td-hud');tdHud(T);tdEl('td-helpb').classList.remove('on');
   tdBanner(level==='erde'?'Folge dem gelben Pfeil! Bring das Ziel ins Fadenkreuz.':'Kippe zum Lenken · Schubhebel nach vorn · Ziel ins Fadenkreuz!');}
 function tdHud(T){tdEl('td-goal').innerHTML=T?`<small>Ebene ${TD_LV.indexOf(T.lv)+1} von 5 · ${TD_LVN[T.lv]}</small><b>${esc(tdName(T.id))}</b>`:'<small>Start</small><b>Dionysianum</b>';tdEl('td-dist').innerHTML='';tdEl('td-time').textContent='';tdStamps();}
-function tdFrame(dt,now){if(!TD.on)return;if(TD.phase==='calib'&&!TD.calWait){const st=TD.calSt||(TD.calSt=document.getElementById('td-calst'));if(st){const f=tiltFresh(),v=f?'Bewegungssensor bereit ✓ · Neigung '+Math.round(TILT.y)+'°':tiltNeedPerm()&&window.DIO_TILT!=='denied'?'Tippe auf den Knopf – dann „Erlauben“ wählen.':'Warte auf den Bewegungssensor …';if(st.textContent!==v)st.textContent=v;}}{const b=TD.skB||(TD.skB=tdEl('td-skipl'));if(b){const sh=['count','liftoff','launch'].includes(TD.phase)&&!!(TD.ride||TD.phase!=='launch');if(b.hidden===sh)b.hidden=!sh;if(!b.onclick)b.onclick=tdSkipLaunch;}}{if(TD.lcp&&dt>0&&TD.lcpLv===level&&!switching)TD.cv=camera.position.clone().sub(TD.lcp).divideScalar(dt);else TD.cv=null;TD.lcp=camera.position.clone();TD.lcpLv=level;const oid=TD.orb&&TD.orb.id||TD.path&&TD.path.id,ro=oid&&REPS[level].get(oid);TD.objLast=TD.objCur;TD.objCur=ro?{id:oid,p:ro.p.clone()}:null;}   /* letztes Kamera-Tempo und letzter Ort des Ziels: für ruckfreie Übergänge */{const f=new V3(0,0,-1).applyQuaternion(camera.quaternion);if(TD.lf&&dt>0){const ax=new V3().crossVectors(TD.lf,f),sn=ax.length();TD.angW=sn>1e-9?ax.divideScalar(sn).multiplyScalar(Math.asin(Math.min(1,sn))/dt):new V3();}TD.lf=f;}   /* Drehgeschwindigkeit des Blicks (für weiche Übergänge) */{const pre=TD.phase==='calib'||TD.phase==='count';if(TD.preC!==pre){TD.preC=pre;document.body.classList.toggle('td-pre',pre);}}   /* Missionszahlen 1–5 nicht vor und während des Countdowns */camVelTrack(dt);tdEngine();tdTurnSnd();shuttleFrame(dt);trailFrame();ufoFrame(dt);if(TD.phase==='liftoff'&&TD.orb)TD.orb.dist*=1+dt*0.045;tdOrbitFrame(dt);tdPathFrame(dt);
+function tdFrame(dt,now){if(!TD.on)return;{const fr=TD.phase==='free';if(fr!==TD.wasFree){TD.wasFree=fr;document.body.classList.toggle('td-free',fr);}}if(TD.phase==='calib'&&!TD.calWait){const st=TD.calSt||(TD.calSt=document.getElementById('td-calst'));if(st){const f=tiltFresh(),v=f?'Bewegungssensor bereit ✓ · Neigung '+Math.round(TILT.y)+'°':tiltNeedPerm()&&window.DIO_TILT!=='denied'?'Tippe auf den Knopf – dann „Erlauben“ wählen.':'Warte auf den Bewegungssensor …';if(st.textContent!==v)st.textContent=v;}}{const b=TD.skB||(TD.skB=tdEl('td-skipl'));if(b){const sh=['count','liftoff','launch'].includes(TD.phase)&&!!(TD.ride||TD.phase!=='launch');if(b.hidden===sh)b.hidden=!sh;if(!b.onclick)b.onclick=tdSkipLaunch;}}{if(TD.lcp&&dt>0&&TD.lcpLv===level&&!switching)TD.cv=camera.position.clone().sub(TD.lcp).divideScalar(dt);else TD.cv=null;TD.lcp=camera.position.clone();TD.lcpLv=level;const oid=TD.orb&&TD.orb.id||TD.path&&TD.path.id,ro=oid&&REPS[level].get(oid);TD.objLast=TD.objCur;TD.objCur=ro?{id:oid,p:ro.p.clone()}:null;}   /* letztes Kamera-Tempo und letzter Ort des Ziels: für ruckfreie Übergänge */{const f=new V3(0,0,-1).applyQuaternion(camera.quaternion);if(TD.lf&&dt>0){const ax=new V3().crossVectors(TD.lf,f),sn=ax.length();TD.angW=sn>1e-9?ax.divideScalar(sn).multiplyScalar(Math.asin(Math.min(1,sn))/dt):new V3();}TD.lf=f;}   /* Drehgeschwindigkeit des Blicks (für weiche Übergänge) */{const pre=TD.phase==='calib'||TD.phase==='count';if(TD.preC!==pre){TD.preC=pre;document.body.classList.toggle('td-pre',pre);}}   /* Missionszahlen 1–5 nicht vor und während des Countdowns */camVelTrack(dt);tdEngine();tdTurnSnd();shuttleFrame(dt);trailFrame();ufoFrame(dt);if(TD.phase==='liftoff'&&TD.orb)TD.orb.dist*=1+dt*0.045;tdOrbitFrame(dt);tdPathFrame(dt);
   if(TD.coast&&TD.coast.lv&&TD.coast.lv!==level)TD.coast=null;if(TD.coast&&!TD.path&&!SHIP.on&&!fly&&(!switching||TD.coast.lv===level)){ctl.target.addScaledVector(TD.coast.v,dt);if(TD.coast.w){const wm=TD.coast.w.length()*Math.exp(-TD.coast.t/1.3);if(wm>1e-5){const cp=camPos(),Lv=ctl.target.clone().sub(cp);Lv.applyAxisAngle(TD.coast.w.clone().normalize(),wm*dt);ctl.target.copy(cp).add(Lv);setDir(Lv.clone().normalize().negate());}}   /* Drehung aus dem Bogen läuft weich aus */if(TD.coast&&TD.coast.aim){const cp=camPos(),Lv=ctl.target.clone().sub(cp),dl=Lv.length(),nv=Lv.divideScalar(dl).lerp(TD.coast.aim,1-Math.exp(-dt*0.8)).normalize();ctl.target.copy(cp).addScaledVector(nv,dl);setDir(nv.clone().negate());TD.coast.v.lerp(TD.coast.aim.clone().multiplyScalar(TD.coast.v.length()),1-Math.exp(-dt*1.2));}   /* nach dem Swing-by Blick und Flug genau auf das nächste Ziel (Saturn) ausrichten */{const C=TD.coast;if(C.v0==null)C.v0=C.v.length();const f=Math.exp(-dt*(C.k!=null?C.k:0.4));if(f<1||C.v.length()*f<=C.v0*(C.vmax||1))C.v.multiplyScalar(f);}if((TD.coast.t+=dt)>(TD.coast.max||4))TD.coast=null;}   /* Demo: nach dem Loslassen des Verfolgers mit dem Schwung weiter, bis die Bahn zum nächsten Ziel beginnt (kein Anhalten) */
   if(TD.kW||TD.kS){tdLever(TD.lever+(TD.kW?1:-1)*dt*0.7);TD.last=now;}
   tdRideFrame(dt);
@@ -7896,8 +7897,7 @@ function tdInit(){const L=tdEl('td-lever'),slot=L.querySelector('.td-slot');let 
    A.addEventListener('pointerup',up);A.addEventListener('pointercancel',up);
    A.addEventListener('wheel',e=>{e.preventDefault();TD.zoom=Math.max(0.25,Math.min(4,TD.zoom*Math.exp(e.deltaY*0.0012)));},{passive:false});}
   const fs=()=>{if(TD.on){tdAudio();if(TD.ac&&TD.ac.state==='suspended')TD.ac.resume();}
-    if(TD.on&&tiltNeedPerm())return;   /* erst die Bewegungssensoren freigeben (beim Loslassen des Fingers), Vollbild erst beim nächsten Tippen */
-    if(TD.on&&!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});};
+    /* 13.48k: kein automatischer Vollbildmodus mehr (nur noch per Knopf ⛶ bzw. Taste F) */};
   addEventListener('pointerdown',fs,true);addEventListener('keydown',fs,true);
   /* iPad/Safari: die Sensor-Frage darf nur bei „click“/„touchend“ gestellt werden (pointerdown zählt nicht als Bedienung – die Anfrage wurde still abgelehnt) */
   const askT=()=>{if(TD.on&&tiltNeedPerm())tiltAsk();};addEventListener('click',askT,true);addEventListener('touchend',askT,true);
@@ -7963,7 +7963,7 @@ var $=function(id){return document.getElementById(id);};
 function isFs(){return !!(document.fullscreenElement||document.webkitFullscreenElement);}
 function fs(){var d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen;if(f&&!isFs()){try{var r=f.call(d);if(r&&r.catch)r.catch(function(){});}catch(e){}}}
 function exitFs(){var f=document.exitFullscreen||document.webkitExitFullscreen;if(f&&isFs()){try{f.call(document);}catch(e){}}}
-function setLock(v){L=v;try{sessionStorage.setItem('dioLock',v?'1':'0');}catch(e){}var b=$('dio-bar');b.classList.toggle('locked',v);$('dio-lock').textContent=v?'🔒':'🔓';$('dio-lock').title=v?'Entsperren (Code)':'Sperren (Code)';if(v)fs();}
+function setLock(v){L=v;try{sessionStorage.setItem('dioLock',v?'1':'0');}catch(e){}var b=$('dio-bar');b.classList.toggle('locked',v);$('dio-lock').textContent=v?'🔒':'🔓';$('dio-lock').title=v?'Entsperren (Code)':'Sperren (Code)';}
 window.DIO_LOCKED=function(){return L;};
 function code(title,ok){var o=document.createElement('div');o.id='dio-code';var val='';o.innerHTML='<div class="box"><h3>'+title+'</h3><div class="dots"></div><div class="msg"></div><div class="pad"></div><div style="margin-top:12px"><button class="cx" style="background:none;border:0;color:#c9d3e6;font-size:16px;cursor:pointer">Abbrechen</button></div></div>';
   var pad=o.querySelector('.pad'),dots=o.querySelector('.dots'),msg=o.querySelector('.msg');['1','2','3','4','5','6','7','8','9','⌫','0','OK'].forEach(function(k){var b=document.createElement('button');b.textContent=k;b.onclick=function(e){e.stopPropagation();
@@ -8007,7 +8007,7 @@ function builder(){var c=$('dio-choose');if(c)c.remove();window.DIO_MODE='atlas'
 function start(m){window.DIO_MODE=m;if(m==='kinder')window.ATLAS_EINFACH=true;if(m==='flug')window.ATLAS_TDOT=true;document.title=NAMES[m]||document.title;try{sessionStorage.setItem('dioModus',m);}catch(e){}
   var ch=$('dio-choose');if(ch)ch.remove();preload(m,function(){var src=$('app');if(src&&src.type==='text/plain'){var sc=document.createElement('script');sc.textContent=src.textContent;document.body.appendChild(sc);}bar();wrap();});}
 // gesperrt: Vollbild verlassen (z. B. mit Esc) → Hinweis, ein Tippen holt das Vollbild zurück; Neuladen/Verlassen der Seite fragt nach
-function onFs(){if(!L||isFs()||!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen))return;if($('dio-resume'))return;var r=document.createElement('div');r.id='dio-resume';r.innerHTML='<b>🔒</b><span>Gesperrt – zum Weitermachen tippen</span>';r.onclick=function(){fs();r.remove();};document.body.appendChild(r);}
+function onFs(){return;/* 13.48k: kein automatisches Vollbild */if(!L||isFs()||!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen))return;if($('dio-resume'))return;var r=document.createElement('div');r.id='dio-resume';r.innerHTML='<b>🔒</b><span>Gesperrt – zum Weitermachen tippen</span>';r.onclick=function(){fs();r.remove();};document.body.appendChild(r);}
 document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
 addEventListener('beforeunload',function(e){if(L){e.preventDefault();e.returnValue='';return '';}});
 var m=window.DIO_MODE,ch=$('dio-choose');
@@ -8019,7 +8019,7 @@ try{var bt=JSON.parse(sessionStorage.getItem('dioBoot')||'null'),now=Date.now();
 if(window.DIO_LITE&&ch){var nt=document.createElement('p');nt.style.cssText='margin:14px auto 0;max-width:520px;font:14px/1.4 system-ui;color:#ffd27a;text-align:center';nt.textContent='Sparmodus: Das Gerät hatte zu wenig Speicher. Offline-Paket, Süd-Karte und ein Teil der Wolken werden weggelassen.';ch.appendChild(nt);}
 if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}
   /* Flugsimulator: zuerst die Bewegungssensoren freigeben lassen (Safari fragt nur nach einem Tippen) – erst danach Vollbild (beim nächsten Tippen) */
-  var DO=window.DeviceOrientationEvent,mm=b.dataset.m;if(mm==='flug'&&DO&&typeof DO.requestPermission==='function'&&!window.DIO_TILT){DO.requestPermission().then(function(r){window.DIO_TILT=r;},function(){window.DIO_TILT='denied';}).then(function(){start(mm);});}else{fs();start(mm);}};});}
+  var DO=window.DeviceOrientationEvent,mm=b.dataset.m;if(mm==='flug'&&DO&&typeof DO.requestPermission==='function'&&!window.DIO_TILT){DO.requestPermission().then(function(r){window.DIO_TILT=r;},function(){window.DIO_TILT='denied';}).then(function(){start(mm);});}else{start(mm);}};});}
 })();<\/script>
 </script>
 <style>
@@ -8058,7 +8058,7 @@ var $=function(id){return document.getElementById(id);};
 function isFs(){return !!(document.fullscreenElement||document.webkitFullscreenElement);}
 function fs(){var d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen;if(f&&!isFs()){try{var r=f.call(d);if(r&&r.catch)r.catch(function(){});}catch(e){}}}
 function exitFs(){var f=document.exitFullscreen||document.webkitExitFullscreen;if(f&&isFs()){try{f.call(document);}catch(e){}}}
-function setLock(v){L=v;try{sessionStorage.setItem('dioLock',v?'1':'0');}catch(e){}var b=$('dio-bar');b.classList.toggle('locked',v);$('dio-lock').textContent=v?'🔒':'🔓';$('dio-lock').title=v?'Entsperren (Code)':'Sperren (Code)';if(v)fs();}
+function setLock(v){L=v;try{sessionStorage.setItem('dioLock',v?'1':'0');}catch(e){}var b=$('dio-bar');b.classList.toggle('locked',v);$('dio-lock').textContent=v?'🔒':'🔓';$('dio-lock').title=v?'Entsperren (Code)':'Sperren (Code)';}
 window.DIO_LOCKED=function(){return L;};
 function code(title,ok){var o=document.createElement('div');o.id='dio-code';var val='';o.innerHTML='<div class="box"><h3>'+title+'</h3><div class="dots"></div><div class="msg"></div><div class="pad"></div><div style="margin-top:12px"><button class="cx" style="background:none;border:0;color:#c9d3e6;font-size:16px;cursor:pointer">Abbrechen</button></div></div>';
   var pad=o.querySelector('.pad'),dots=o.querySelector('.dots'),msg=o.querySelector('.msg');['1','2','3','4','5','6','7','8','9','⌫','0','OK'].forEach(function(k){var b=document.createElement('button');b.textContent=k;b.onclick=function(e){e.stopPropagation();
@@ -8102,7 +8102,7 @@ function builder(){var c=$('dio-choose');if(c)c.remove();window.DIO_MODE='atlas'
 function start(m){window.DIO_MODE=m;if(m==='kinder')window.ATLAS_EINFACH=true;if(m==='flug')window.ATLAS_TDOT=true;document.title=NAMES[m]||document.title;try{sessionStorage.setItem('dioModus',m);}catch(e){}
   var ch=$('dio-choose');if(ch)ch.remove();preload(m,function(){var src=$('app');if(src&&src.type==='text/plain'){var sc=document.createElement('script');sc.textContent=src.textContent;document.body.appendChild(sc);}bar();wrap();});}
 // gesperrt: Vollbild verlassen (z. B. mit Esc) → Hinweis, ein Tippen holt das Vollbild zurück; Neuladen/Verlassen der Seite fragt nach
-function onFs(){if(!L||isFs()||!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen))return;if($('dio-resume'))return;var r=document.createElement('div');r.id='dio-resume';r.innerHTML='<b>🔒</b><span>Gesperrt – zum Weitermachen tippen</span>';r.onclick=function(){fs();r.remove();};document.body.appendChild(r);}
+function onFs(){return;/* 13.48k: kein automatisches Vollbild */if(!L||isFs()||!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen))return;if($('dio-resume'))return;var r=document.createElement('div');r.id='dio-resume';r.innerHTML='<b>🔒</b><span>Gesperrt – zum Weitermachen tippen</span>';r.onclick=function(){fs();r.remove();};document.body.appendChild(r);}
 document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
 addEventListener('beforeunload',function(e){if(L){e.preventDefault();e.returnValue='';return '';}});
 var m=window.DIO_MODE,ch=$('dio-choose');
@@ -8114,7 +8114,7 @@ try{var bt=JSON.parse(sessionStorage.getItem('dioBoot')||'null'),now=Date.now();
 if(window.DIO_LITE&&ch){var nt=document.createElement('p');nt.style.cssText='margin:14px auto 0;max-width:520px;font:14px/1.4 system-ui;color:#ffd27a;text-align:center';nt.textContent='Sparmodus: Das Gerät hatte zu wenig Speicher. Offline-Paket, Süd-Karte und ein Teil der Wolken werden weggelassen.';ch.appendChild(nt);}
 if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}
   /* Flugsimulator: zuerst die Bewegungssensoren freigeben lassen (Safari fragt nur nach einem Tippen) – erst danach Vollbild (beim nächsten Tippen) */
-  var DO=window.DeviceOrientationEvent,mm=b.dataset.m;if(mm==='flug'&&DO&&typeof DO.requestPermission==='function'&&!window.DIO_TILT){DO.requestPermission().then(function(r){window.DIO_TILT=r;},function(){window.DIO_TILT='denied';}).then(function(){start(mm);});}else{fs();start(mm);}};});}
+  var DO=window.DeviceOrientationEvent,mm=b.dataset.m;if(mm==='flug'&&DO&&typeof DO.requestPermission==='function'&&!window.DIO_TILT){DO.requestPermission().then(function(r){window.DIO_TILT=r;},function(){window.DIO_TILT='denied';}).then(function(){start(mm);});}else{start(mm);}};});}
 })();</script>
 </body>
 </html>

@@ -85,6 +85,11 @@
 
 
 ## Neu in Version 13.48
+- **13.48k – kein automatischer Vollbildmodus mehr:** Weder beim Start noch beim Sperren (🔒) wechselt die App von selbst in den Vollbildmodus. Vollbild nur noch per Knopf ⛶ oder Taste F.
+- **Zielpfeil:** Er verschwindet, sobald ein Ziel erreicht ist (Funkspruch, Umkreisen, freier Flug) und erscheint erst beim nächsten Ziel wieder.
+- **Freier Flug:** Ohne Fadenkreuz, Zielmarke, Pfeil, Hinweise und Abstandsanzeige.
+- **Planetenpass:** Lange Namen der besuchten Objekte werden unter dem Stempel umgebrochen und überlappen nicht mehr.
+- **Speicher:** Beim Durchfliegen aller Ebenen bleiben Texturen und JS-Speicher im Test gleich (kein Speicherleck gefunden).
 - **13.48j – Flugposition speichern:** Vor dem Countdown erscheint das Fenster „Flugposition einstellen“. Man hält das iPad so, wie man fliegen will, und tippt auf **„✓ Ich halte das Tablet jetzt in Flugposition“**. Diese Haltung wird gemessen, als „geradeaus“ verwendet und auf dem Gerät gespeichert. Im Fenster zeigt eine Zeile, ob der Bewegungssensor bereit ist und wie stark das iPad gerade geneigt ist. Ohne Sensorfreigabe lenkt man wie bisher mit dem Finger.
 - **Zielpfeil:** Der Richtungspfeil am Bildschirmrand ist jetzt ein richtiger Pfeil (Umriss ohne Füllung, leicht durchsichtig, gelb mit dunklem Rand).
 - **13.48i – Steuerung repariert:** Die Frage nach den Bewegungssensoren wurde auf dem iPad still abgelehnt (Safari erlaubt sie nur beim Loslassen des Fingers, nicht beim Aufsetzen). Ohne Sensordaten galt die feste 80°-Ruhelage gegen den Wert 0 – das Shuttle stürzte ab. Jetzt: Frage beim Antippen von „Flugsimulator“ bzw. beim ersten Tippen (Loslassen); gelenkt wird nur mit frischen Sensordaten; ohne Freigabe erscheint ein Hinweis und man lenkt mit dem Finger.
