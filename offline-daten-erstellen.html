@@ -689,7 +689,7 @@ body.tdot #fade .wt b{font-size:clamp(18px,2.6vw,30px)}body.tdot #fade .wt span{
   <div id="td-ufo" hidden>👽 Komm zum Dio!</div>
   <div id="td-info" class="td-ov" hidden></div><div id="td-photo" class="td-ov" hidden></div>
   <div class="td-l" id="td-attract"><div class="td-brand"><small>Weltraum-Mission</small><h1>Flieg mit dem Raumschiff bis ans Ende des Universums!</h1></div><button class="td-big" id="td-go">👆 Tippe hier und flieg selbst!</button></div>
-  <div class="td-l" id="td-calib" hidden><div class="td-card"><h2>Halte das iPad wie ein Lenkrad</h2><p>Halte es bequem vor dich. <b>Kippen</b> lenkt das Raumschiff:<br>links / rechts drehen, vor / zurück neigen = runter / hoch.</p>
+  <div class="td-l" id="td-calib" hidden><div class="td-card"><h2>Halte das iPad wie ein Lenkrad</h2><p>Halte es <b>fast senkrecht</b> vor dich – so fliegt das Raumschiff geradeaus.<br>Links / rechts drehen = lenken, vor / zurück neigen = runter / hoch.</p><p style="opacity:.75;font-size:.9em">Tipp: Im Kontrollzentrum die Ausrichtungssperre 🔒 einschalten, damit sich das Bild nicht dreht.</p>
     <div class="td-tilt">📱</div><button class="td-big" id="td-calok">So halte ich es – START!</button></div></div>
   <div class="td-l" id="td-count" hidden><div class="td-stamps"></div><div id="td-num"></div><p id="td-cdsub"></p><p class="td-sub">Countdown wie bei der NASA · Start neben dem Dionysianum</p></div>
   <button id="td-skipl" hidden style="position:fixed;right:16px;bottom:18px;z-index:30;pointer-events:auto;font:600 15px/1 system-ui,sans-serif;padding:12px 16px;border-radius:12px;border:1px solid #ffffff40;background:#0d1626cc;color:#fff;backdrop-filter:blur(6px)">⏭ Start überspringen</button>
@@ -5765,13 +5765,19 @@ $('#ck-exit').onclick=shipOff;
 $('#ck-aim').onclick=()=>{SHIP.align=true;};
 $('#ck-auto').onclick=()=>shipAuto();
 // Tablet: lenken durch Kippen (Neigung beim Einschalten = Ruhelage)
-function tiltRead(e){const a=(screen.orientation&&screen.orientation.angle)||window.orientation||0,b=e.beta||0,g=e.gamma||0;
-  let x=g,y=b; if(a===90){x=b;y=-g;} else if(a===-90||a===270){x=-b;y=g;} else if(a===180){x=-g;y=-b;}
-  TILT.x=x;TILT.y=y;TILT.seen=true; if(TILT.x0==null){TILT.x0=x;TILT.y0=y;}}
+/* 13.48g: Neigung aus der Lage der Schwerkraft berechnet (ohne Sprung bei senkrechtem iPad).
+   Nicken: 0° = flach auf dem Tisch, 90° = senkrecht; Ruhelage fest bei 80° (iPad fast aufrecht in den Händen).
+   Lenken: wie ein Lenkrad drehen (bei flachem Gerät: seitlich kippen) – Ruhelage 0°. */
+const TILT_P0=80;
+function tiltRead(e){const a=TILT.a!=null?TILT.a:((screen.orientation&&screen.orientation.angle)||window.orientation||0),b=(e.beta||0)*DEG,g=(e.gamma||0)*DEG;
+  const Ux=-Math.sin(g)*Math.cos(b),Uy=Math.sin(b),Uz=Math.cos(g)*Math.cos(b);   // Richtung „oben“ im Gerät
+  let sx=Ux,sy=Uy; if(a===90){sx=-Uy;sy=Ux;} else if(a===-90||a===270){sx=Uy;sy=-Ux;} else if(a===180){sx=-Ux;sy=-Uy;}
+  const x=Math.asin(Math.max(-1,Math.min(1,-sx)))/DEG,y=Math.atan2(sy,Uz)/DEG;
+  TILT.x=x;TILT.y=y;TILT.seen=true; if(TILT.x0==null){TILT.x0=0;TILT.y0=TILT_P0;}}
 async function tiltToggle(){
   if(TILT.on){TILT.on=false;removeEventListener('deviceorientation',tiltRead);$('#ck-tilt').classList.remove('on');return;}
   try{if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted')return;}}catch(e){return;}
-  TILT.on=true;TILT.x0=TILT.y0=null;addEventListener('deviceorientation',tiltRead);$('#ck-tilt').classList.add('on');}
+  TILT.on=true;TILT.x0=TILT.y0=null;TILT.a=null;addEventListener('deviceorientation',tiltRead);$('#ck-tilt').classList.add('on');}
 $('#ck-tilt').onclick=tiltToggle;
 if(!('DeviceOrientationEvent' in window)) $('#ck-tilt').hidden=true;
 for(const b of document.querySelectorAll('#cockpit [data-k]')){const k=b.dataset.k;
@@ -6991,7 +6997,10 @@ async function tdStart(){craneAbort();TD.demoHome=false;TD.slowSw=false;TD.land=
   if(!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
   try{if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){await DeviceOrientationEvent.requestPermission();}}catch(e){}
   if(!TILT.on){TILT.on=true;addEventListener('deviceorientation',tiltRead);}TD.last=performance.now();}
-function tdCalibDone(){if(TILT.seen){TILT.x0=TILT.x;TILT.y0=TILT.y;}tdCountdown();}
+addEventListener('orientationchange',()=>{try{if(TD.on&&TILT.a!=null&&['launch','choose','fly','visit','count','liftoff'].includes(TD.phase))tdBanner('Das Bild hat sich gedreht – die Steuerung bleibt wie beim Start. Tipp: Im Kontrollzentrum die Ausrichtungssperre 🔒 einschalten.');}catch(e){}});
+function tdCalibDone(){TILT.x0=0;TILT.y0=TILT_P0;tiltLockOrient();tdCountdown();}   /* feste Ruhelage: 80° aufrecht, gerade */
+/* Ausrichtung festhalten: wo möglich per Bildschirm-Sperre; sonst (iPad/Safari) die Steuerung auf die Ausrichtung beim Start festlegen */
+function tiltLockOrient(){TILT.a=(screen.orientation&&screen.orientation.angle)||window.orientation||0;try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock(Math.abs(TILT.a)===90||TILT.a===270?'landscape':'portrait').catch(()=>{});}catch(e){}}
 // ---------- Countdown am Dio, senkrechter Start ----------
 // Sekunden vor „zero“, ab denen die Zahl eingeblendet wird (passend zur Ansage im STS-135-Mitschnitt)
 const CD_AT=[10,9,8,7,6,5,4,3,2,1,0].map(n=>[n,+(0.3+n*1.045).toFixed(3)])   /* gleichmäßig: „10“ bei 10,75 s und „0“ bei 0,3 s vor „zero“ wie bisher, alle Zahlen dazwischen im gleichen Abstand */   /* 2-1-zero nach Rückmeldung am iPad: „two“ ≈ 9,8 s, „one“ ≈ 10,55 s, „zero“ ≈ 11,5 s */   /* aus dem Mitschnitt gemessen (Lautstärke-Verlauf): „ten“ 1,2 s · „nine“ 1,9 · „eight“ 2,75 · „seven“ 3,7 · „six“ 4,65 · „go for main engine start“ 5,1–6,7 · „four“ 7,35 · „three“ 8,1 · „two“ 8,75 · „one“ 9,95 · „zero“ 10,7 · „and liftoff“ 11,6–12,5 */;
