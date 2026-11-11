@@ -5769,11 +5769,12 @@ $('#ck-auto').onclick=()=>shipAuto();
    Nicken: 0° = flach auf dem Tisch, 90° = senkrecht; Ruhelage fest bei 80° (iPad fast aufrecht in den Händen).
    Lenken: wie ein Lenkrad drehen (bei flachem Gerät: seitlich kippen) – Ruhelage 0°. */
 const TILT_P0=80;
-function tiltRead(e){const a=TILT.a!=null?TILT.a:((screen.orientation&&screen.orientation.angle)||window.orientation||0),b=(e.beta||0)*DEG,g=(e.gamma||0)*DEG;
+function tiltRead(e){const b=(e.beta||0)*DEG,g=(e.gamma||0)*DEG;
   const Ux=-Math.sin(g)*Math.cos(b),Uy=Math.sin(b),Uz=Math.cos(g)*Math.cos(b);   // Richtung „oben“ im Gerät
+  const a=TILT.a!=null?TILT.a:tiltOrient([Ux,Uy,Uz]);
   let sx=Ux,sy=Uy; if(a===90){sx=-Uy;sy=Ux;} else if(a===-90||a===270){sx=Uy;sy=-Ux;} else if(a===180){sx=-Ux;sy=-Uy;}
   const x=Math.asin(Math.max(-1,Math.min(1,-sx)))/DEG,y=Math.atan2(sy,Uz)/DEG;
-  TILT.x=x;TILT.y=y;TILT.seen=true; if(TILT.x0==null){TILT.x0=0;TILT.y0=TILT_P0;}}
+  TILT.x=x;TILT.y=y;TILT.U=[Ux,Uy,Uz];TILT.seen=true; if(TILT.x0==null){TILT.x0=0;TILT.y0=TILT_P0;if(TILT.a==null)TILT.a=a;}}
 async function tiltToggle(){
   if(TILT.on){TILT.on=false;removeEventListener('deviceorientation',tiltRead);$('#ck-tilt').classList.remove('on');return;}
   try{if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted')return;}}catch(e){return;}
@@ -6995,12 +6996,16 @@ function tdAttract(){tdClear();craneAbort();TD.hold=false;TD.passOv=null;try{if(
 async function tdStart(){craneAbort();TD.demoHome=false;TD.slowSw=false;TD.land=null;TD.landPre=null;tdAudio();tdUnlockAudio();setTimeout(launchPrep,50);if(TD.ac&&TD.ac.state==='suspended')TD.ac.resume();tdClear();TD.ride=null;tdRideHud(null);TD.demoLaunch=false;if(SHIP.on)shipOff();fly=null;shuttleReset();TD.hits=0;TD.failed=false;try{tdDamage();}catch(e){}   // laufenden Demo-Start abbrechen, Rakete wieder auf die Rampe
   tdResetUI();TD.cur=null;TD.visited=[];TD.bonusDone=[];TD.help=false;AUTO=null;TD.orb=null;TD.phase='calib';tdShow('td-calib');
   if(!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
-  try{if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){await DeviceOrientationEvent.requestPermission();}}catch(e){}
+  try{if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'&&!/granted|asking/.test(window.DIO_TILT||'')){window.DIO_TILT=await DeviceOrientationEvent.requestPermission();}}catch(e){}
   if(!TILT.on){TILT.on=true;addEventListener('deviceorientation',tiltRead);}TD.last=performance.now();}
-addEventListener('orientationchange',()=>{try{if(TD.on&&TILT.a!=null&&['launch','choose','fly','visit','count','liftoff'].includes(TD.phase))tdBanner('Das Bild hat sich gedreht – die Steuerung bleibt wie beim Start. Tipp: Im Kontrollzentrum die Ausrichtungssperre 🔒 einschalten.');}catch(e){}});
+{let lastW=0;const rot=()=>{try{const land=innerWidth>innerHeight;if(TD.on&&TILT.a!=null&&['launch','choose','fly','visit','count','liftoff','calib'].includes(TD.phase)&&performance.now()-lastW>4000){lastW=performance.now();tdBanner('Das Bild hat sich gedreht – die Steuerung bleibt wie beim Start. Tipp: Im Kontrollzentrum die Ausrichtungssperre 🔒 einschalten.');}}catch(e){}};
+  addEventListener('orientationchange',rot);try{screen.orientation&&screen.orientation.addEventListener('change',rot);}catch(e){}   /* iPadOS meldet „orientationchange“ nicht immer – daher auch screen.orientation */}
 function tdCalibDone(){TILT.x0=0;TILT.y0=TILT_P0;tiltLockOrient();tdCountdown();}   /* feste Ruhelage: 80° aufrecht, gerade */
 /* Ausrichtung festhalten: wo möglich per Bildschirm-Sperre; sonst (iPad/Safari) die Steuerung auf die Ausrichtung beim Start festlegen */
-function tiltLockOrient(){TILT.a=(screen.orientation&&screen.orientation.angle)||window.orientation||0;try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock(Math.abs(TILT.a)===90||TILT.a===270?'landscape':'portrait').catch(()=>{});}catch(e){}}
+function tiltOrient(U){if(U&&Math.abs(U[2])<0.8)return Math.abs(U[0])>Math.abs(U[1])?(U[0]>0?90:-90):(U[1]>0?0:180);   /* aus der Schwerkraft: welche Geräteseite beim Halten oben ist (unabhängig davon, was Safari meldet) */
+  const sa=screen.orientation&&screen.orientation.angle;return sa!=null?(sa>180?sa-360:sa):(window.orientation!=null?+window.orientation:(innerWidth>innerHeight?90:0));}
+function tiltLockOrient(){const a=tiltOrient(TILT.U);
+  TILT.a=a;TILT.land=innerWidth>innerHeight;try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock(Math.abs(TILT.a)===90||TILT.a===270?'landscape':'portrait').catch(()=>{});}catch(e){}}
 // ---------- Countdown am Dio, senkrechter Start ----------
 // Sekunden vor „zero“, ab denen die Zahl eingeblendet wird (passend zur Ansage im STS-135-Mitschnitt)
 const CD_AT=[10,9,8,7,6,5,4,3,2,1,0].map(n=>[n,+(0.3+n*1.045).toFixed(3)])   /* gleichmäßig: „10“ bei 10,75 s und „0“ bei 0,3 s vor „zero“ wie bisher, alle Zahlen dazwischen im gleichen Abstand */   /* 2-1-zero nach Rückmeldung am iPad: „two“ ≈ 9,8 s, „one“ ≈ 10,55 s, „zero“ ≈ 11,5 s */   /* aus dem Mitschnitt gemessen (Lautstärke-Verlauf): „ten“ 1,2 s · „nine“ 1,9 · „eight“ 2,75 · „seven“ 3,7 · „six“ 4,65 · „go for main engine start“ 5,1–6,7 · „four“ 7,35 · „three“ 8,1 · „two“ 8,75 · „one“ 9,95 · „zero“ 10,7 · „and liftoff“ 11,6–12,5 */;
@@ -7870,7 +7875,9 @@ function tdInit(){const L=tdEl('td-lever'),slot=L.querySelector('.td-slot');let 
      if(pts.size===0&&moved<12&&performance.now()-t0<600)tdStart();};
    A.addEventListener('pointerup',up);A.addEventListener('pointercancel',up);
    A.addEventListener('wheel',e=>{e.preventDefault();TD.zoom=Math.max(0.25,Math.min(4,TD.zoom*Math.exp(e.deltaY*0.0012)));},{passive:false});}
-  const fs=()=>{if(TD.on){tdAudio();if(TD.ac&&TD.ac.state==='suspended')TD.ac.resume();}if(TD.on&&!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});};
+  const fs=()=>{if(TD.on){tdAudio();if(TD.ac&&TD.ac.state==='suspended')TD.ac.resume();}
+    {const DO=window.DeviceOrientationEvent;if(TD.on&&DO&&typeof DO.requestPermission==='function'&&!window.DIO_TILT){window.DIO_TILT='asking';DO.requestPermission().then(r=>{window.DIO_TILT=r;},()=>{window.DIO_TILT='denied';});return;}}   /* erstes Tippen: zuerst die Bewegungssensoren freigeben, Vollbild erst beim nächsten Tippen */
+    if(TD.on&&!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});};
   addEventListener('pointerdown',fs,true);addEventListener('keydown',fs,true);
   tdEl('td-calok').onclick=tdCalibDone;tdEl('td-cam').onclick=e=>{e.stopPropagation();CHASE.view=CHASE.view==='chase'?'cockpit':'chase';tdEl('td-cam').textContent=CHASE.view==='chase'?'🎥 Cockpit':'🎥 Shuttle von außen';};tdEl('td-end').addEventListener('pointerup',e=>{if(e.target.closest('.td-stamps'))return;tdAttract();});tdOrbitGestures(tdEl('td-hud'));
   const S=tdEl('td-snd');const upd=()=>{S.textContent=TD.snd?'🔊':'🔇';};upd();S.addEventListener('pointerup',e=>{e.stopPropagation();TD.snd=!TD.snd;tdAudio();upd();tdEngine();if(!TD.snd){tdXStop();for(const x of [NASA_AUD,CD_AUD])try{x&&x.pause();}catch(e){}}else tdUnlockAudio();});
@@ -7988,7 +7995,9 @@ try{var bt=JSON.parse(sessionStorage.getItem('dioBoot')||'null'),now=Date.now();
   sessionStorage.setItem('dioBoot',JSON.stringify({t:now,ok:false,n:bt&&!bt.ok?(bt.n||0)+1:0}));setTimeout(function(){try{var b=JSON.parse(sessionStorage.getItem('dioBoot')||'{}');b.ok=true;sessionStorage.setItem('dioBoot',JSON.stringify(b));}catch(e){}},40000);
   if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){try{if(localStorage.getItem('dioLite')==='1')window.DIO_LITE=true;if(window.DIO_LITE)localStorage.setItem('dioLite','1');}catch(e){}}}catch(e){}
 if(window.DIO_LITE&&ch){var nt=document.createElement('p');nt.style.cssText='margin:14px auto 0;max-width:520px;font:14px/1.4 system-ui;color:#ffd27a;text-align:center';nt.textContent='Sparmodus: Das Gerät hatte zu wenig Speicher. Offline-Paket, Süd-Karte und ein Teil der Wolken werden weggelassen.';ch.appendChild(nt);}
-if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){fs();try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}start(b.dataset.m);};});}
+if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}
+  /* Flugsimulator: zuerst die Bewegungssensoren freigeben lassen (Safari fragt nur nach einem Tippen) – erst danach Vollbild (beim nächsten Tippen) */
+  var DO=window.DeviceOrientationEvent,mm=b.dataset.m;if(mm==='flug'&&DO&&typeof DO.requestPermission==='function'&&!window.DIO_TILT){DO.requestPermission().then(function(r){window.DIO_TILT=r;},function(){window.DIO_TILT='denied';}).then(function(){start(mm);});}else{fs();start(mm);}};});}
 })();<\/script>
 </script>
 <style>
@@ -8081,7 +8090,9 @@ try{var bt=JSON.parse(sessionStorage.getItem('dioBoot')||'null'),now=Date.now();
   sessionStorage.setItem('dioBoot',JSON.stringify({t:now,ok:false,n:bt&&!bt.ok?(bt.n||0)+1:0}));setTimeout(function(){try{var b=JSON.parse(sessionStorage.getItem('dioBoot')||'{}');b.ok=true;sessionStorage.setItem('dioBoot',JSON.stringify(b));}catch(e){}},40000);
   if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){try{if(localStorage.getItem('dioLite')==='1')window.DIO_LITE=true;if(window.DIO_LITE)localStorage.setItem('dioLite','1');}catch(e){}}}catch(e){}
 if(window.DIO_LITE&&ch){var nt=document.createElement('p');nt.style.cssText='margin:14px auto 0;max-width:520px;font:14px/1.4 system-ui;color:#ffd27a;text-align:center';nt.textContent='Sparmodus: Das Gerät hatte zu wenig Speicher. Offline-Paket, Süd-Karte und ein Teil der Wolken werden weggelassen.';ch.appendChild(nt);}
-if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){fs();try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}start(b.dataset.m);};});}
+if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}
+  /* Flugsimulator: zuerst die Bewegungssensoren freigeben lassen (Safari fragt nur nach einem Tippen) – erst danach Vollbild (beim nächsten Tippen) */
+  var DO=window.DeviceOrientationEvent,mm=b.dataset.m;if(mm==='flug'&&DO&&typeof DO.requestPermission==='function'&&!window.DIO_TILT){DO.requestPermission().then(function(r){window.DIO_TILT=r;},function(){window.DIO_TILT='denied';}).then(function(){start(mm);});}else{fs();start(mm);}};});}
 })();</script>
 </body>
 </html>
