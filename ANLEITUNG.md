@@ -1,18 +1,21 @@
 # Weltraum-Mission (Tag der offenen Tür) – Einrichtung
 
 
-## Neu in 13.49: Sonnensystem-Version (nur Flugsimulator)
+## Neu in 13.49/13.50: Sonnensystem-Version (nur Flugsimulator)
 - **Aufruf:** `…/sonnensystem.html` (Weiterleitung auf `index.html#modus=sonne`). Es startet direkt der Flugsimulator, ohne Auswahl Atlas/Kinder. Auf dem iPad diese Adresse öffnen und „Zum Home-Bildschirm“ wählen.
 - **Hochladen:** `index.html`, `offline-daten-erstellen.html` (beide neu) und `sonnensystem.html` (zusätzlich) in denselben Ordner. 3D-Karte, Luftbilder, Offline-Daten und Töne werden mitbenutzt. Die normale Mission (`mission.html`) bleibt unverändert.
 - **Eine Ebene:** Erde & Mond und Sonnensystem sind eine gemeinsame Ebene „Sonnensystem“. Es gibt keine Ebenen-Anzeige und keine Ebenenwechsel. Milchstraße, Lokale Gruppe und Universum werden gar nicht erst geladen (weniger Speicher auf dem iPad).
 - **Fünf Missionen**, je bis zu drei Ziele zur Wahl (schon besuchte fallen weg):
   1. Rund um die Erde: ISS, Hubble, Tiangong
   2. Mond und Nachbarschaft: Mond, James-Webb-Teleskop, Meteosat
-  3. Sonne und innere Planeten: Sonne, Merkur, Venus, Mars
+  3. Die inneren Planeten: Merkur, Venus, Mars (die Sonne ist kein Ziel)
   4. Die Riesenplaneten: Jupiter, Saturn, Ceres
   5. Ganz weit draußen: Uranus, Neptun, Pluto, Halleyscher Komet
   Bonus-Missionen (z. B. Saturnmonde, Jupitermonde, Apollo-11-Landestelle) bleiben.
-- **Übergänge:** Wer ein Planetenziel wählt, fliegt ohne Tafel direkt aus der Erdnähe los. Beim freien Fliegen schaltet die App selbst um: weiter als 300 Erdradien von der Erde weg → Planetenansicht, wieder nah an der Erde → Erdansicht mit Dio, ISS und Wolken.
+- **Übergänge (13.50):** Das Raumschiff fliegt beim Wechsel zwischen Erdnähe und Planeten einfach weiter. Ort, Flugrichtung und Kamera bleiben, das Bild wird nur weich übergeblendet. Wer z. B. am Mond den Mars wählt, startet im Sonnensystem genau am Mond, mit derselben Blickrichtung. Beim freien Fliegen schaltet die App selbst um: weiter als 300 Erdradien von der Erde weg → Planetenansicht, wieder näher als 150 Erdradien → Erdansicht mit Dio, ISS und Wolken.
+- **Hindernisse (13.50):** Weltraumschrott und Asteroiden werden nur noch mit einem Piktogramm angekündigt (⚠️ mit 🛰️ bzw. 🪨), ein Treffer mit 💥. Kein Text mehr.
+- **Raketenstart (13.50):** keine Ton-Infoblase mehr mitten im Bild.
+- **Sonne (13.50):** Die Korona ist jetzt eine räumliche Hülle statt einer flachen Scheibe. Sie sieht aus jeder Richtung und Entfernung richtig aus, auch beim Vorbeiflug und mitten in der Korona.
 - **Heimflug:** Das Raumschiff nimmt in einer ruhigen Kurve Kurs auf die Erde, unterwegs kommt das UFO, dann folgen Landeanflug, Landung, Quiz und Planetenpass wie gewohnt.
 - **Wartemodus:** Dio → Start → ISS → Mond → Saturn mit Daphnis → Jupiter → Heimflug und Landung, dann von vorn.
 - **Haus-Knopf** oben rechts startet die Sonnensystem-Version neu (statt zur Auswahl). Schloss und Code 1659 wie bisher.

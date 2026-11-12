@@ -2171,6 +2171,18 @@ void main(){vec2 p=(vUv-0.5)*uR;float r=length(p)/uK;if(r<0.985)discard;float an
  float sp=snoise(vec3(an*140.0,(r-1.0)*30.0,uT*0.25))*0.5+0.5;float chrom=exp(-(r-1.0)/(0.01+0.022*sp))*(0.45+0.9*sp); // Spikulen: feiner, haariger Saum
  vec3 col=vec3(1.0,0.93,0.82)*I*0.3+vec3(1.0,0.35,0.18)*chrom*0.8;
  gl_FragColor=vec4(col,1.0);}`;
+const CORONA3_VS=`varying vec3 vW;varying vec3 vC;void main(){vW=(modelMatrix*vec4(position,1.0)).xyz;vC=(modelMatrix*vec4(0.0,0.0,0.0,1.0)).xyz;gl_Position=projectionMatrix*(modelViewMatrix*vec4(position,1.0));}`;
+const CORONA3_FS=GLSL_NOISE+`uniform float uT;varying vec3 vW;varying vec3 vC;
+float Fi(float t,float b){return t/(2.0*b*b*(b*b+t*t))+atan(t/b)/(2.0*b*b*b);}
+void main(){const float Rs=5.0,Rc=8.0;vec3 ro=(cameraPosition-vC)/Rs;vec3 rd=normalize(vW-cameraPosition);
+ float tc=-dot(ro,rd);vec3 pc=ro+rd*tc;float b=max(length(pc),0.04);float h2=Rc*Rc-b*b;if(h2<=0.0)discard;float h=sqrt(h2);
+ float t0=max(-tc,-h),t1=h;if(b<1.0&&tc>0.0)t1=-sqrt(1.0-b*b);if(t1<=t0)discard;
+ float I=(Fi(t1,b)-Fi(t0,b))*0.64;vec3 d=normalize(pc+vec3(0.0,1e-4,0.0));
+ float st=snoise(d*2.2+vec3(0.0,0.0,uT*0.015))*0.6+snoise(d*6.0+vec3(uT*0.03))*0.4;st=0.5+0.5*st;
+ float helm=0.55+0.45*pow(1.0-abs(d.y),2.0);I*=0.35+1.1*st*st*helm;
+ float chrom=0.0;if(b>=1.0&&b<1.25){float sp=snoise(vec3(d*140.0)+vec3(0.0,(b-1.0)*30.0,uT*0.25))*0.5+0.5;chrom=exp(-(b-1.0)/(0.01+0.022*sp))*(0.45+0.9*sp);}
+ float edge=1.0-smoothstep(0.75*Rc,Rc,b);
+ gl_FragColor=vec4((vec3(1.0,0.93,0.82)*I*0.3+vec3(1.0,0.35,0.18)*chrom*0.8)*edge,1.0);}`;
 const PROM_VS=`varying vec2 vUv;varying vec3 vW;void main(){vUv=uv;vec4 w=modelMatrix*vec4(position,1.0);vW=w.xyz;gl_Position=projectionMatrix*(modelViewMatrix*vec4(position,1.0));}`;
 // Magnetische Bögen der Sonne: viele feine, leuchtende Fäden, die in der Oberfläche wurzeln
 const LOOP_VS=`attribute float aH;attribute float aB;varying vec2 vUv;varying float vNv;varying vec3 vW;varying float vH;varying float vB;
@@ -3488,7 +3500,7 @@ function launchSound(){if(SHUTTLE.sndStop)SHUTTLE.sndStop();if(!TD.snd||!TD.ac)r
     const k1=Math.min(1,t/1.5)*0.35*(SHUTTLE.meco?0:1),k2=t>6?Math.min(1,(t-6)/0.4)*(SHUTTLE.meco?0:SHUTTLE.sepS?0.3:1):0,vol=TD.snd?(NASA_AUD&&!NASA_AUD.paused?0.55:1):0;
     rum.g.gain.setTargetAtTime(vol*(k1+k2*0.9)*dist,now,0.08);mid.g.gain.setTargetAtTime(vol*(k1*0.3+k2*0.35)*dist*dist,now,0.08);cr.g.gain.setTargetAtTime(vol*k2*0.45*dist*dist,now,0.05);
     rum.fl.frequency.setTargetAtTime(90+60*dist,now,0.3);sg.gain.setTargetAtTime(vol*k2*0.35*dist,now,0.1);
-    if(t>6&&!SHUTTLE.boom){SHUTTLE.boom=1;try{if(NASA_AUD&&TD.snd){NASA_AUD.currentTime=0;NASA_AUD.volume=CD_AUD&&!CD_AUD.paused?0.6:0.95;const I=TD_SND.launch.info;NASA_AUD.play().then(()=>{if(TD.phase!=='attract')tdSndInfo('Start',/sounds\//.test(NASA_AUD.currentSrc||'')?I.local:I.web,8000);}).catch(()=>{});}}catch(e){}const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(70,now);o.frequency.exponentialRampToValueAtTime(28,now+1.6);g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.9*vol,now+0.04);g.gain.exponentialRampToValueAtTime(0.0001,now+2);o.connect(g);g.connect(ac.destination);o.start();o.stop(now+2.1);}
+    if(t>6&&!SHUTTLE.boom){SHUTTLE.boom=1;try{if(NASA_AUD&&TD.snd){NASA_AUD.currentTime=0;NASA_AUD.volume=CD_AUD&&!CD_AUD.paused?0.6:0.95;const I=TD_SND.launch.info;NASA_AUD.play().catch(()=>{});   /* 13.50: keine Ton-Infoblase mehr beim Raketenstart */}}catch(e){}const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(70,now);o.frequency.exponentialRampToValueAtTime(28,now+1.6);g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.9*vol,now+0.04);g.gain.exponentialRampToValueAtTime(0.0001,now+2);o.connect(g);g.connect(ac.destination);o.start();o.stop(now+2.1);}
     if(SHUTTLE.meco&&NASA_AUD&&!NASA_AUD.paused){NASA_AUD.volume=Math.max(0,NASA_AUD.volume-0.02);if(NASA_AUD.volume<=0.02)NASA_AUD.pause();}
     if(t>40||SHUTTLE.t<0||lift>17&&!SHUTTLE.stack.visible)SHUTTLE.sndStop&&SHUTTLE.sndStop();};}
 // ---------- UFO-Begegnung auf dem Heimweg ----------
@@ -4280,7 +4292,7 @@ function buildSonne(){
   const sun=new THREE.Mesh(new THREE.SphereGeometry(5,160,120),sunMat); S.add(sun);
   const sg=sprite(TX_GLOW_SUN,30,0xffffff,{opacity:0.75}); sg.raycast=()=>{}; S.add(sg);
   const corU={uT:{value:0},uR:{value:16},uK:{value:1}};
-  const corona=new THREE.Mesh(new THREE.PlaneGeometry(80,80),new THREE.ShaderMaterial({uniforms:corU,vertexShader:PROM_VS,fragmentShader:CORONA_FS,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
+  const corona=new THREE.Mesh(new THREE.SphereGeometry(40,64,32),new THREE.ShaderMaterial({uniforms:corU,vertexShader:CORONA3_VS,fragmentShader:CORONA3_FS,transparent:true,depthWrite:false,side:THREE.BackSide,blending:THREE.AdditiveBlending}));   /* 13.50: Korona als 3D-Hülle statt flacher Scheibe */
   corona.raycast=()=>{}; S.add(corona);
   const sph=(lat,lon)=>new V3(Math.cos(lat)*Math.cos(lon),Math.sin(lat),-Math.cos(lat)*Math.sin(lon));
   const jit=(v,sz,r)=>v.clone().add(new V3(r()-0.5,r()-0.5,r()-0.5).multiplyScalar(sz*2)).normalize();
@@ -5078,12 +5090,12 @@ function switchLevel(lv,cb){DLOG('Ebene → '+lv);
   if(lv===level&&!switching){cb&&cb();return;}
   if(switching){switching.next=[lv,cb];return;}
   const from=level, out=LEVELS.indexOf(lv)>LEVELS.indexOf(from);
-  if(SHIP.on) shipOff();
+  const KS=typeof TD!=='undefined'&&!!TD.keepShip;if(SHIP.on&&!KS) shipOff();   /* 13.50: Schiff bleibt beim Szenenwechsel an (Sonnensystem-Version) */
   AUTO=null; saved[from]={target:ctl.target.clone(),dist:ctl.dist,az:ctl.az,el:ctl.el,follow:ctl.follow,up:ctl.up.clone()};
   const I=LEVEL_INFO[lv], fade=$('#fade');
   $('#wt-n').textContent=LANG==='en'?(out?'Out':'In')+' · level '+I.n:(out?'Hinaus':'Hinein')+' · Ebene '+I.n; $('#wt-t').textContent=I.title; $('#wt-s').textContent=I.scale;
   const slow=window.TD_ON&&typeof TD!=='undefined'&&TD.slowSw;let A=reduceMotion?0:(window.TD_ON?(slow?4800:1400):950), Bd=reduceMotion?0:(window.TD_ON?(slow?6000:2600):1500), now=performance.now();
-  switching={out};
+  switching={out};if(KS)A=0;
   // Teil 1: in der alten Ebene hinaus- bzw. hineinzoomen
   if(A){ctl.follow=null;
     const W=k=>k*k*(3-2*k);
@@ -5094,7 +5106,7 @@ function switchLevel(lv,cb){DLOG('Ebene → '+lv);
   const TDS=!!window.TD_ON,zr=slow?0.85:1.3;   // Mission: gleichmäßige Zoomgeschwindigkeit (log. Abstand pro Sekunde)
   if(TDS&&fly&&!out){const fu=lvFac(from,lv);fly.toD=Math.min(fly.toD,LEVEL_INFO[lv].lim[1]*0.8/fu);if(from==='sonne'&&lv==='erde')fly.toD=Math.max(fly.toD,7/fu);}   // nur so weit heran, dass die neue Ebene denselben Abstand übernehmen kann; zur Erde: in 7 Erdradien Abstand wechseln   // nur so weit heran, dass die neue Ebene genau denselben Abstand übernehmen kann (kein Größensprung)
   if(TDS&&out&&typeof TD!=='undefined'&&TD.phase==='attract'&&TD.coast){fly=null;}   /* Demo: mit dem bisherigen Schwung geradeaus weiter, während das Bild ausblendet */
-  else if(TDS&&out){fly={t0:now,dur:800,from:ctl.target.clone(),fromD:ctl.dist,to:ctl.target.clone(),toD:ctl.dist*0.8,id:null,fromEl:ctl.el,toEl:ctl.el,lin:true,cont:true};}   // Mission und Demo: zur nächsthöheren Ebene nicht hinausfliegen – am jetzigen Ort bleiben (nur sanft weitergleiten, während das Bild verschwimmt)
+  else if(TDS&&out&&!KS){fly={t0:now,dur:800,from:ctl.target.clone(),fromD:ctl.dist,to:ctl.target.clone(),toD:ctl.dist*0.8,id:null,fromEl:ctl.el,toEl:ctl.el,lin:true,cont:true};}   // Mission und Demo: zur nächsthöheren Ebene nicht hinausfliegen – am jetzigen Ort bleiben (nur sanft weitergleiten, während das Bild verschwimmt)
   if(TDS&&fly&&!out&&!slow&&fly.toD>ctl.dist){fly.toD=ctl.dist*0.8;fly.to=ctl.target.clone();fly.cont=true;}   // Demo-Neustart (Universum → Erde): nicht erst rückwärts hinaus, sondern gleich weitergleiten
   if(TDS&&fly&&slow&&!out&&ctl.dist<=fly.toD*6){fly.toD=Math.max(Math.min(fly.toD,ctl.dist*0.5),from==='sonne'&&lv==='erde'?Math.min(ctl.dist,7/lvFac(from,lv)):0);fly.cont=true;}   // Heimflug: schon am Ziel der Ebene – nicht anhalten, gleichmäßig ein Stück weiter, während das Bild verschwimmt   // Heimflug: sind wir schon am Ziel der Ebene, nicht noch einmal heranzoomen (kein doppelter Zoom)
   if(TDS&&slow&&!out&&fly){fly.to=ctl.target.clone();fly.toD=ctl.dist*0.7;fly.cont=true;fly.fromEl=fly.toEl=ctl.el;delete fly.fromAz;delete fly.toAz;}   /* Heimflug: in der alten Ebene nur geradeaus weiter (kein Schwenk zur Seite); die neue Richtung wird im Dunkeln eingestellt */
@@ -5102,7 +5114,7 @@ function switchLevel(lv,cb){DLOG('Ebene → '+lv);
   if(TDS&&fly){fly.fov0=null;fly.fov1=null;fly.eD=slow||fly.cont?(k=>k):ease;fly.fovE=k=>k;A=Math.max(fly.cont?800:2200,Math.min(9000,Math.abs(Math.log(fly.toD/fly.fromD))/zr*1000));fly.dur=A;}   // gleiches Tempo (Zoomgeschwindigkeit) in allen Ebenen   // Heimflug: gleichmäßig, ohne Erklär-Tafel
   fade.classList.remove('out'); if(TDS){$('#wt-n').textContent='';$('#wt-t').textContent='';$('#wt-s').textContent='';/* 13.47b: kein Abblenden mehr – beim Wechsel wird das letzte Bild der alten Ebene festgehalten und scharf in die neue Ebene übergeblendet (XF) */   /* einfach aus- und wieder einblenden (keine Unschärfe) */}   // Mission: Bild verschwimmt kurz, keine Tafel   // Mission: nur kurz abblenden, keine Tafel
   else if(!(from==='erde'&&lv==='sonne'))setTimeout(()=>fade.classList.add('on'),A*0.55);
-  const body=()=>{
+  const body=()=>{if(KS)Bd=0;
     const prevCtl={target:ctl.target.clone(),dist:ctl.dist,az:ctl.az,el:ctl.el,up:ctl.up.clone()};
     level=lv; fly=null;
     const h=I.home;
@@ -6739,15 +6751,15 @@ const tdEl=id=>document.getElementById(id);
    Eine gemeinsame Ebene „Sonnensystem“ mit fünf Missionen (je drei Ziele zur Wahl, schon besuchte fallen weg).
    Intern gibt es weiter die genaue Erd-Szene (Dio, ISS, Wolken, Landung) und die Planeten-Szene. Die App wechselt
    selbst und ohne Tafel: beim Wählen eines Ziels in der anderen Szene, beim freien Fliegen weit weg von der Erde
-   (über 300 Erdradien) bzw. wieder nah heran (unter 12 dargestellten Erdradien), und beim Heimflug. */
+   (über 300 Erdradien) bzw. wieder nah heran (unter 150 Erdradien), und beim Heimflug. */
 const TD_SOLM=[
   ['Rund um die Erde',[['iss','erde'],['hubble','erde'],['tiangong','erde','Tiangong heißt „Himmelspalast“. Das ist die Raumstation von China. Dort arbeiten Taikonautinnen und Taikonauten.']]],
   ['Mond und Nachbarschaft',[['mond','erde'],['jwst','erde'],['meteosat','erde','Der Wettersatellit Meteosat steht 36 000 km über Afrika scheinbar still am Himmel und fotografiert jede Viertelstunde unser Wetter.']]],
-  ['Sonne und innere Planeten',[['sonne','sonne','Die Sonne ist ein Stern. Über eine Million Erden würden in sie hineinpassen, und ihr Licht braucht 8 Minuten bis zu uns.'],['merkur','sonne'],['venus','sonne'],['mars','sonne']]],
+  ['Die inneren Planeten',[['merkur','sonne'],['venus','sonne'],['mars','sonne']]],
   ['Die Riesenplaneten',[['jupiter','sonne'],['saturn','sonne'],['ceres','sonne','Ceres ist der größte Brocken im Asteroidengürtel zwischen Mars und Jupiter – ein kleiner Zwergplanet.']]],
   ['Ganz weit draußen',[['uranus','sonne'],['neptun','sonne'],['pluto','sonne'],['halley','sonne','Der Halleysche Komet kommt nur alle 76 Jahre zur Sonne. Das nächste Mal im Jahr 2061 – dann bist du erwachsen!']]]];
 const TD_SOLN=TD_SOLM.length;
-const TD_SICO={iss:'🛰️',hubble:'🔭',tiangong:'🛰️',mond:'🌙',jwst:'🔭',meteosat:'🛰️',sonne:'☀️',merkur:'⚫',venus:'🟡',mars:'🔴',jupiter:'🟠',saturn:'🪐',ceres:'🪨',uranus:'🔵',neptun:'🔵',pluto:'🤍',halley:'☄️'};
+const TD_SICO={iss:'🛰️',hubble:'🔭',tiangong:'🛰️',mond:'🌙',jwst:'🔭',meteosat:'🛰️',merkur:'⚫',venus:'🟡',mars:'🔴',jupiter:'🟠',saturn:'🪐',ceres:'🪨',uranus:'🔵',neptun:'🔵',pluto:'🤍',halley:'☄️'};
 function tdIco(T){return (SOL&&T&&TD_SICO[T.id])||TD_ICON[T&&T.lv]||'✨';}
 function tdTag(lv){return SOL?`Mission ${Math.min(TD.visited.length+1,TD_SOLN)} von ${TD_SOLN} · Sonnensystem`:`Ebene ${TD_LV.indexOf(lv)+1} von 5 · ${TD_LVN[lv]}`;}
 if(SOL){
@@ -6769,7 +6781,31 @@ function tdChooseSol(){TD.phase='choose';TD.catchT=0;const n=TD.visited.length,M
   if(SHIP.on&&n>0){SHIP.th=0;tdLever(0);}else if(SHIP.on){SHIP.th=0.12;tdLever(0.12);}
   TD.chooseT=tdLater(()=>{if(TD.phase!=='choose')return;const f=$('#fade');f.classList.add('on');setTimeout(()=>{if(TD.phase==='choose')tdAttract();f.classList.remove('on');},700);},180000);}
 // Wechsel zwischen Erd-Szene und Planeten-Szene, ohne dass die Mission etwas davon merkt
-function tdSolGo(lv,cb){TD.solSw=true;if(SHIP.on)shipOff();tdGoLevel(lv,()=>{TD.solSw=false;cb&&cb();});}
+/* 13.50: Szenenwechsel mit laufendem Schiff – Ort, Flugrichtung und Kamera bleiben, nur das Bild wird weich übergeblendet.
+   Abstand zur Erde: nah maßstabsgetreu zur dargestellten Erde, in Mondentfernung genau beim Mond der Planeten-Szene, weit draußen echte Abstände;
+   in der Nähe des Mondes relativ zum Mond. Richtungen: äquatorial (Erd-Szene) ↔ ekliptikal (Planeten-Szene). */
+const SOLM={ers:0.5665};
+function solKnots(){const E=REPS.sonne.get('erde'),mE=REPS.erde.get('mond');if(level==='sonne'){const e=earthRS();if(e<3)SOLM.ers=Math.max(0.5665,e);}   /* dargestellter Erdradius (wird aus der Ferne vergrößert) */
+  let mS=null;if(window.S_MOON){S_MOON.updateWorldMatrix(true,false);mS=S_MOON.getWorldPosition(new V3());if(!SOLM.mR){const g=S_MOON.geometry;if(g){if(!g.boundingSphere)g.computeBoundingSphere();SOLM.mR=g.boundingSphere.radius*S_MOON.getWorldScale(new V3()).x;}}}
+  const Ep=E?(E.pos?E.pos():E.p).clone():new V3(),mEp=mE?(mE.pos?mE.pos():mE.p).clone():null,mL=mEp?mEp.length():0,mDe=mL>20&&mL<80?mL:60.3,mDs=E&&mS&&mS.distanceTo(Ep)>0.1?Math.max(SOLM.ers*1.5,mS.distanceTo(Ep)):1.6,au=Ep.length()>50?Ep.length()/Math.max(0.97,(SOLAR_AU.erde?SOLAR_AU.erde(simMs).length():1)):198,L=6371/149597870.7*au;
+  SOLM.ok=true;return {E:Ep,mS,mE:mL>20?mEp:null,kM:(SOLM.mR||0.15)/(1737.4/6371),K:[[1,SOLM.ers],[mDe,mDs],[1000,Math.max(1000*L,mDs*1.5)]],L};}
+function solF(d,k){const K=k.K;if(d<=K[0][0])return K[0][1]*d;for(let i=1;i<K.length;i++)if(d<=K[i][0]){const a=K[i-1],b=K[i];return a[1]*Math.exp(Math.log(b[1]/a[1])*Math.log(d/a[0])/Math.log(b[0]/a[0]));}const z=K[K.length-1];return z[1]+(d-z[0])*k.L;}
+function solFi(x,k){const K=k.K;if(x<=K[0][1])return x/K[0][1];for(let i=1;i<K.length;i++)if(x<=K[i][1]){const a=K[i-1],b=K[i];return a[0]*Math.exp(Math.log(b[0]/a[0])*Math.log(x/a[1])/Math.log(b[1]/a[1]));}const z=K[K.length-1];return z[0]+(x-z[1])/k.L;}
+function tdSolMapShip(to){const k=solKnots(),X=new V3(1,0,0),ss=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};let q,sl;
+  if(to==='sonne'){const p=SHIP.pos.clone(),d=Math.max(1e-6,p.length());q=k.E.clone().addScaledVector(p.clone().divideScalar(d).applyAxisAngle(X,-EPS),solF(d,k));sl=solF(d,k)/d;
+    if(k.mE&&k.mS){const dm=p.distanceTo(k.mE),w=ss(20,9,dm);if(w>0){q.lerp(k.mS.clone().add(p.clone().sub(k.mE).applyAxisAngle(X,-EPS).multiplyScalar(k.kM)),w);sl+=(k.kM-sl)*w;}}
+    {const r=q.clone().sub(k.E),rl=r.length(),mn=SOLM.ers*1.3;if(rl<mn)q.copy(k.E).addScaledVector(rl>1e-9?r.divideScalar(rl):new V3(0,1,0),mn);}   /* nie in der (vergrößerten) Erde landen */
+    SHIP.q.premultiply(new THREE.Quaternion().setFromAxisAngle(X,-EPS));}
+  else{const p=SHIP.pos.clone().sub(k.E),ds=Math.max(1e-9,p.length()),d=solFi(ds,k);q=p.divideScalar(ds).applyAxisAngle(X,EPS).multiplyScalar(d);sl=d/ds;
+    if(k.mE&&k.mS){const dm=SHIP.pos.distanceTo(k.mS)/k.kM,w=ss(20,9,dm);if(w>0){q.lerp(k.mE.clone().add(SHIP.pos.clone().sub(k.mS).applyAxisAngle(X,EPS).divideScalar(k.kM)),w);sl+=(1/k.kM-sl)*w;}}
+    SHIP.q.premultiply(new THREE.Quaternion().setFromAxisAngle(X,EPS));}
+  SHIP.pos.copy(q);if(CHASE.cDs)CHASE.cDs*=sl;CHASE.lp=SHIP.pos.clone();SHIP.last=null;SHIP.coast=0;SHIP.climb=null;}
+function tdSolCanMap(lv){if(!SHIP.on||!window.S_MOON)return false;const k=solKnots();return lv==='sonne'?SHIP.pos.length()<5000:SHIP.pos.distanceTo(k.E)<solF(5000,k);}
+function tdSolGo(lv,cb){TD.solSw=true;
+  if(!tdSolCanMap(lv)){if(SHIP.on)shipOff();tdGoLevel(lv,()=>{TD.solSw=false;cb&&cb();});return;}
+  if(level==='sonne')solKnots();TD.orb=null;TD.path=null;TD.coast=null;fly=null;AUTO=null;TD.keepShip=true;
+  switchLevel(lv,()=>{TD.keepShip=false;tdSolMapShip(lv);});
+  tdIdle(()=>{TD.solSw=false;cb&&cb();});}
 function tdSolFrame(dt){
   const o=TD.solTurn;
   if(o){o.t+=dt;const k=Math.min(1,o.t/o.T),e=k*k*k*(k*(k*6-15)+10),d=slerpDir(o.d0,o.d1,e);o.P.addScaledVector(o.v,dt*(1-e));setDir(d);ctl.target.copy(o.P).addScaledVector(d,-ctl.dist);if(k>=1){TD.solTurn=null;o.done();}}
@@ -6777,7 +6813,7 @@ function tdSolFrame(dt){
   if(switching||TD.solSw||!SHIP.on||TD.ride||!(TD.phase==='free'||TD.phase==='choose'))return;
   const ph=TD.phase,th=TD.lever,back=()=>{if(TD.phase===ph&&!SHIP.on){shipOn();tdLever(th);SHIP.th=th;}};
   if(level==='erde'){const E=SOLIDS.erde[0];const d=SHIP.pos.distanceTo(E?E.p():new V3());if(d>300)tdSolGo('sonne',back);}
-  else if(level==='sonne'){const r=REPS.sonne.get('erde');if(r&&SHIP.pos.distanceTo(r.p)<earthRS()*12)tdSolGo('erde',back);}}
+  else if(level==='sonne'){const r=REPS.sonne.get('erde');if(r&&SHIP.pos.distanceTo(r.p)<solF(150,solKnots()))tdSolGo('erde',back);}}
 // Heimflug innerhalb der Ebene: sanft Kurs auf die Erde nehmen, dann gleichmäßig heranfliegen (dabei kommt das UFO), dann Landung wie gewohnt
 function tdSolHome(D,okP){AUTO=null;TD.orb=null;TD.path=null;TD.coast=null;fly=null;ctl.follow=null;if(SHIP.on)shipOff();
   const r=REPS.sonne.get('erde');if(!r){tdHomeEnd(D);return;}
@@ -7441,6 +7477,9 @@ function rockFadeSetup(obj){const L=[];obj.traverse(o=>{if(o.isSprite){o.materia
 // Schäden: nach drei Treffern ist die Mission gescheitert, das Shuttle fliegt zur Reparatur nach Hause
 function tdDamage(){let e=tdEl('td-dmg');if(!e){e=document.createElement('div');e.id='td-dmg';e.style.cssText='position:absolute;right:2vw;top:19vh;z-index:3;font:600 clamp(14px,1.6vw,20px) system-ui,sans-serif;color:#fff;background:#0b1330d9;border:2px solid #f0c674;border-radius:14px;padding:.35em .7em';tdEl('td-hud').appendChild(e);}
   const n=TD.hits||0;e.innerHTML='Schäden: '+'🔴'.repeat(n)+'⚪'.repeat(Math.max(0,3-n));e.hidden=!n;}
+function tdPicto(a,b,hit){let e=tdEl('td-picto');if(!e){e=document.createElement('div');e.id='td-picto';e.style.cssText='position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);z-index:4;pointer-events:none;text-align:center;line-height:1;filter:drop-shadow(0 0 10px #000a);transition:opacity .35s';tdEl('td-hud').appendChild(e);}
+  e.innerHTML='<div style="font-size:clamp(54px,9vw,110px)">'+a+'</div>'+(b?'<div style="font-size:clamp(30px,4.6vw,56px);margin-top:-.15em">'+b+'</div>':'');e.style.opacity='1';e.hidden=false;e.animate([{transform:'translate(-50%,-50%) scale(.6)'},{transform:'translate(-50%,-50%) scale(1.12)'},{transform:'translate(-50%,-50%) scale(1)'}],{duration:hit?380:520,easing:'ease-out'});
+  clearTimeout(e._t);e._t=setTimeout(()=>{e.style.opacity='0';},hit?1100:2200);}   /* 13.50: Hindernis-Warnung nur als Piktogramm (kein Text) */
 function tdMissionFail(){rocksClear();TD.phase='jump';SHIP.auto=null;tdLever(0);if(SHIP.on)shipOff();TD.failed=true;tdTone(90,0.8,'sawtooth',0.25);
   const m=tdEl('td-msg');m.innerHTML='<div class="td-stamp">🛠️</div><small>Mission fehlgeschlagen</small><p>Das Shuttle hat drei Treffer abbekommen und ist zu stark beschädigt. Wir fliegen zurück zur Erde, damit es in der Werkstatt repariert wird.</p><button id="td-fhome">Zurück zur Erde 🏠</button>';
   m.hidden=false;m.classList.remove('in','mini');void m.offsetWidth;m.classList.add('in');let done=false;const go=()=>{if(done)return;done=true;m.hidden=true;tdHome();};tdEl('td-fhome').onclick=go;tdLater(go,9000);}
@@ -7455,11 +7494,11 @@ function rocksFrame(dt){const T=TD.cur;if(!TD.on||TD.phase!=='fly'||!SHIP.on||!T
     const sd=d*(0.36+Math.random()*0.18),side=new V3().crossVectors(to,new V3(0,1,0).applyQuaternion(SHIP.q)).normalize(),upv=new V3().crossVectors(side,to).normalize();
     const rad=sd*(0.024+Math.random()*0.018),a=Math.random()*Math.PI*2,rr=rad*1.7*Math.random();
     const m=junk?rockJunk():level==='galaxie'?rockDust():level==='gruppe'?rockCluster():level==='kosmos'?rockBH():rockRock();const fm=rockFadeSetup(m);m.position.copy(SHIP.pos).addScaledVector(to,sd).addScaledVector(side,Math.cos(a)*rr).addScaledVector(upv,Math.sin(a)*rr);
-    m.scale.setScalar(junk?rad/1.4:rad);m.rotation.set(Math.random()*6,Math.random()*6,0);m.raycast=()=>{};SC[level].add(m);CHASE.rocks.push({m,r:rad,w:new V3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).multiplyScalar(0.6),hit:false,fm,age:0,dv:Math.random()<0.4?side.clone().multiplyScalar((Math.random()<0.5?-1:1)*rad*(0.5+Math.random()*0.5)):null});if(!CHASE.warned||performance.now()-CHASE.warned>12000){CHASE.warned=performance.now();tdToast('⚠️ '+ROCK_TXT[level][0]+' voraus – lenke drumherum!');}}
+    m.scale.setScalar(junk?rad/1.4:rad);m.rotation.set(Math.random()*6,Math.random()*6,0);m.raycast=()=>{};SC[level].add(m);CHASE.rocks.push({m,r:rad,w:new V3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).multiplyScalar(0.6),hit:false,fm,age:0,dv:Math.random()<0.4?side.clone().multiplyScalar((Math.random()<0.5?-1:1)*rad*(0.5+Math.random()*0.5)):null});if(!CHASE.warned||performance.now()-CHASE.warned>12000){CHASE.warned=performance.now();tdPicto('⚠️',level==='erde'?'🛰️':level==='sonne'?'🪨':'');}}
   for(let i=CHASE.rocks.length-1;i>=0;i--){const o=CHASE.rocks[i];o.age+=dt;if(o.dv)o.m.position.addScaledVector(o.dv,dt);if(o.fm){const a=Math.min(1,o.age/1.3),aa=a*a*(3-2*a);for(const mt of o.fm){if(mt.userData.spr!=null){mt.opacity=aa*mt.userData.spr;continue;}mt.opacity=aa;if(a>=1&&!mt.blending!==THREE.AdditiveBlending&&mt.userData.keepT!==true&&!(mt.map&&mt.blending===THREE.AdditiveBlending)){mt.transparent=false;mt.depthWrite=true;mt.needsUpdate=true;}}if(a>=1)o.fm=null;}o.m.rotation.x+=o.w.x*dt;o.m.rotation.y+=o.w.y*dt;const rel=o.m.position.clone().sub(SHIP.pos),dist=rel.length();
     if(rel.dot(to)<-o.r*6||dist>d*1.5){SC[level].remove(o.m);CHASE.rocks.splice(i,1);continue;}
     if(!o.hit&&!TD.help&&dist<o.r*1.4){o.hit=true;tdLever(TD.lever*0.35);CHASE.hitT=0.6;setTimeout(()=>{if(o.m.parent)o.m.parent.remove(o.m);},700);TD.hits=(TD.hits||0)+1;
-      if(TD.hits>=3){tdMissionFail();return;}tdToast('💥 '+ROCK_TXT[level][1]+' Schaden '+TD.hits+' von 3 – lenke drumherum!');tdDamage();tdBump();tdTone(110,0.35,'sawtooth',0.25);
+      if(TD.hits>=3){tdMissionFail();return;}tdPicto('💥','',true);tdDamage();tdBump();tdTone(110,0.35,'sawtooth',0.25);
       SHIP.pos.addScaledVector(rel.normalize(),-o.r*1.5);}}}
 function tdSpeed(){const e=tdEl('td-speed');if(!e)return;if(!SHIP.on||!SHIP.last){e.textContent='';return;}const R=SHIP.last,c=R.u==='km'?SHIP.spd/299792.458:SHIP.spd*365.25*86400;
   let [v]=fmtSpeed(SHIP.spd,R.u);if(c>=1)v=v.replace('× c','× Lichtgeschwindigkeit');e.textContent=(c>=1?'⚡ ':'🚀 ')+v;e.classList.toggle('ftl',c>=1);}
