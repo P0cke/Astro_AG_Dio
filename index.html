@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Universum-Atlas · Dionysianum</title>
 <script>/* Modus (Atlas, Kinder, Flugsimulator): aus der Adresse (#modus=…) oder aus dieser Sitzung; sonst Auswahl beim Start */
-(function(){var m=(location.hash.match(/modus=(atlas|kinder|flug)/)||[])[1]||null;if(!m&&/[?&#]tdot\b/.test(location.search+location.hash))m='flug';try{if(!m)m=sessionStorage.getItem('dioModus');}catch(e){}
+(function(){var m=(location.hash.match(/modus=(atlas|kinder|flug|sonne)/)||[])[1]||null;if(!m&&/[?&#]tdot\b/.test(location.search+location.hash))m='flug';try{if(!m)m=sessionStorage.getItem('dioModus');}catch(e){}
+if(m==='sonne'){window.ATLAS_SOLAR=true;m='flug';}   /* 13.49: Sonnensystem-Version (nur Flugmodus, Erde und Sonnensystem als eine Ebene) */
 window.DIO_MODE=m||null;if(m==='kinder')window.ATLAS_EINFACH=true;if(m==='flug')window.ATLAS_TDOT=true;})();</script>
 
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1527,6 +1528,7 @@ const OBJ={
   wow:'James Webb sucht gerade nach dem Licht der allerersten Galaxien am Ende des Dunklen Zeitalters.'},
 };
 const LEVELS=['erde','sonne','galaxie','gruppe','kosmos'];
+const SOL=!!window.ATLAS_SOLAR;   /* 13.49: Sonnensystem-Version – Erde & Mond und Sonnensystem bilden eine gemeinsame Ebene, alle Missionen spielen darin */
 const LEVEL_INFO={
  erde:{n:1,title:'Erde & Mond',scale:'1 Einheit = 1 Erdradius = 6 371 km',note:'Echte Abstände. Satelliten aus der Nähe in echter Größe, beim Hinauszoomen vergrößert.',speed:1,home:{dist:9,az:0.6,el:0.35},lim:[3e-6,6000]},
  sonne:{n:2,title:'Sonnensystem',scale:'Abstände in AE · 1 AE = 149,6 Mio. km',note:'Abstände echt (1 AE = 200 Einheiten). Planeten, Kometen und Sonden werden beim Hinauszoomen vergrößert, sonst wären sie unsichtbar.',speed:1,home:{dist:13000,az:0.3,el:0.6},lim:[0.002,8e4]},
@@ -5616,7 +5618,7 @@ addEventListener('keydown',e=>{
    ================================================================ */
 let ENV=null;
 initMaterials(); ENV=envMapFor();
-buildErde(); buildSonne(); buildGalaxie(); buildGruppe(); buildKosmos();
+buildErde(); buildSonne(); if(!SOL){buildGalaxie(); buildGruppe(); buildKosmos();}
 if(EINFACH){for(const lv of LEVELS) for(const r of REPS[lv].values()) if(!SIMPLE[r.id]&&r.id!=='sonne') r.label=false;
   document.body.classList.add('einfach'); document.title='Universum-Atlas für Kinder';
   document.querySelector('.brand').innerHTML='<b>Universum-<i>Atlas</i></b><small>für Kinder · Klicke auf ein Objekt</small>';
@@ -6733,6 +6735,62 @@ const TD_LV=['erde','sonne','galaxie','gruppe','kosmos'], TD_LVN={erde:'Erde & M
 const TD_ICON={erde:'🌍',sonne:'🪐',galaxie:'✨',gruppe:'🌀',kosmos:'🕸'};
 const TD_TOT={sonne:'Das ganze Sonnensystem: Sonne, Planeten und Kometen',galaxie:'Die ganze Milchstraße: unsere Galaxie mit 200 Milliarden Sternen',gruppe:'Die Lokale Gruppe: unsere Nachbar-Galaxien',kosmos:'Das ganze Universum: ein Netz aus Galaxien und riesigen Leerräumen'};
 const tdEl=id=>document.getElementById(id);
+/* ---------- 13.49: Sonnensystem-Version ----------
+   Eine gemeinsame Ebene „Sonnensystem“ mit fünf Missionen (je drei Ziele zur Wahl, schon besuchte fallen weg).
+   Intern gibt es weiter die genaue Erd-Szene (Dio, ISS, Wolken, Landung) und die Planeten-Szene. Die App wechselt
+   selbst und ohne Tafel: beim Wählen eines Ziels in der anderen Szene, beim freien Fliegen weit weg von der Erde
+   (über 300 Erdradien) bzw. wieder nah heran (unter 12 dargestellten Erdradien), und beim Heimflug. */
+const TD_SOLM=[
+  ['Rund um die Erde',[['iss','erde'],['hubble','erde'],['tiangong','erde','Tiangong heißt „Himmelspalast“. Das ist die Raumstation von China. Dort arbeiten Taikonautinnen und Taikonauten.']]],
+  ['Mond und Nachbarschaft',[['mond','erde'],['jwst','erde'],['meteosat','erde','Der Wettersatellit Meteosat steht 36 000 km über Afrika scheinbar still am Himmel und fotografiert jede Viertelstunde unser Wetter.']]],
+  ['Sonne und innere Planeten',[['sonne','sonne','Die Sonne ist ein Stern. Über eine Million Erden würden in sie hineinpassen, und ihr Licht braucht 8 Minuten bis zu uns.'],['merkur','sonne'],['venus','sonne'],['mars','sonne']]],
+  ['Die Riesenplaneten',[['jupiter','sonne'],['saturn','sonne'],['ceres','sonne','Ceres ist der größte Brocken im Asteroidengürtel zwischen Mars und Jupiter – ein kleiner Zwergplanet.']]],
+  ['Ganz weit draußen',[['uranus','sonne'],['neptun','sonne'],['pluto','sonne'],['halley','sonne','Der Halleysche Komet kommt nur alle 76 Jahre zur Sonne. Das nächste Mal im Jahr 2061 – dann bist du erwachsen!']]]];
+const TD_SOLN=TD_SOLM.length;
+const TD_SICO={iss:'🛰️',hubble:'🔭',tiangong:'🛰️',mond:'🌙',jwst:'🔭',meteosat:'🛰️',sonne:'☀️',merkur:'⚫',venus:'🟡',mars:'🔴',jupiter:'🟠',saturn:'🪐',ceres:'🪨',uranus:'🔵',neptun:'🔵',pluto:'🤍',halley:'☄️'};
+function tdIco(T){return (SOL&&T&&TD_SICO[T.id])||TD_ICON[T&&T.lv]||'✨';}
+function tdTag(lv){return SOL?`Mission ${Math.min(TD.visited.length+1,TD_SOLN)} von ${TD_SOLN} · Sonnensystem`:`Ebene ${TD_LV.indexOf(lv)+1} von 5 · ${TD_LVN[lv]}`;}
+if(SOL){
+  // Funksprüche: aus den bisherigen Listen übernehmen, neue Ziele mit eigenem Text
+  const MSG={};for(const l in TD_POOL)for(const [id,m] of TD_POOL[l])MSG[id]=m;
+  for(const M of TD_SOLM)M[1]=M[1].map(([id,lv,m])=>[id,lv,m||MSG[id]||(SIMPLE[id]&&SIMPLE[id].wow)||(OBJ[id]&&OBJ[id].wow)||(OBJ[id]&&OBJ[id].name)||id]);
+  for(const l of Object.keys(TD_POOL))delete TD_POOL[l];TD_POOL.erde=[];TD_POOL.sonne=[];
+  for(const M of TD_SOLM)for(const [id,lv,m] of M[1])TD_POOL[lv].push([id,m]);   // für Bahnfilter, Quiz und Fotos
+  TD_LVN.erde='Sonnensystem';TD_LVN.sonne='Sonnensystem';
+  try{const h=document.querySelector('#td-attract h1');if(h)h.textContent='Flieg mit dem Raumschiff durch unser Sonnensystem!';}catch(e){}
+}
+function tdChooseSol(){TD.phase='choose';TD.catchT=0;const n=TD.visited.length,M=TD_SOLM[Math.min(n,TD_SOLN-1)],seen=new Set(TD.visited.map(t=>t.id));
+  const P=M[1].filter(([id,lv])=>!seen.has(id)&&REPS[lv]&&REPS[lv].has(id)&&OBJ[id]);for(let i=P.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[P[i],P[j]]=[P[j],P[i]];}
+  TD.choice=P.slice(0,3).map(([id,lv,msg])=>({lv,id,msg}));const C=tdEl('td-choose');
+  if(!TD.choice.length){tdHome();return;}
+  C.innerHTML=`<div class="td-card"><small>Mission ${n+1} von ${TD_SOLN} · ${esc(M[0])}</small><h2>Wohin fliegst du?</h2><div class="td-opts">`+TD.choice.map((c,i)=>`<button data-i="${i}"><kbd>${i+1}</kbd><b>${esc(tdName(c.id))}</b><span>${esc(OBJ[c.id].kind||'')}</span></button>`).join('')+`</div><p class="td-sub">Antippen oder Taste 1, 2, 3</p></div>`;
+  C.hidden=false;for(const b of C.querySelectorAll('button'))b.onclick=()=>tdPick(+b.dataset.i);
+  tdEl('td-goal').innerHTML=`<small>Mission ${n+1} von ${TD_SOLN} · Sonnensystem</small><b>Ziel wählen</b>`;tdStamps();
+  if(SHIP.on&&n>0){SHIP.th=0;tdLever(0);}else if(SHIP.on){SHIP.th=0.12;tdLever(0.12);}
+  TD.chooseT=tdLater(()=>{if(TD.phase!=='choose')return;const f=$('#fade');f.classList.add('on');setTimeout(()=>{if(TD.phase==='choose')tdAttract();f.classList.remove('on');},700);},180000);}
+// Wechsel zwischen Erd-Szene und Planeten-Szene, ohne dass die Mission etwas davon merkt
+function tdSolGo(lv,cb){TD.solSw=true;if(SHIP.on)shipOff();tdGoLevel(lv,()=>{TD.solSw=false;cb&&cb();});}
+function tdSolFrame(dt){
+  const o=TD.solTurn;
+  if(o){o.t+=dt;const k=Math.min(1,o.t/o.T),e=k*k*k*(k*(k*6-15)+10),d=slerpDir(o.d0,o.d1,e);o.P.addScaledVector(o.v,dt*(1-e));setDir(d);ctl.target.copy(o.P).addScaledVector(d,-ctl.dist);if(k>=1){TD.solTurn=null;o.done();}}
+  // freies Fliegen (nach dem Einfangen oder bei der Zielwahl): Szene je nach Abstand zur Erde
+  if(switching||TD.solSw||!SHIP.on||TD.ride||!(TD.phase==='free'||TD.phase==='choose'))return;
+  const ph=TD.phase,th=TD.lever,back=()=>{if(TD.phase===ph&&!SHIP.on){shipOn();tdLever(th);SHIP.th=th;}};
+  if(level==='erde'){const E=SOLIDS.erde[0];const d=SHIP.pos.distanceTo(E?E.p():new V3());if(d>300)tdSolGo('sonne',back);}
+  else if(level==='sonne'){const r=REPS.sonne.get('erde');if(r&&SHIP.pos.distanceTo(r.p)<earthRS()*12)tdSolGo('erde',back);}}
+// Heimflug innerhalb der Ebene: sanft Kurs auf die Erde nehmen, dann gleichmäßig heranfliegen (dabei kommt das UFO), dann Landung wie gewohnt
+function tdSolHome(D,okP){AUTO=null;TD.orb=null;TD.path=null;TD.coast=null;fly=null;ctl.follow=null;if(SHIP.on)shipOff();
+  const r=REPS.sonne.get('erde');if(!r){tdHomeEnd(D);return;}
+  const P=camPos(),d0=P.clone().sub(ctl.target).normalize(),d1=P.clone().sub(r.p).normalize(),ang=d0.angleTo(d1);
+  const v=(TD.cv&&TD.cv.length()<ctl.dist*2?TD.cv.clone():new V3());
+  TD.solTurn={P,d0,d1,v,t:0,T:Math.max(1.5,Math.min(7,ang/(26*DEG))),done:()=>{if(!okP())return;
+    const Ep=r.p.clone(),cp=camPos(),dist=cp.distanceTo(Ep),dir=cp.sub(Ep).normalize();let toD=earthRS()*14;if(dist<toD*1.3)toD=dist*0.75;
+    ctl.target.copy(Ep);ctl.dist=dist;setDir(dir);ctl.follow=null;
+    fly={t0:performance.now(),dur:Math.max(9000,Math.min(16000,Math.abs(Math.log(dist/toD))/0.85*1000)),from:Ep.clone(),fromD:dist,id:'erde',toD,lin:true,eD:k=>k,d0:dir.clone(),d1:dir.clone(),fromEl:ctl.el,toEl:ctl.el};
+    tdBanner(D?'Heimflug zum Dionysianum …':'Heimflug: Kurs auf die Erde …');let ufo=!!(D||TD.failed);
+    const w=()=>{if(!okP())return;if(!ufo&&(!fly||fly.el>=fly.dur-6200)){ufo=true;ufoStart();}
+      if((!fly||fly.el>=fly.dur-250)&&(D||TD.failed||UFO.t<0||UFO.t>9.5)){tdHomeEnd(D);return;}tdLater(w,50);};tdLater(w,100);}};}
+
 function tdLater(fn,ms){const t=setTimeout(fn,ms);TD.timers.push(t);return t;}
 function tdClear(){TD.timers.forEach(clearTimeout);TD.timers=[];TD.path=null;TD.coast=null;}
 function tdShow(id){for(const e of document.querySelectorAll('#tdot > .td-l'))e.hidden=e.id!==id;}
@@ -6981,7 +7039,8 @@ const TD_DEMO=[
   ['gruppe',18,()=>{tdPath('andromeda',{lookRate:0.8,t0k:0.6,dist:REPS.gruppe.get('andromeda').view*0.9,base:tdFwdBase('andromeda',tdBehind('andromeda',0.35)),mode:'spin',rate:0.05});}],
   ['kosmos',8,()=>{tdCruise();}],
   ['kosmos',16,()=>{tdPath('bootesvoid',{lookRate:0.8,t0k:0.6,dist:REPS.kosmos.get('bootesvoid').view*0.8,base:tdFwdBase('bootesvoid',tdBehind('bootesvoid',0.3)),mode:'spin',rate:0.05});}],
-  ['kosmos',8,()=>{tdHome(true);}]];   // Heimflug durch alle Ebenen (ohne Alien) und Landung am Dio wie im Flugmodus
+  ['kosmos',8,()=>{tdHome(true);}]];
+if(SOL)TD_DEMO.splice(6,TD_DEMO.length-6,['sonne',6,()=>{tdHome(true);}]);   /* 13.49: Wartemodus nur im Sonnensystem, nach dem Jupiter heim zum Dio */   // Heimflug durch alle Ebenen (ohne Alien) und Landung am Dio wie im Flugmodus
 // alles vorab bauen und Shader übersetzen, damit beim Ebenenwechsel nichts ruckelt
 let TD_PRE=false;function tdPreload(){if(TD_PRE)return;TD_PRE=true;const jobs=LAZY3D.splice(0);let i=0;const run=()=>{const t0=performance.now();while(i<jobs.length&&performance.now()-t0<12){try{jobs[i].run();}catch(e){}i++;}
     if(i<jobs.length)setTimeout(run,30);else{let k=0;const comp=()=>{if(k<LEVELS.length){try{renderer.compile(SC[LEVELS[k]],camera);}catch(e){}k++;setTimeout(comp,60);}};comp();}};setTimeout(run,800);}
@@ -7142,22 +7201,22 @@ function tdRideFrame(dt){const R=TD.ride;if(!R){return;}const st=SHUTTLE.stack;i
       const E=SOLIDS.erde[0],r0=SHIP.pos.distanceTo(E.p());SHIP.climb={t:0,T:14,r0};SHIP.skip1=true;}   /* danach sanft hinauf in die Umlaufbahn (die Szene endet sonst in 3 km Höhe) */
     if(R.demo){TD.demoLaunch=false;TD.demoChase=true;}else{$('#cockpit').hidden=false;tdShow('td-hud');tdHud(null);tdLever(0.35);tdBanner('Warp-Antrieb an! Ab jetzt steuerst du – viel schneller als jedes echte Raumschiff.');tdLater(()=>{tdEl('td-jump').hidden=true;tdChoose('erde');},4300);}}}
 // ---------- Ziel wählen ----------
-function tdChoose(lv){TD.phase='choose';TD.catchT=0;const P=TD_POOL[lv].filter(([id])=>REPS[lv].has(id)&&OBJ[id]);for(let i=P.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[P[i],P[j]]=[P[j],P[i]];}
+function tdChoose(lv){if(SOL)return tdChooseSol();TD.phase='choose';TD.catchT=0;const P=TD_POOL[lv].filter(([id])=>REPS[lv].has(id)&&OBJ[id]);for(let i=P.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[P[i],P[j]]=[P[j],P[i]];}
   TD.choice=P.slice(0,3).map(([id,msg])=>({lv,id,msg}));const C=tdEl('td-choose');
-  C.innerHTML=`<div class="td-card"><small>Ebene ${TD_LV.indexOf(lv)+1} von 5 · ${TD_LVN[lv]}</small><h2>Wohin fliegst du?</h2><div class="td-opts">`+TD.choice.map((c,i)=>`<button data-i="${i}"><kbd>${i+1}</kbd><b>${esc(tdName(c.id))}</b><span>${esc(OBJ[c.id].kind||'')}</span></button>`).join('')+`</div><p class="td-sub">Antippen oder Taste 1, 2, 3</p></div>`;
+  C.innerHTML=`<div class="td-card"><small>${tdTag(lv)}</small><h2>Wohin fliegst du?</h2><div class="td-opts">`+TD.choice.map((c,i)=>`<button data-i="${i}"><kbd>${i+1}</kbd><b>${esc(tdName(c.id))}</b><span>${esc(OBJ[c.id].kind||'')}</span></button>`).join('')+`</div><p class="td-sub">Antippen oder Taste 1, 2, 3</p></div>`;
   C.hidden=false;for(const b of C.querySelectorAll('button'))b.onclick=()=>tdPick(+b.dataset.i);
-  tdEl('td-goal').innerHTML=`<small>Ebene ${TD_LV.indexOf(lv)+1} von 5 · ${TD_LVN[lv]}</small><b>Ziel wählen</b>`;
+  tdEl('td-goal').innerHTML=`<small>${tdTag(lv)}</small><b>Ziel wählen</b>`;
   if(SHIP.on){SHIP.th=lv==='erde'?0.12:0;tdLever(SHIP.th);}
   TD.chooseT=tdLater(()=>{if(TD.phase!=='choose')return;const f=$('#fade');f.classList.add('on');setTimeout(()=>{if(TD.phase==='choose')tdAttract();f.classList.remove('on');},700);},180000);}   // nur die Kinder wählen aus; nach 3 Minuten ohne Auswahl weich zurück in den Demo-Modus
 function tdPick(i){tdUnlockAudio();if(TD.phase!=='choose'||!TD.choice[i])return;tdTone(880,0.15,'triangle',0.2);tdEl('td-choose').hidden=true;tdFly(TD.choice[i]);}
 // ---------- Einfangen ----------
 const TD_SATS=new Set(['iss','hubble','tiangong','gps']);
-function tdFly(T){if(TD.ride&&TD.phase!=='attract'){TD.flyQ=T;tdLater(()=>{if(TD.flyQ===T)tdFly(T);},250);return;}TD.flyQ=null;TD.hint=0;TD.ride=null;   /* Ziel schon während des Mitflugs gewählt: erst die weiche Übergabe hinter das Shuttle abwarten (sonst kam es neu ins Bild) */TD.cur=T;tdOrbitFilter(true);TD.orb=null;fly=null;AUTO=null;if(!SHIP.on)shipOn();TD.phase='fly';TD.t0=performance.now();TD.help=false;TD.catchT=0;selected=T.id;markLabels();
+function tdFly(T){if(TD.ride&&TD.phase!=='attract'){TD.flyQ=T;tdLater(()=>{if(TD.flyQ===T)tdFly(T);},250);return;}TD.flyQ=null;TD.hint=0;TD.ride=null;if(SOL&&T.lv&&T.lv!==level&&TD.phase!=='attract'){TD.phase='jump';tdEl('td-choose').hidden=true;tdBanner(T.lv==='sonne'?'Kurs auf '+tdName(T.id)+' …':'Kurs zurück zur Erde …');tdSolGo(T.lv,()=>tdFly(T));return;}   /* 13.49: Ziel liegt in der anderen Szene – nahtlos umschalten, dann losfliegen */   /* Ziel schon während des Mitflugs gewählt: erst die weiche Übergabe hinter das Shuttle abwarten (sonst kam es neu ins Bild) */TD.cur=T;tdOrbitFilter(true);TD.orb=null;fly=null;AUTO=null;if(!SHIP.on)shipOn();TD.phase='fly';TD.t0=performance.now();TD.help=false;TD.catchT=0;selected=T.id;markLabels();
   const r=REPS[level].get(T.id),d0=r.p.distanceTo(SHIP.pos);TD.thr=Math.max(LEVEL_INFO[level].lim[0]*2,r.view*(level==='erde'?1.8:1.5));SHIP.stopD=TD.thr*0.6;TD.prevTP=r.p.clone();
   if(level!=='erde'){tdLever(0);SHIP.th=0;}tdShow('td-hud');tdHud(T);tdEl('td-helpb').classList.remove('on');
   tdBanner(level==='erde'?'Folge dem gelben Pfeil! Bring das Ziel ins Fadenkreuz.':'Kippe zum Lenken · Schubhebel nach vorn · Ziel ins Fadenkreuz!');}
-function tdHud(T){tdEl('td-goal').innerHTML=T?`<small>Ebene ${TD_LV.indexOf(T.lv)+1} von 5 · ${TD_LVN[T.lv]}</small><b>${esc(tdName(T.id))}</b>`:'<small>Start</small><b>Dionysianum</b>';tdEl('td-dist').innerHTML='';tdEl('td-time').textContent='';tdStamps();}
-function tdFrame(dt,now){if(!TD.on)return;{const fr=TD.phase==='free';if(fr!==TD.wasFree){TD.wasFree=fr;document.body.classList.toggle('td-free',fr);}}if(TD.phase==='calib'&&!TD.calWait){const st=TD.calSt||(TD.calSt=document.getElementById('td-calst'));if(st){const f=tiltFresh(),v=f?'Bewegungssensor bereit ✓ · Neigung '+Math.round(TILT.y)+'°':tiltNeedPerm()&&window.DIO_TILT!=='denied'?'Tippe auf den Knopf – dann „Erlauben“ wählen.':'Warte auf den Bewegungssensor …';if(st.textContent!==v)st.textContent=v;}}{const b=TD.skB||(TD.skB=tdEl('td-skipl'));if(b){const sh=['count','liftoff','launch'].includes(TD.phase)&&!!(TD.ride||TD.phase!=='launch');if(b.hidden===sh)b.hidden=!sh;if(!b.onclick)b.onclick=tdSkipLaunch;}}{if(TD.lcp&&dt>0&&TD.lcpLv===level&&!switching)TD.cv=camera.position.clone().sub(TD.lcp).divideScalar(dt);else TD.cv=null;TD.lcp=camera.position.clone();TD.lcpLv=level;const oid=TD.orb&&TD.orb.id||TD.path&&TD.path.id,ro=oid&&REPS[level].get(oid);TD.objLast=TD.objCur;TD.objCur=ro?{id:oid,p:ro.p.clone()}:null;}   /* letztes Kamera-Tempo und letzter Ort des Ziels: für ruckfreie Übergänge */{const f=new V3(0,0,-1).applyQuaternion(camera.quaternion);if(TD.lf&&dt>0){const ax=new V3().crossVectors(TD.lf,f),sn=ax.length();TD.angW=sn>1e-9?ax.divideScalar(sn).multiplyScalar(Math.asin(Math.min(1,sn))/dt):new V3();}TD.lf=f;}   /* Drehgeschwindigkeit des Blicks (für weiche Übergänge) */{const pre=TD.phase==='calib'||TD.phase==='count';if(TD.preC!==pre){TD.preC=pre;document.body.classList.toggle('td-pre',pre);}}   /* Missionszahlen 1–5 nicht vor und während des Countdowns */camVelTrack(dt);tdEngine();tdTurnSnd();shuttleFrame(dt);trailFrame();ufoFrame(dt);if(TD.phase==='liftoff'&&TD.orb)TD.orb.dist*=1+dt*0.045;tdOrbitFrame(dt);tdPathFrame(dt);
+function tdHud(T){tdEl('td-goal').innerHTML=T?`<small>${tdTag(T.lv)}</small><b>${esc(tdName(T.id))}</b>`:'<small>Start</small><b>Dionysianum</b>';tdEl('td-dist').innerHTML='';tdEl('td-time').textContent='';tdStamps();}
+function tdFrame(dt,now){if(!TD.on)return;if(SOL)tdSolFrame(dt);{const fr=TD.phase==='free';if(fr!==TD.wasFree){TD.wasFree=fr;document.body.classList.toggle('td-free',fr);}}if(TD.phase==='calib'&&!TD.calWait){const st=TD.calSt||(TD.calSt=document.getElementById('td-calst'));if(st){const f=tiltFresh(),v=f?'Bewegungssensor bereit ✓ · Neigung '+Math.round(TILT.y)+'°':tiltNeedPerm()&&window.DIO_TILT!=='denied'?'Tippe auf den Knopf – dann „Erlauben“ wählen.':'Warte auf den Bewegungssensor …';if(st.textContent!==v)st.textContent=v;}}{const b=TD.skB||(TD.skB=tdEl('td-skipl'));if(b){const sh=['count','liftoff','launch'].includes(TD.phase)&&!!(TD.ride||TD.phase!=='launch');if(b.hidden===sh)b.hidden=!sh;if(!b.onclick)b.onclick=tdSkipLaunch;}}{if(TD.lcp&&dt>0&&TD.lcpLv===level&&!switching)TD.cv=camera.position.clone().sub(TD.lcp).divideScalar(dt);else TD.cv=null;TD.lcp=camera.position.clone();TD.lcpLv=level;const oid=TD.orb&&TD.orb.id||TD.path&&TD.path.id,ro=oid&&REPS[level].get(oid);TD.objLast=TD.objCur;TD.objCur=ro?{id:oid,p:ro.p.clone()}:null;}   /* letztes Kamera-Tempo und letzter Ort des Ziels: für ruckfreie Übergänge */{const f=new V3(0,0,-1).applyQuaternion(camera.quaternion);if(TD.lf&&dt>0){const ax=new V3().crossVectors(TD.lf,f),sn=ax.length();TD.angW=sn>1e-9?ax.divideScalar(sn).multiplyScalar(Math.asin(Math.min(1,sn))/dt):new V3();}TD.lf=f;}   /* Drehgeschwindigkeit des Blicks (für weiche Übergänge) */{const pre=TD.phase==='calib'||TD.phase==='count';if(TD.preC!==pre){TD.preC=pre;document.body.classList.toggle('td-pre',pre);}}   /* Missionszahlen 1–5 nicht vor und während des Countdowns */camVelTrack(dt);tdEngine();tdTurnSnd();shuttleFrame(dt);trailFrame();ufoFrame(dt);if(TD.phase==='liftoff'&&TD.orb)TD.orb.dist*=1+dt*0.045;tdOrbitFrame(dt);tdPathFrame(dt);
   if(TD.coast&&TD.coast.lv&&TD.coast.lv!==level)TD.coast=null;if(TD.coast&&!TD.path&&!SHIP.on&&!fly&&(!switching||TD.coast.lv===level)){ctl.target.addScaledVector(TD.coast.v,dt);if(TD.coast.w){const wm=TD.coast.w.length()*Math.exp(-TD.coast.t/1.3);if(wm>1e-5){const cp=camPos(),Lv=ctl.target.clone().sub(cp);Lv.applyAxisAngle(TD.coast.w.clone().normalize(),wm*dt);ctl.target.copy(cp).add(Lv);setDir(Lv.clone().normalize().negate());}}   /* Drehung aus dem Bogen läuft weich aus */if(TD.coast&&TD.coast.aim){const cp=camPos(),Lv=ctl.target.clone().sub(cp),dl=Lv.length(),nv=Lv.divideScalar(dl).lerp(TD.coast.aim,1-Math.exp(-dt*0.8)).normalize();ctl.target.copy(cp).addScaledVector(nv,dl);setDir(nv.clone().negate());TD.coast.v.lerp(TD.coast.aim.clone().multiplyScalar(TD.coast.v.length()),1-Math.exp(-dt*1.2));}   /* nach dem Swing-by Blick und Flug genau auf das nächste Ziel (Saturn) ausrichten */{const C=TD.coast;if(C.v0==null)C.v0=C.v.length();const f=Math.exp(-dt*(C.k!=null?C.k:0.4));if(f<1||C.v.length()*f<=C.v0*(C.vmax||1))C.v.multiplyScalar(f);}if((TD.coast.t+=dt)>(TD.coast.max||4))TD.coast=null;}   /* Demo: nach dem Loslassen des Verfolgers mit dem Schwung weiter, bis die Bahn zum nächsten Ziel beginnt (kein Anhalten) */
   if(TD.kW||TD.kS){tdLever(TD.lever+(TD.kW?1:-1)*dt*0.7);TD.last=now;}
   tdRideFrame(dt);
@@ -7425,15 +7484,15 @@ function tdCaughtView(){const T=TD.cur,age=TD.catchAge;TD.phase='visit';TD.vT=0;
   T.stars=TD.help?1:age<35?3:age<60?2:1;if(T.bonus)(TD.bonusDone=TD.bonusDone||[]).push(T);else TD.visited.push(T);tdStamps(true);tdEl('td-catch').classList.remove('on');tdEl('td-tip').textContent='';tdRadioSnd(T);
   // Ansicht bleibt, wie sie ist: kein Wechsel ins Cockpit, kein Kippen. Das Shuttle bleibt im Bild, fliegt mit dem Ziel mit und hält es in der Bildmitte
   if(SHIP.on){const r0=REPS[level].get(T.id);TD.prevTP=r0?r0.p.clone():null;}
-  const m=tdEl('td-msg');m.innerHTML=`<div class="td-stamp">${TD_ICON[T.lv]}</div><small>📡 Ziel erreicht! Funkspruch von: ${esc(tdName(T.id))} · ${'⭐'.repeat(T.stars)}</small><p>${esc(T.msg)}</p><button id="td-next">Weiter ▶</button>`;
-  m.innerHTML=m.innerHTML.replace('<button id="td-next">Weiter ▶</button>','<div class="td-mb"><button id="td-inf" class="td-ic" title="Mehr wissen">ⓘ</button><button id="td-pho" class="td-ic" title="Echte Fotos">📷</button>'+(tdBonusList(T).length&&!T.bonus?'<button id="td-bon">🔭 Bonus-Mission</button>':'')+'<button id="td-free">🚀 Frei fliegen</button><button id="td-next">'+(TD.visited.length>=TD_LV.length?'Alle Missionen erledigt – zurück nach Hause! 🏠':'Nächste Mission ▶')+'</button></div>');
+  const m=tdEl('td-msg');m.innerHTML=`<div class="td-stamp">${tdIco(T)}</div><small>📡 Ziel erreicht! Funkspruch von: ${esc(tdName(T.id))} · ${'⭐'.repeat(T.stars)}</small><p>${esc(T.msg)}</p><button id="td-next">Weiter ▶</button>`;
+  m.innerHTML=m.innerHTML.replace('<button id="td-next">Weiter ▶</button>','<div class="td-mb"><button id="td-inf" class="td-ic" title="Mehr wissen">ⓘ</button><button id="td-pho" class="td-ic" title="Echte Fotos">📷</button>'+(tdBonusList(T).length&&!T.bonus?'<button id="td-bon">🔭 Bonus-Mission</button>':'')+'<button id="td-free">🚀 Frei fliegen</button><button id="td-next">'+(TD.visited.length>=(SOL?TD_SOLN:TD_LV.length)?'Alle Missionen erledigt – zurück nach Hause! 🏠':'Nächste Mission ▶')+'</button></div>');
   m.hidden=false;m.classList.remove('in','mini');void m.offsetWidth;m.classList.add('in');tdEl('td-next').onclick=tdNext;tdEl('td-free').onclick=tdFree;tdEl('td-inf').onclick=()=>tdInfoOpen(T.id);tdEl('td-pho').onclick=()=>tdPhotoOpen(T.id);if(tdEl('td-bon'))tdEl('td-bon').onclick=tdBonus;TD.zoom=1;TD.visitT=performance.now();
   if(VOICE&&VOICE.on&&'speechSynthesis' in window){try{const u=new SpeechSynthesisUtterance(T.msg);u.lang='de-DE';speechSynthesis.speak(u);}catch(e){}}
 }
 // freies Fliegen nach dem Einfangen, bis „Nächste Mission“ gedrückt wird
 function tdFree(){if(TD.phase!=='visit')return;TD.phase='free';TD.orb=null;fly=null;shipOn();tdLever(0);SHIP.th=0;const m=tdEl('td-msg');m.classList.add('mini');
   tdEl('td-goal').innerHTML=`<small>${TD_LVN[TD.cur.lv]}</small><b>Freier Flug</b>`;tdEl('td-dist').innerHTML='';tdEl('td-time').textContent='';tdBanner('Flieg frei herum! Mit „Nächste Mission“ geht es weiter.');}
-function tdNext(){if(TD.phase!=='visit'&&TD.phase!=='free')return;tdXStop();tdEl('td-msg').hidden=true;tdEl('td-msg').classList.remove('mini');if(SHIP.on)shipOff();const i=TD_LV.indexOf(TD.cur.lv)+1;if(i>=TD_LV.length)return tdHome();
+function tdNext(){if(TD.phase!=='visit'&&TD.phase!=='free')return;if(SOL){tdXStop();tdEl('td-msg').hidden=true;tdEl('td-msg').classList.remove('mini');if(TD.visited.length>=TD_SOLN){if(SHIP.on)shipOff();return tdHome();}if(!SHIP.on)shipOn();tdShow('td-hud');tdEl('td-dist').innerHTML='';tdEl('td-time').textContent='';tdChoose();return;}   /* 13.49: nächste Mission in derselben Ebene */tdXStop();tdEl('td-msg').hidden=true;tdEl('td-msg').classList.remove('mini');if(SHIP.on)shipOff();const i=TD_LV.indexOf(TD.cur.lv)+1;if(i>=TD_LV.length)return tdHome();
   const lv=TD_LV[i];TD.phase='jump';tdShow('td-none');tdBanner('Weiter zur nächsten Ebene: '+TD_LVN[lv]);
   tdGoLevel(lv,()=>{if(['galaxie','gruppe','kosmos'].includes(lv))tdLvTotale(lv);else tdTotale(0.035);tdBanner(TD_TOT[lv]||TD_LVN[lv]);tdLater(()=>{tdShow('td-hud');tdHud(null);tdChoose(lv);},6600);});}
 // ---------- Landung: das Space Shuttle gleitet auf die Salzbergener Straße vor dem Dio und rollt aus ----------
@@ -7715,7 +7774,7 @@ function tdHome(demo){const D=!!demo;if(!D)TD.phase='jump';else TD.demoHome=true
   /* Landeshuttle (Fahrwerk, Bremsschirm …) schon jetzt bauen und übersetzen – sonst hakt es zu Beginn des Landeanflugs */
   try{if(!TD.landPrebuilt&&DIO3D.model&&SHUTTLE.parts&&SHUTTLE.parts.om){const L=landBuild();L.chute.visible=L.lines.visible=true;for(const g of L.gear){g.piv.visible=true;g.door.visible=true;}renderer.compile(SC.erde,camera);L.chute.visible=L.lines.visible=false;for(const g of L.gear){g.piv.visible=false;g.door.visible=false;}L.W.visible=false;TD.landPrebuilt=L;}}catch(e){}if(!D)tdShow('td-none');tdBanner(D?'Heimflug zum Dionysianum …':'Mission erfüllt! Heimflug zum Dionysianum …');
   // langsam zurück und dabei alle Ebenen durchqueren (Universum → Lokale Gruppe → Milchstraße → Sonnensystem → Erde)
-  const path=LEVELS.slice(0,LEVELS.indexOf(level)).reverse().filter(l=>l!=='erde');TD.slowSw=true;
+  const path=SOL?[]:LEVELS.slice(0,LEVELS.indexOf(level)).reverse().filter(l=>l!=='erde');TD.slowSw=true;
   // Heimflug mit dem Shuttle im Bild (wie im Demo-Modus vor der Kamera)
   if(chaseModel()){TD.demoShip={s:ctl.dist*0.35,bank:0,lq:camera.quaternion.clone()};}
   const hop=()=>{if(!okP())return;const lv=path.shift();if(!lv){tdHomeEnd(D);return;}
@@ -7725,7 +7784,7 @@ function tdHome(demo){const D=!!demo;if(!D)TD.phase='jump';else TD.demoHome=true
         if(inS&&!ufo&&(!fly||fly.el>=fly.dur-6200)){ufo=true;ufoStart();}
         if(ufo&&(!fly||fly.el>=fly.dur-250)&&(UFO.t<0||UFO.t>9.5)){hop();return;}tdLater(w,50);};tdLater(w,100);return;}
     AUTO=null;TD.orb=null;delete saved[lv];switchLevel(lv,()=>{});let shown=false;
-    const w2=()=>{if(!okP())return;if(!shown&&level===lv&&!switching){shown=true;tdBanner('Heimflug: '+TD_LVN[lv]+' …');}if(shown&&(!fly||fly.el>=fly.dur-250)){hop();return;}tdLater(w2,50);};tdLater(w2,100);};hop();}   // nächste Ebene schon kurz vor dem Ende des Anflugs: kein Stillstand   // ohne Halt: gleichmäßig durch alle Ebenen
+    const w2=()=>{if(!okP())return;if(!shown&&level===lv&&!switching){shown=true;tdBanner('Heimflug: '+TD_LVN[lv]+' …');}if(shown&&(!fly||fly.el>=fly.dur-250)){hop();return;}tdLater(w2,50);};tdLater(w2,100);};if(SOL&&level==='sonne'){tdSolHome(D,okP);return;}hop();}   // nächste Ebene schon kurz vor dem Ende des Anflugs: kein Stillstand   // ohne Halt: gleichmäßig durch alle Ebenen
 function tdHomeEnd(D){
   AUTO=null;TD.orb=null;delete saved.erde;switchLevel('erde',()=>{TD.slowSw=false;TD.orb=null;tdLandApproach();   /* direkt beim Wechsel (kein Stillstand) */if(fly){const Ll=Math.abs(Math.log(fly.toD/fly.fromD));fly.dur=Math.max(8000,Math.min(16000,Ll/0.85*1000));const v0=0.85*fly.dur/1000/Math.max(1e-6,Ll);fly.eD=k=>tdProf(k,v0,0,0.15,0.2);   /* mit dem Tempo des Heimflugs weiter (kein Anhalten beim Wechsel zur Erde) */
       const L=TD.landPre;if(L){L.s=Math.max(-9000,L.S0-L.V0*fly.dur/1000);L.pre=true;landPose(L,0);}}   // das Shuttle ist schon im Gleitflug – die Kamera nähert sich ihm   // von oben auf Rheine zu, dann landet das Shuttle vor dem Dio
@@ -7792,7 +7851,7 @@ function tdEnd(){TD.phase='quiz';tdXStop();tdFanfare();tdStamps();TQ.list=tdQuiz
   tdEl('tq-go').onclick=tdQuizShow;}
 function tdQuizShow(){TD.last=performance.now();const id=TQ.list[TQ.i];if(!id){tdQuizDone();return;}const [q,ans,ex]=TD_QUIZ[id];const ord=[0,1,2].sort(()=>Math.random()-0.5);
   const lv=Object.keys(TD_POOL).find(l=>TD_POOL[l].some(([x])=>x===id))||(OBJ[id]&&OBJ[id].home);const Q=tdEl('td-quiz');
-  Q.innerHTML=`<div class="tq-top"><span>🌍 Weltraum-Quiz</span><span>Frage ${TQ.i+1} von ${TQ.list.length}</span></div><div class="tq-ic">${TD_ICON[lv]||'✨'}</div><h2>${esc(q)}</h2>
+  Q.innerHTML=`<div class="tq-top"><span>🌍 Weltraum-Quiz</span><span>Frage ${TQ.i+1} von ${TQ.list.length}</span></div><div class="tq-ic">${(SOL&&TD_SICO[id])||TD_ICON[lv]||'✨'}</div><h2>${esc(q)}</h2>
     <div class="tq-opts">${ord.map((k,n)=>`<button data-k="${k}"><kbd>${n+1}</kbd>${esc(ans[k])}</button>`).join('')}</div><p class="tq-fb"></p><button class="tq-btn" id="tq-next" hidden>${TQ.i+1<TQ.list.length?'Nächste Frage ▶':'Ergebnis ▶'}</button>`;
   const B=[...Q.querySelectorAll('.tq-opts button')];B.forEach(b=>b.onclick=()=>{if(Q.dataset.done==='1')return;Q.dataset.done='1';const right=b.dataset.k==='0';if(right)TQ.ok++;
     B.forEach(x=>{x.disabled=true;if(x.dataset.k==='0')x.classList.add('ok');});if(!right)b.classList.add('no');
@@ -7846,7 +7905,8 @@ function tdCredits(){if(TD.phase==='credits')return;TD.phase='credits';let C=tdE
   C.hidden=false;const roll=C.querySelector('.cr-roll'),t0=performance.now(),dur=22000;let fin=false;
   const end=()=>{if(fin)return;fin=true;C.hidden=true;tdAttract();};C.onclick=end;
   const step=()=>{if(fin)return;const k=(performance.now()-t0)/dur,H=roll.offsetHeight+innerHeight;roll.style.transform=`translateY(${-k*H}px)`;if(k>=1)end();else requestAnimationFrame(step);};requestAnimationFrame(step);}
-function tdStamps(pop){const h=TD_LV.map((lv,i)=>{const T=TD.visited.find(t=>t.lv===lv);return `<span class="${T?'got':''}${pop&&T&&T===TD.visited[TD.visited.length-1]?' pop':''}">${T?TD_ICON[lv]:i+1}<i>${T?esc(tdName(T.id))+'<br>'+'⭐'.repeat(T.stars||0):''}</i></span>`;}).join('');
+function tdStamps(pop){if(SOL){const h=Array.from({length:TD_SOLN},(_,i)=>{const T=TD.visited[i];return `<span class="${T?'got':''}${pop&&T&&i===TD.visited.length-1?' pop':''}">${T?tdIco(T):i+1}<i>${T?esc(tdName(T.id))+'<br>'+'⭐'.repeat(T.stars||0):''}</i></span>`;}).join('');
+    const bn=(TD.bonusDone||[]).length;for(const e of document.querySelectorAll('.td-stamps')){e.innerHTML=h+(bn?`<span class="got td-bb">🔭<i>+${bn} Bonus</i></span>`:'');[...e.children].forEach((c,i)=>{const T=i<TD_SOLN?TD.visited[i]:null;if(T){c.style.cursor='pointer';c.onclick=ev=>{ev.stopPropagation();tdInfoOpen(T.id);};}});}return;}const h=TD_LV.map((lv,i)=>{const T=TD.visited.find(t=>t.lv===lv);return `<span class="${T?'got':''}${pop&&T&&T===TD.visited[TD.visited.length-1]?' pop':''}">${T?TD_ICON[lv]:i+1}<i>${T?esc(tdName(T.id))+'<br>'+'⭐'.repeat(T.stars||0):''}</i></span>`;}).join('');
   const bn=(TD.bonusDone||[]).length;for(const e of document.querySelectorAll('.td-stamps')){e.innerHTML=h+(bn?`<span class="got td-bb">🔭<i>+${bn} Bonus</i></span>`:'');
     [...e.children].forEach((c,i)=>{const T=i<TD_LV.length?TD.visited.find(t=>t.lv===TD_LV[i]):null;if(T){c.style.cursor='pointer';c.onclick=ev=>{ev.stopPropagation();tdInfoOpen(T.id);};}});}}
 // ---------- Lehrer-Menü (Ecke oben links 3 s halten, im Wartemodus) und Offline-Speicher mit Code ----------
@@ -7958,7 +8018,7 @@ body.dio-bar-on .top{padding-right:calc(80px + env(safe-area-inset-right,0px))} 
 <div id="dio-bar" hidden><button id="dio-home" title="Zurück zur Auswahl" aria-label="Zurück zur Auswahl">⌂</button><button id="dio-lock" title="Sperren (Code)" aria-label="Sperren">🔓</button></div>
 <script>/* Auswahl, Schloss und Home */
 (function(){var CODE='1659',L=false;try{L=sessionStorage.getItem('dioLock')==='1';}catch(e){}
-var NAMES={atlas:'Universum-Atlas',kinder:'Universum-Atlas für Kinder',flug:'Weltraum-Mission · Dionysianum'};
+var NAMES={atlas:'Universum-Atlas',kinder:'Universum-Atlas für Kinder',flug:window.ATLAS_SOLAR?'Weltraum-Mission · Sonnensystem':'Weltraum-Mission · Dionysianum'};
 var $=function(id){return document.getElementById(id);};
 function isFs(){return !!(document.fullscreenElement||document.webkitFullscreenElement);}
 function fs(){var d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen;if(f&&!isFs()){try{var r=f.call(d);if(r&&r.catch)r.catch(function(){});}catch(e){}}}
@@ -7971,10 +8031,11 @@ function code(title,ok){var o=document.createElement('div');o.id='dio-code';var 
   function key(e){e.stopImmediatePropagation();if(/^[0-9]$/.test(e.key)){val+=e.key;dots.textContent='●'.repeat(val.length);if(val===CODE){close();ok();}else if(val.length>=4){msg.textContent='Falscher Code';val='';dots.textContent='';}}else if(e.key==='Escape')close();else if(e.key==='Backspace'){val=val.slice(0,-1);dots.textContent='●'.repeat(val.length);}}
   function close(){removeEventListener('keydown',key,true);o.remove();}addEventListener('keydown',key,true);o.querySelector('.cx').onclick=function(e){e.stopPropagation();close();};
   ['pointerdown','touchstart','mousedown','click','wheel'].forEach(function(t){o.addEventListener(t,function(e){e.stopPropagation();});});document.body.appendChild(o);}
-function home(){try{sessionStorage.removeItem('dioModus');sessionStorage.setItem('dioLock','0');sessionStorage.removeItem('dioBoot');}catch(e){}L=false;exitFs();location.replace(location.pathname+location.search);}
+function home(){try{sessionStorage.removeItem('dioModus');sessionStorage.setItem('dioLock','0');sessionStorage.removeItem('dioBoot');}catch(e){}L=false;exitFs();location.replace(location.pathname+location.search+(window.ATLAS_SOLAR?'#modus=sonne':''));}
 function bar(){var b=$('dio-bar');b.hidden=false;document.body.classList.add('dio-bar-on');setLock(L);
   $('dio-lock').onclick=function(e){e.stopPropagation();code(L?'Entsperren':'Sperren',function(){setLock(!L);});};
-  $('dio-home').onclick=function(e){e.stopPropagation();if(L)code('Zurück zur Auswahl',home);else home();};
+  if(window.ATLAS_SOLAR){$('dio-home').title='Neu starten';$('dio-home').setAttribute('aria-label','Neu starten');}
+  $('dio-home').onclick=function(e){e.stopPropagation();if(L)code(window.ATLAS_SOLAR?'Neu starten':'Zurück zur Auswahl',home);else home();};
   ['pointerdown','touchstart','mousedown'].forEach(function(t){b.addEventListener(t,function(e){e.stopPropagation();});});}
 function wrap(){var m=window.DIO_MODE;if(typeof window.tdOff==='function'){var o=window.tdOff;window.tdOff=function(){if(L)return;return o.apply(this,arguments);};}
   if(m!=='flug'&&typeof window.tdOn==='function'){var n=window.tdOn;window.tdOn=function(){if(L)return;return n.apply(this,arguments);};}}
@@ -8004,7 +8065,7 @@ function preload(m,done){if(location.protocol==='file:'){done();return;}
   .then(function(){patch();o.classList.add('prep');o.querySelector('h2').textContent='Bereite alles vor …';mb.textContent=window.OFFLINE_DATA?'Daten und Offline-Paket geladen':'Daten geladen';done();
     var t0=Date.now();(function w(){var ok=m!=='flug'||(typeof DIOM!=='undefined'&&DIOM.ok&&!DIOM.q.length);if((ok&&Date.now()-T0>2500)||Date.now()-t0>25000){setTimeout(function(){o.style.transition='opacity .6s';o.style.opacity='0';setTimeout(function(){o.remove();},700);},m==='flug'?1500:400);return;}setTimeout(w,200);})();});}
 function builder(){var c=$('dio-choose');if(c)c.remove();window.DIO_MODE='atlas';var src=$('app');if(src&&src.type==='text/plain'){var sc=document.createElement('script');sc.textContent=src.textContent;document.body.appendChild(sc);}}
-function start(m){window.DIO_MODE=m;if(m==='kinder')window.ATLAS_EINFACH=true;if(m==='flug')window.ATLAS_TDOT=true;document.title=NAMES[m]||document.title;try{sessionStorage.setItem('dioModus',m);}catch(e){}
+function start(m){window.DIO_MODE=m;if(m==='kinder')window.ATLAS_EINFACH=true;if(m==='flug')window.ATLAS_TDOT=true;document.title=NAMES[m]||document.title;try{sessionStorage.setItem('dioModus',window.ATLAS_SOLAR?'sonne':m);}catch(e){}
   var ch=$('dio-choose');if(ch)ch.remove();preload(m,function(){var src=$('app');if(src&&src.type==='text/plain'){var sc=document.createElement('script');sc.textContent=src.textContent;document.body.appendChild(sc);}bar();wrap();});}
 // gesperrt: Vollbild verlassen (z. B. mit Esc) → Hinweis, ein Tippen holt das Vollbild zurück; Neuladen/Verlassen der Seite fragt nach
 function onFs(){return;/* 13.48k: kein automatisches Vollbild */if(!L||isFs()||!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen))return;if($('dio-resume'))return;var r=document.createElement('div');r.id='dio-resume';r.innerHTML='<b>🔒</b><span>Gesperrt – zum Weitermachen tippen</span>';r.onclick=function(){fs();r.remove();};document.body.appendChild(r);}
@@ -8017,7 +8078,7 @@ try{var bt=JSON.parse(sessionStorage.getItem('dioBoot')||'null'),now=Date.now();
   sessionStorage.setItem('dioBoot',JSON.stringify({t:now,ok:false,n:bt&&!bt.ok?(bt.n||0)+1:0}));setTimeout(function(){try{var b=JSON.parse(sessionStorage.getItem('dioBoot')||'{}');b.ok=true;sessionStorage.setItem('dioBoot',JSON.stringify(b));}catch(e){}},40000);
   if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){try{if(localStorage.getItem('dioLite')==='1')window.DIO_LITE=true;if(window.DIO_LITE)localStorage.setItem('dioLite','1');}catch(e){}}}catch(e){}
 if(window.DIO_LITE&&ch){var nt=document.createElement('p');nt.style.cssText='margin:14px auto 0;max-width:520px;font:14px/1.4 system-ui;color:#ffd27a;text-align:center';nt.textContent='Sparmodus: Das Gerät hatte zu wenig Speicher. Offline-Paket, Süd-Karte und ein Teil der Wolken werden weggelassen.';ch.appendChild(nt);}
-if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}
+if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{if(window.ATLAS_SOLAR){ch.querySelectorAll('button[data-m]').forEach(function(b){if(b.dataset.m!=='flug')b.remove();else{b.querySelector('b').textContent='Weltraum-Mission';b.querySelector('span').textContent='Sonnensystem: Start am Dio, Erde, Mond und Planeten, Heimflug und Landung.';}});var h1=ch.querySelector('h1');if(h1)h1.textContent='Weltraum-Mission · Sonnensystem';var pp=ch.querySelector('p');if(pp)pp.textContent='Zum Starten tippen';}ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}
   /* Flugsimulator: zuerst die Bewegungssensoren freigeben lassen (Safari fragt nur nach einem Tippen) – erst danach Vollbild (beim nächsten Tippen) */
   var DO=window.DeviceOrientationEvent,mm=b.dataset.m;if(mm==='flug'&&DO&&typeof DO.requestPermission==='function'&&!window.DIO_TILT){DO.requestPermission().then(function(r){window.DIO_TILT=r;},function(){window.DIO_TILT='denied';}).then(function(){start(mm);});}else{start(mm);}};});}
 })();<\/script>
@@ -8053,7 +8114,7 @@ body.dio-bar-on .top{padding-right:calc(80px + env(safe-area-inset-right,0px))} 
 <div id="dio-bar" hidden><button id="dio-home" title="Zurück zur Auswahl" aria-label="Zurück zur Auswahl">⌂</button><button id="dio-lock" title="Sperren (Code)" aria-label="Sperren">🔓</button></div>
 <script>/* Auswahl, Schloss und Home */
 (function(){var CODE='1659',L=false;try{L=sessionStorage.getItem('dioLock')==='1';}catch(e){}
-var NAMES={atlas:'Universum-Atlas',kinder:'Universum-Atlas für Kinder',flug:'Weltraum-Mission · Dionysianum'};
+var NAMES={atlas:'Universum-Atlas',kinder:'Universum-Atlas für Kinder',flug:window.ATLAS_SOLAR?'Weltraum-Mission · Sonnensystem':'Weltraum-Mission · Dionysianum'};
 var $=function(id){return document.getElementById(id);};
 function isFs(){return !!(document.fullscreenElement||document.webkitFullscreenElement);}
 function fs(){var d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen;if(f&&!isFs()){try{var r=f.call(d);if(r&&r.catch)r.catch(function(){});}catch(e){}}}
@@ -8066,10 +8127,11 @@ function code(title,ok){var o=document.createElement('div');o.id='dio-code';var 
   function key(e){e.stopImmediatePropagation();if(/^[0-9]$/.test(e.key)){val+=e.key;dots.textContent='●'.repeat(val.length);if(val===CODE){close();ok();}else if(val.length>=4){msg.textContent='Falscher Code';val='';dots.textContent='';}}else if(e.key==='Escape')close();else if(e.key==='Backspace'){val=val.slice(0,-1);dots.textContent='●'.repeat(val.length);}}
   function close(){removeEventListener('keydown',key,true);o.remove();}addEventListener('keydown',key,true);o.querySelector('.cx').onclick=function(e){e.stopPropagation();close();};
   ['pointerdown','touchstart','mousedown','click','wheel'].forEach(function(t){o.addEventListener(t,function(e){e.stopPropagation();});});document.body.appendChild(o);}
-function home(){try{sessionStorage.removeItem('dioModus');sessionStorage.setItem('dioLock','0');sessionStorage.removeItem('dioBoot');}catch(e){}L=false;exitFs();location.replace(location.pathname+location.search);}
+function home(){try{sessionStorage.removeItem('dioModus');sessionStorage.setItem('dioLock','0');sessionStorage.removeItem('dioBoot');}catch(e){}L=false;exitFs();location.replace(location.pathname+location.search+(window.ATLAS_SOLAR?'#modus=sonne':''));}
 function bar(){var b=$('dio-bar');b.hidden=false;document.body.classList.add('dio-bar-on');setLock(L);
   $('dio-lock').onclick=function(e){e.stopPropagation();code(L?'Entsperren':'Sperren',function(){setLock(!L);});};
-  $('dio-home').onclick=function(e){e.stopPropagation();if(L)code('Zurück zur Auswahl',home);else home();};
+  if(window.ATLAS_SOLAR){$('dio-home').title='Neu starten';$('dio-home').setAttribute('aria-label','Neu starten');}
+  $('dio-home').onclick=function(e){e.stopPropagation();if(L)code(window.ATLAS_SOLAR?'Neu starten':'Zurück zur Auswahl',home);else home();};
   ['pointerdown','touchstart','mousedown'].forEach(function(t){b.addEventListener(t,function(e){e.stopPropagation();});});}
 function wrap(){var m=window.DIO_MODE;if(typeof window.tdOff==='function'){var o=window.tdOff;window.tdOff=function(){if(L)return;return o.apply(this,arguments);};}
   if(m!=='flug'&&typeof window.tdOn==='function'){var n=window.tdOn;window.tdOn=function(){if(L)return;return n.apply(this,arguments);};}}
@@ -8099,7 +8161,7 @@ function preload(m,done){if(location.protocol==='file:'){done();return;}
   .then(function(){patch();o.classList.add('prep');o.querySelector('h2').textContent='Bereite alles vor …';mb.textContent=window.OFFLINE_DATA?'Daten und Offline-Paket geladen':'Daten geladen';done();
     var t0=Date.now();(function w(){var ok=m!=='flug'||(typeof DIOM!=='undefined'&&DIOM.ok&&!DIOM.q.length);if((ok&&Date.now()-T0>2500)||Date.now()-t0>25000){setTimeout(function(){o.style.transition='opacity .6s';o.style.opacity='0';setTimeout(function(){o.remove();},700);},m==='flug'?1500:400);return;}setTimeout(w,200);})();});}
 function builder(){var c=$('dio-choose');if(c)c.remove();window.DIO_MODE='atlas';var src=$('app');if(src&&src.type==='text/plain'){var sc=document.createElement('script');sc.textContent=src.textContent;document.body.appendChild(sc);}}
-function start(m){window.DIO_MODE=m;if(m==='kinder')window.ATLAS_EINFACH=true;if(m==='flug')window.ATLAS_TDOT=true;document.title=NAMES[m]||document.title;try{sessionStorage.setItem('dioModus',m);}catch(e){}
+function start(m){window.DIO_MODE=m;if(m==='kinder')window.ATLAS_EINFACH=true;if(m==='flug')window.ATLAS_TDOT=true;document.title=NAMES[m]||document.title;try{sessionStorage.setItem('dioModus',window.ATLAS_SOLAR?'sonne':m);}catch(e){}
   var ch=$('dio-choose');if(ch)ch.remove();preload(m,function(){var src=$('app');if(src&&src.type==='text/plain'){var sc=document.createElement('script');sc.textContent=src.textContent;document.body.appendChild(sc);}bar();wrap();});}
 // gesperrt: Vollbild verlassen (z. B. mit Esc) → Hinweis, ein Tippen holt das Vollbild zurück; Neuladen/Verlassen der Seite fragt nach
 function onFs(){return;/* 13.48k: kein automatisches Vollbild */if(!L||isFs()||!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen))return;if($('dio-resume'))return;var r=document.createElement('div');r.id='dio-resume';r.innerHTML='<b>🔒</b><span>Gesperrt – zum Weitermachen tippen</span>';r.onclick=function(){fs();r.remove();};document.body.appendChild(r);}
@@ -8112,7 +8174,7 @@ try{var bt=JSON.parse(sessionStorage.getItem('dioBoot')||'null'),now=Date.now();
   sessionStorage.setItem('dioBoot',JSON.stringify({t:now,ok:false,n:bt&&!bt.ok?(bt.n||0)+1:0}));setTimeout(function(){try{var b=JSON.parse(sessionStorage.getItem('dioBoot')||'{}');b.ok=true;sessionStorage.setItem('dioBoot',JSON.stringify(b));}catch(e){}},40000);
   if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){try{if(localStorage.getItem('dioLite')==='1')window.DIO_LITE=true;if(window.DIO_LITE)localStorage.setItem('dioLite','1');}catch(e){}}}catch(e){}
 if(window.DIO_LITE&&ch){var nt=document.createElement('p');nt.style.cssText='margin:14px auto 0;max-width:520px;font:14px/1.4 system-ui;color:#ffd27a;text-align:center';nt.textContent='Sparmodus: Das Gerät hatte zu wenig Speicher. Offline-Paket, Süd-Karte und ein Teil der Wolken werden weggelassen.';ch.appendChild(nt);}
-if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}
+if(window.DIO_BUILDER)builder();else if(m&&NAMES[m])start(m);else{if(window.ATLAS_SOLAR){ch.querySelectorAll('button[data-m]').forEach(function(b){if(b.dataset.m!=='flug')b.remove();else{b.querySelector('b').textContent='Weltraum-Mission';b.querySelector('span').textContent='Sonnensystem: Start am Dio, Erde, Mond und Planeten, Heimflug und Landung.';}});var h1=ch.querySelector('h1');if(h1)h1.textContent='Weltraum-Mission · Sonnensystem';var pp=ch.querySelector('p');if(pp)pp.textContent='Zum Starten tippen';}ch.hidden=false;ch.querySelectorAll('button[data-m]').forEach(function(b){b.onclick=function(){try{var AC=window.AudioContext||window.webkitAudioContext;if(AC&&!window.DIO_AC){var ac=new AC();window.DIO_AC=ac;if(ac.resume)ac.resume();var sb=ac.createBufferSource();sb.buffer=ac.createBuffer(1,1,22050);sb.connect(ac.destination);sb.start(0);}}catch(e){}
   /* Flugsimulator: zuerst die Bewegungssensoren freigeben lassen (Safari fragt nur nach einem Tippen) – erst danach Vollbild (beim nächsten Tippen) */
   var DO=window.DeviceOrientationEvent,mm=b.dataset.m;if(mm==='flug'&&DO&&typeof DO.requestPermission==='function'&&!window.DIO_TILT){DO.requestPermission().then(function(r){window.DIO_TILT=r;},function(){window.DIO_TILT='denied';}).then(function(){start(mm);});}else{start(mm);}};});}
 })();</script>

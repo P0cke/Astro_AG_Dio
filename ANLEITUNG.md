@@ -1,5 +1,22 @@
 # Weltraum-Mission (Tag der offenen Tür) – Einrichtung
 
+
+## Neu in 13.49: Sonnensystem-Version (nur Flugsimulator)
+- **Aufruf:** `…/sonnensystem.html` (Weiterleitung auf `index.html#modus=sonne`). Es startet direkt der Flugsimulator, ohne Auswahl Atlas/Kinder. Auf dem iPad diese Adresse öffnen und „Zum Home-Bildschirm“ wählen.
+- **Hochladen:** `index.html`, `offline-daten-erstellen.html` (beide neu) und `sonnensystem.html` (zusätzlich) in denselben Ordner. 3D-Karte, Luftbilder, Offline-Daten und Töne werden mitbenutzt. Die normale Mission (`mission.html`) bleibt unverändert.
+- **Eine Ebene:** Erde & Mond und Sonnensystem sind eine gemeinsame Ebene „Sonnensystem“. Es gibt keine Ebenen-Anzeige und keine Ebenenwechsel. Milchstraße, Lokale Gruppe und Universum werden gar nicht erst geladen (weniger Speicher auf dem iPad).
+- **Fünf Missionen**, je bis zu drei Ziele zur Wahl (schon besuchte fallen weg):
+  1. Rund um die Erde: ISS, Hubble, Tiangong
+  2. Mond und Nachbarschaft: Mond, James-Webb-Teleskop, Meteosat
+  3. Sonne und innere Planeten: Sonne, Merkur, Venus, Mars
+  4. Die Riesenplaneten: Jupiter, Saturn, Ceres
+  5. Ganz weit draußen: Uranus, Neptun, Pluto, Halleyscher Komet
+  Bonus-Missionen (z. B. Saturnmonde, Jupitermonde, Apollo-11-Landestelle) bleiben.
+- **Übergänge:** Wer ein Planetenziel wählt, fliegt ohne Tafel direkt aus der Erdnähe los. Beim freien Fliegen schaltet die App selbst um: weiter als 300 Erdradien von der Erde weg → Planetenansicht, wieder nah an der Erde → Erdansicht mit Dio, ISS und Wolken.
+- **Heimflug:** Das Raumschiff nimmt in einer ruhigen Kurve Kurs auf die Erde, unterwegs kommt das UFO, dann folgen Landeanflug, Landung, Quiz und Planetenpass wie gewohnt.
+- **Wartemodus:** Dio → Start → ISS → Mond → Saturn mit Daphnis → Jupiter → Heimflug und Landung, dann von vorn.
+- **Haus-Knopf** oben rechts startet die Sonnensystem-Version neu (statt zur Auswahl). Schloss und Code 1659 wie bisher.
+
 ## 1. Auf GitHub Pages veröffentlichen
 > Ab Version 13.35 gibt es nur noch eine Seite: **index.html** (Auswahl Atlas / Kinder / Flugsimulator). mission.html und kinder.html sind nur noch kleine Weiterleitungen.
  (einmalig, ca. 10 Minuten)
