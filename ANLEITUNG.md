@@ -1,6 +1,11 @@
 # Weltraum-Mission (Tag der offenen Tür) – Einrichtung
 
 
+
+## Neu in 13.51: Heimflug überspringen (beide Versionen)
+- Während des ganzen Heimflugs (Rückflug durch die Ebenen, UFO, Landeanflug und Landung) steht unten rechts der Knopf **„⏭ Heimflug überspringen“**. Er blendet kurz ab, stellt das Shuttle wieder an die Rampe am Dio und öffnet sofort das Weltraum-Quiz. Nach einer gescheiterten Mission geht es stattdessen direkt zur Werkstatt-Tafel.
+- Gilt für die normale Mission (`mission.html`) und für die Sonnensystem-Version (`sonnensystem.html`). Im Wartemodus erscheint der Knopf nicht.
+
 ## Neu in 13.49/13.50: Sonnensystem-Version (nur Flugsimulator)
 - **Aufruf:** `…/sonnensystem.html` (Weiterleitung auf `index.html#modus=sonne`). Es startet direkt der Flugsimulator, ohne Auswahl Atlas/Kinder. Auf dem iPad diese Adresse öffnen und „Zum Home-Bildschirm“ wählen.
 - **Hochladen:** `index.html`, `offline-daten-erstellen.html` (beide neu) und `sonnensystem.html` (zusätzlich) in denselben Ordner. 3D-Karte, Luftbilder, Offline-Daten und Töne werden mitbenutzt. Die normale Mission (`mission.html`) bleibt unverändert.
